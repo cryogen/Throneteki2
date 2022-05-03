@@ -1,21 +1,21 @@
-import { AnyArray } from 'immer/dist/internal';
-import React from 'react';
+import React, { useState } from 'react';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { RightMenu, /* ProfileMenu,*/ LeftMenu, MenuItem } from './menus';
+import { RightMenu, /* ProfileMenu,*/ LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
-// import ProfileDropdown from './ProfileDropdown';
+import ProfileDropdown from './ProfileMenu';
 // import ServerStatus from './ServerStatus';
 // import GameContextMenu from './GameContextMenu';
 
 import './Navigation.scss';
+import authService from '../../authorisation/AuthoriseService';
+import { Profile } from 'oidc-client';
 
 interface NavigationProps {
     appName: string;
-    user: any;
 }
 
 /**
@@ -23,6 +23,8 @@ interface NavigationProps {
  */
 const Navigation = (props: NavigationProps) => {
     const { t } = useTranslation();
+    const [user, setUser] = useState<Profile | null | undefined>(null);
+
     // const { games, currentGame, lobbyResponse, lobbySocketConnected, lobbySocketConnecting } =
     //     useSelector((state) => ({
     //         games: state.lobby.games,
@@ -37,8 +39,14 @@ const Navigation = (props: NavigationProps) => {
     //     gameResponse: state.games.responseTime
     // }));
 
-    const userCanSeeMenu = (menuItem: MenuItem, user: any) => {
-        return !menuItem.permission || (!!user && user.permissions[menuItem.permission]);
+    const getUser = async () => {
+        setUser(await authService.getUser());
+    };
+
+    getUser();
+
+    const userCanSeeMenu = (menuItem: MenuItem, user: Profile | null | undefined) => {
+        return !menuItem.permission || (!!user && user.role.includes(menuItem.permission));
     };
 
     /**
@@ -47,7 +55,7 @@ const Navigation = (props: NavigationProps) => {
      * @param {User} user The logged in user
      * @returns {MenuItem[]} The filtered menu items
      */
-    const filterMenuItems = (menuItems: MenuItem[], user: any) => {
+    const filterMenuItems = (menuItems: MenuItem[], user: Profile | null | undefined) => {
         const returnedItems = [];
 
         for (const menuItem of menuItems) {
@@ -75,9 +83,8 @@ const Navigation = (props: NavigationProps) => {
      * @returns {JSX.Element[]} The list of rendered menu items
      */
     const renderMenuItems = (menuItems: MenuItem[]) => {
-        return filterMenuItems(menuItems, props.user).map((menuItem) => {
-            const children =
-                menuItem.childItems && filterMenuItems(menuItem.childItems, props.user);
+        return filterMenuItems(menuItems, user).map((menuItem) => {
+            const children = menuItem.childItems && filterMenuItems(menuItem.childItems, user);
             if (children && children.length > 0) {
                 return (
                     <NavDropdown
@@ -147,8 +154,8 @@ const Navigation = (props: NavigationProps) => {
                         />
                     )} */}
                         {renderMenuItems(RightMenu)}
-                        {/* <ProfileDropdown menu={ProfileMenu} user={props.user} />
-                    <LanguageSelector /> */}
+                        <ProfileDropdown menu={ProfileMenu} user={user} />
+                        {/* <LanguageSelector /> */}
                     </Nav>
                 </Navbar.Collapse>
             </Container>

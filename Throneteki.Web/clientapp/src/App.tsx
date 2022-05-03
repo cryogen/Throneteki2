@@ -6,8 +6,6 @@ import Navigation from './components/Navigation/Navigation';
 import AuthorisationRoutes from './authorisation/AuthorisationRoutes';
 import routes from './routes';
 
-import './App.css';
-
 function RouteElement() {
     const routeArray = routes();
 
@@ -17,7 +15,7 @@ function RouteElement() {
 function App() {
     return (
         <>
-            <Navigation appName='The Iron Throne' user={undefined} />
+            <Navigation appName='The Iron Throne' />
 
             <main role='main'>
                 <Container className='content'>
