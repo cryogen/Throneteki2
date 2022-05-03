@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
+    <SpaProxyServerUrl>https://localhost:44460</SpaProxyServerUrl>
+    <SpaRoot>clientapp\</SpaRoot>
+    <TargetFramework>net6.0</TargetFramework>
+    <UserSecretsId>eba033a2-f6f4-4056-bd18-a4c458f6cd61</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Exclude="$(SpaRoot)node_modules\**" Include="$(SpaRoot)**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Throneteki.Data\Throneteki.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\Api\" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+  <Target BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') " Name="DebugEnsureNodeEnv">
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output PropertyName="ErrorCode" TaskParameter="ExitCode" />
+    </Exec>
+    <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
+    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+  </Target>
+  <Target AfterTargets="ComputeFilesToPublish" Name="PublishRunWebpack">
+    <Exec Command="npm install" WorkingDirectory="$(SpaRoot)" />
+    <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)build\**" />
+      <ResolvedFileToPublish Exclude="@(ResolvedFileToPublish)" Include="@(DistFiles-&gt;'%(FullPath)')">
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+</Project>

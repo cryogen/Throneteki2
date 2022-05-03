@@ -1,0 +1,30 @@
+@import 'styles/variables';
+
+html,
+body {
+    height: 100%;
+}
+
+.body,
+.container,
+#component {
+    height: 100%;
+}
+
+body {
+    font-size: 0.9rem;
+}
+
+.wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    overflow-y: auto;
+}
+
+.content {
+  padding-top: $navbar-height + 5px;
+}
