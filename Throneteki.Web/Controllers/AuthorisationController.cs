@@ -180,6 +180,19 @@ public class AuthorisationController : Controller
         }
     }
 
+    [HttpGet("~/connect/logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await signInManager.SignOutAsync();
+
+        return SignOut(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new AuthenticationProperties
+            {
+                RedirectUri = "/"
+            });
+    }
+
     [HttpPost("~/connect/token"), Produces("application/json")]
     public async Task<IActionResult> Exchange()
     {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -43,7 +43,9 @@ const Navigation = (props: NavigationProps) => {
         setUser(await authService.getUser());
     };
 
-    getUser();
+    useEffect(() => {
+        getUser();
+    }, []);
 
     const userCanSeeMenu = (menuItem: MenuItem, user: Profile | null | undefined) => {
         return !menuItem.permission || (!!user && user.role.includes(menuItem.permission));

@@ -25,6 +25,7 @@ export interface MenuItem {
     title: string;
     showOnlyWhenLoggedIn?: boolean;
     showOnlyWhenLoggedOut?: boolean;
+    state?: object;
     permission?: Permission;
     position?: MenuPosition;
     childItems?: MenuItem[];
@@ -81,5 +82,5 @@ export const ProfileMenu: MenuItem[] = [
     { title: 'Profile', path: '/profile' },
     { title: 'Security', path: '/security' },
     { title: 'Block List', path: '/blocklist' },
-    { title: 'Logout', path: '/logout' }
+    { title: 'Logout', path: '/authentication/logout', state: { local: true } }
 ];

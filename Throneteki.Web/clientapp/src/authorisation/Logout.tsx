@@ -88,7 +88,7 @@ export const Logout = (props: LogoutProps) => {
 
         switch (action) {
             case LogoutActions.Logout:
-                if (!!window.history.state.state.local) {
+                if (!!window.history.state.usr.local) {
                     logout(getReturnUrl());
                 } else {
                     // This prevents regular links to <app>/authentication/logout from triggering a logout

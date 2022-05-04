@@ -50,7 +50,7 @@ const Routes = () => {
 
     return [
         { path: '/', element: authenticated ? <Home /> : <Navigate to={redirectUrl} /> },
-        { path: '/Account/Login', element: <LoginPage /> },
+        { path: '/account/login', element: <LoginPage /> },
         { path: '*', element: <NotFound /> }
     ];
 };

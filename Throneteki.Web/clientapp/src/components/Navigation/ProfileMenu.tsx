@@ -18,6 +18,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = (props) => {
     if (!props.user) {
         return null;
     }
+
     const title = (
         <span>
             <Avatar username={props.user.name}></Avatar>
@@ -33,7 +34,12 @@ const ProfileMenu: React.FC<ProfileMenuProps> = (props) => {
                 }
 
                 return (
-                    <NavDropdown.Item key={menuItem.path} as={Link} to={menuItem.path}>
+                    <NavDropdown.Item
+                        key={menuItem.path}
+                        as={Link}
+                        to={menuItem.path}
+                        state={menuItem.state}
+                    >
                         {t(menuItem.title)}
                     </NavDropdown.Item>
                 );
