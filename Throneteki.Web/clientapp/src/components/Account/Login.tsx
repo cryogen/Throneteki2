@@ -46,6 +46,9 @@ export const Login = (props: LoginProps) => {
                             <Form.Control
                                 type='text'
                                 placeholder={t('Enter your username')}
+                                isInvalid={
+                                    formProps.touched.username && !!formProps.errors.username
+                                }
                                 {...formProps.getFieldProps('username')}
                             />
                             <Form.Control.Feedback type='invalid'>
@@ -55,15 +58,12 @@ export const Login = (props: LoginProps) => {
                         <Form.Group as={Col} controlId='formGridPassword'>
                             <Form.Label>{t('Password')}</Form.Label>
                             <Form.Control
-                                name='password'
                                 type='password'
                                 placeholder={t('Enter your password')}
-                                value={formProps.values.password}
-                                onChange={formProps.handleChange}
-                                onBlur={formProps.handleBlur}
                                 isInvalid={
                                     formProps.touched.password && !!formProps.errors.password
                                 }
+                                {...formProps.getFieldProps('password')}
                             />
                             <Form.Control.Feedback type='invalid'>
                                 {formProps.errors.password}
