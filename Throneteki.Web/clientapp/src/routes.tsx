@@ -5,6 +5,7 @@ import NotFound from './components/NotFound';
 import authService from './authorisation/AuthoriseService';
 import { ApplicationPaths, QueryParameterNames } from './authorisation/AuthorisationConstants';
 import LoginPage from './pages/Account/LoginPage';
+import RegisterPage from './pages/Account/RegisterPage';
 
 const Routes = () => {
     const location = useLocation();
@@ -51,6 +52,7 @@ const Routes = () => {
     return [
         { path: '/', element: authenticated ? <Home /> : <Navigate to={redirectUrl} /> },
         { path: '/account/login', element: <LoginPage /> },
+        { path: '/account/register', element: <RegisterPage /> },
         { path: '*', element: <NotFound /> }
     ];
 };

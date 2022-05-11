@@ -48,7 +48,7 @@ const Navigation = (props: NavigationProps) => {
     }, []);
 
     const userCanSeeMenu = (menuItem: MenuItem, user: Profile | null | undefined) => {
-        return !menuItem.permission || (!!user && user.role.includes(menuItem.permission));
+        return !menuItem.permission || user?.role?.includes(menuItem.permission);
     };
 
     /**

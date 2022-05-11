@@ -4,17 +4,17 @@
 
 .card {
     font-family: Helvetica, sans-serif;
-    box-shadow: 3px 3px 5px theme-color('primary') !important;
+    box-shadow: 3px 3px 5px $primary !important;
 
     .card-header {
         font-weight: normal;
         background-size: cover;
-        color: theme-color('light');
+        color: $light;
     }
 
     &.border-primary {
         .card-header {
-            border-color: theme-color('primary');
+            border-color: $primary;
             background-position: center;
         }
     }

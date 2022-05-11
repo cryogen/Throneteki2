@@ -68,7 +68,7 @@ export const LeftMenu: MenuItem[] = [
 export const RightMenu: MenuItem[] = [
     { path: '/account/login', title: 'Login', showOnlyWhenLoggedOut: true },
     {
-        path: '/register',
+        path: '/account/register',
         title: 'Register',
         showOnlyWhenLoggedOut: true,
         position: MenuPosition.Right

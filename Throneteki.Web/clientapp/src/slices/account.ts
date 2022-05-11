@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginAccount } from '../api/accountApi';
+import { loginAccount, registerAccount } from '../api/accountApi';
 import { LoginDetails } from '../components/Account/Login';
+import { RegisterDetails } from '../components/Account/Register';
 
 export enum ApiStatus {
     Idle = 'idle',
@@ -9,9 +10,12 @@ export enum ApiStatus {
     Success = 'success'
 }
 
-export interface AccountState {
+export interface ApiState {
     status: ApiStatus;
-    error?: string;
+    message?: string | string[];
+}
+
+export interface AccountState extends ApiState {
     returnUrl?: string;
 }
 
@@ -30,10 +34,31 @@ export const loginAsync = createAsyncThunk('account/login', async (loginDetails:
     return ret;
 });
 
+export const registerAsync = createAsyncThunk(
+    'account/register',
+    async (registerDetails: RegisterDetails) => {
+        const response = await registerAccount(
+            registerDetails.username,
+            registerDetails.email,
+            registerDetails.password
+        );
+
+        const ret = {
+            response: response.data
+        };
+
+        return ret;
+    }
+);
+
 export const accountSlice = createSlice({
     name: 'account',
     initialState,
-    reducers: {},
+    reducers: {
+        clearState: (state) => {
+            (state.status = ApiStatus.Idle), (state.message = undefined);
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(loginAsync.pending, (state) => {
@@ -41,7 +66,7 @@ export const accountSlice = createSlice({
             })
             .addCase(loginAsync.fulfilled, (state, action) => {
                 if (!action.payload.response.success) {
-                    state.error = action.payload.response.message;
+                    state.message = action.payload.response.message;
                     state.status = ApiStatus.Failed;
                 } else {
                     state.status = ApiStatus.Success;
@@ -50,10 +75,27 @@ export const accountSlice = createSlice({
             })
             .addCase(loginAsync.rejected, (state) => {
                 state.status = ApiStatus.Failed;
+            })
+            .addCase(registerAsync.pending, (state) => {
+                state.status = ApiStatus.Loading;
+            })
+            .addCase(registerAsync.fulfilled, (state, action) => {
+                state.message = action.payload.response.message;
+
+                if (!action.payload.response.success) {
+                    state.status = ApiStatus.Failed;
+                } else {
+                    state.status = ApiStatus.Success;
+                }
+            })
+            .addCase(registerAsync.rejected, (state) => {
+                state.status = ApiStatus.Failed;
+                state.message =
+                    'An error occured while registering your account. Please try again later';
             });
     }
 });
 
-export const {} = accountSlice.actions;
+export const { clearState } = accountSlice.actions;
 
 export default accountSlice.reducer;
