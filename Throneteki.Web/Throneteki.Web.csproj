@@ -10,6 +10,7 @@
     <SpaProxyServerUrl>https://localhost:44460</SpaProxyServerUrl>
     <SpaRoot>clientapp\</SpaRoot>
     <TargetFramework>net6.0</TargetFramework>
+    <TypeScriptToolsVersion>latest</TypeScriptToolsVersion>
     <UserSecretsId>eba033a2-f6f4-4056-bd18-a4c458f6cd61</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
@@ -25,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
   </ItemGroup>
   <ItemGroup>
@@ -36,7 +38,7 @@
   <ItemGroup>
     <Folder Include="Controllers\Api\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Services\" />
+    <Folder Include="Models\User\" />
   </ItemGroup>
   <Target BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') " Name="DebugEnsureNodeEnv">
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />

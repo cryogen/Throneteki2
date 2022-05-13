@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Quartz;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web;
+using Throneteki.Web.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,9 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient();
+builder.Services.AddTransient<IClaimsTransformation, ThronetekiUserClaimsTransformation>();
 
 builder.Services.AddDbContext<ThronetekiDbContext>(options =>
 {
@@ -51,7 +56,6 @@ builder.Services.AddOpenIddict()
     {
         options.UseEntityFrameworkCore().UseDbContext<ThronetekiDbContext>();
     })
-
     .AddServer(options =>
     {
         options.SetTokenEndpointUris("/connect/token");
@@ -70,7 +74,6 @@ builder.Services.AddOpenIddict()
             .EnableUserinfoEndpointPassthrough()
             .EnableLogoutEndpointPassthrough();
     })
-
     .AddValidation(options =>
     {
         options.UseLocalServer();

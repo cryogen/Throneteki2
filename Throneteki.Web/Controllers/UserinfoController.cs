@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Throneteki.Data.Models;
@@ -34,10 +35,17 @@ public class UserinfoController : Controller
                 }));
         }
 
+        var thronetekiUser = await userManager.Users.SingleOrDefaultAsync(u => u.UserName == user.UserName);
+        if (thronetekiUser == null)
+        {
+            return BadRequest();
+        }
+
         var claims = new Dictionary<string, object>(StringComparer.Ordinal)
         {
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
-            [OpenIddictConstants.Claims.Subject] = await userManager.GetUserIdAsync(user)
+            [OpenIddictConstants.Claims.Subject] = await userManager.GetUserIdAsync(user),
+            [OpenIddictConstants.Claims.Picture] = $"data:image/png;base64,{Convert.ToBase64String(thronetekiUser.ProfileImage?.Image ?? Array.Empty<byte>())}"
         };
 
         if (User.HasScope(OpenIddictConstants.Scopes.Email))

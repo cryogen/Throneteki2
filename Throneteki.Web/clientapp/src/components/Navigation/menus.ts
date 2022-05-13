@@ -79,7 +79,7 @@ export const RightMenu: MenuItem[] = [
  * @type {MenuItem[]} The menu items that appear in the profile menu
  */
 export const ProfileMenu: MenuItem[] = [
-    { title: 'Profile', path: '/profile' },
+    { title: 'Profile', path: '/account/profile' },
     { title: 'Security', path: '/security' },
     { title: 'Block List', path: '/blocklist' },
     { title: 'Logout', path: '/authentication/logout', state: { local: true } }

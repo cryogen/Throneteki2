@@ -12,7 +12,7 @@ using Throneteki.Data;
 namespace Throneteki.Data.Migrations
 {
     [DbContext(typeof(ThronetekiDbContext))]
-    [Migration("20220502101100_Initial")]
+    [Migration("20220512134019_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -400,6 +400,9 @@ namespace Throneteki.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("ProfileImageId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -420,7 +423,24 @@ namespace Throneteki.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("ProfileImageId");
+
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUserProfileImage", b =>
+                {
+                    b.Property<Guid>("ThronetekiUserProfileImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("ThronetekiUserProfileImageId");
+
+                    b.ToTable("ThronetekiUserProfileImage");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -496,6 +516,15 @@ namespace Throneteki.Data.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Authorization");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.ThronetekiUserProfileImage", "ProfileImage")
+                        .WithMany()
+                        .HasForeignKey("ProfileImageId");
+
+                    b.Navigation("ProfileImage");
                 });
 
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>

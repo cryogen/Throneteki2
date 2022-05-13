@@ -110,11 +110,11 @@ const Navigation = (props: NavigationProps) => {
             }
 
             if (!menuItem.path) {
-                return <></>;
+                return <React.Fragment key={menuItem.title}></React.Fragment>;
             }
 
             return (
-                <Nav.Link key={menuItem.path || menuItem.title} as={Link} to={menuItem.path}>
+                <Nav.Link key={menuItem.path} as={Link} to={menuItem.path}>
                     {menuItem.title}
                 </Nav.Link>
             );

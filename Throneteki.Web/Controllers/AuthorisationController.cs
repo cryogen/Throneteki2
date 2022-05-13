@@ -9,7 +9,7 @@ using OpenIddict.Server.AspNetCore;
 
 using Throneteki.Data.Models;
 using Throneteki.Web.Helpers;
-using Throneteki.Web.ViewModels.Authorization;
+using Throneteki.Web.ViewModels.Authorisation;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Throneteki.Web.Controllers;
@@ -97,16 +97,21 @@ public class AuthorisationController : Controller
         var user = await userManager.GetUserAsync(result.Principal) ?? throw new InvalidOperationException("The user details cannot be retrieved.");
 
         // Retrieve the application details from the database.
+        if (request.ClientId == null)
+        {
+            return BadRequest();
+        }
+
         var application = await applicationManager.FindByClientIdAsync(request.ClientId) ??
                           throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
         // Retrieve the permanent authorizations associated with the user and the calling client application.
         var authorizations = await authorizationManager.FindAsync(
-            subject: await userManager.GetUserIdAsync(user),
-            client: await applicationManager.GetIdAsync(application),
-            status: Statuses.Valid,
-            type: AuthorizationTypes.Permanent,
-            scopes: request.GetScopes()).ToListAsync();
+            await userManager.GetUserIdAsync(user),
+            await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
+            Statuses.Valid,
+            AuthorizationTypes.Permanent,
+            request.GetScopes()).ToListAsync();
 
         switch (await applicationManager.GetConsentTypeAsync(application))
         {
@@ -137,16 +142,12 @@ public class AuthorisationController : Controller
 
                 // Automatically create a permanent authorization to avoid requiring explicit consent
                 // for future authorization or token requests containing the same scopes.
-                var authorization = authorizations.LastOrDefault();
-                if (authorization == null)
-                {
-                    authorization = await authorizationManager.CreateAsync(
-                        principal: principal,
-                        subject: await userManager.GetUserIdAsync(user),
-                        client: await applicationManager.GetIdAsync(application),
-                        type: AuthorizationTypes.Permanent,
-                        scopes: principal.GetScopes());
-                }
+                var authorization = authorizations.LastOrDefault() ?? await authorizationManager.CreateAsync(
+                    principal,
+                    await userManager.GetUserIdAsync(user),
+                    await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
+                    AuthorizationTypes.Permanent,
+                    principal.GetScopes());
 
                 principal.SetAuthorizationId(await authorizationManager.GetIdAsync(authorization));
 
@@ -203,6 +204,11 @@ public class AuthorisationController : Controller
             // Retrieve the claims principal stored in the authorization code/device code/refresh token.
             var principal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal;
 
+            if (principal == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             // Retrieve the user profile corresponding to the authorization code/refresh token.
             // Note: if you want to automatically invalidate the authorization code/refresh token
             // when the user password/roles change, use the following line instead:
@@ -252,6 +258,14 @@ public class AuthorisationController : Controller
         switch (claim.Type)
         {
             case Claims.Name:
+                yield return Destinations.AccessToken;
+
+                if (principal.HasScope(Scopes.Profile))
+                    yield return Destinations.IdentityToken;
+
+                yield break;
+
+            case Claims.Picture:
                 yield return Destinations.AccessToken;
 
                 if (principal.HasScope(Scopes.Profile))

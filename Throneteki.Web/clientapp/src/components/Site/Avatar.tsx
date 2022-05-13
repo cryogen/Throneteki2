@@ -2,10 +2,11 @@ import React from 'react';
 import classNames from 'classnames';
 
 import './Avatar.scss';
+import { Profile } from 'oidc-client';
 
 export interface AvatarProps {
     float?: boolean;
-    username?: string;
+    user: Profile;
 }
 
 const Avatar = (props: AvatarProps) => {
@@ -13,11 +14,11 @@ const Avatar = (props: AvatarProps) => {
         'pull-left': props.float
     });
 
-    if (!props.username) {
+    if (!props.user) {
         return null;
     }
 
-    return <img className={className} src={`/img/avatar/${props.username}.png`} alt='' />;
+    return <img className={className} src={props.user.picture} alt='' />;
 };
 
 export default Avatar;

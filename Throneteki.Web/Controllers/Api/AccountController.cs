@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.Web.Helpers;
 using Throneteki.Web.Models.Account;
 
 namespace Throneteki.Web.Controllers.Api;
@@ -9,13 +11,17 @@ namespace Throneteki.Web.Controllers.Api;
 public class AccountController : ControllerBase
 {
     private readonly SignInManager<ThronetekiUser> signInManager;
+    private readonly IHttpClientFactory httpClientFactory;
+    private readonly ThronetekiDbContext context;
 
-    public AccountController(SignInManager<ThronetekiUser> signInManager)
+    public AccountController(SignInManager<ThronetekiUser> signInManager, IHttpClientFactory httpClientFactory, ThronetekiDbContext context)
     {
         this.signInManager = signInManager;
+        this.httpClientFactory = httpClientFactory;
+        this.context = context;
     }
 
-    [HttpPost("/api/account/login")]
+    [HttpPost("api/account/login")]
     public async Task<IActionResult> Login(LoginRequest model)
     {
         var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, false, true);
@@ -43,7 +49,7 @@ public class AccountController : ControllerBase
         });
     }
 
-    [HttpPost("/api/account/register")]
+    [HttpPost("api/account/register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         var userManager = signInManager.UserManager;
@@ -56,7 +62,7 @@ public class AccountController : ControllerBase
 
         if (await userManager.FindByNameAsync(request.Username) != null)
         {
-            return BadRequest(new
+            return Ok(new
             {
                 Success = false,
                 Message = "An account with that username already exists"
@@ -65,7 +71,7 @@ public class AccountController : ControllerBase
 
         if (await userManager.FindByEmailAsync(request.Email) != null)
         {
-            return BadRequest(new
+            return Ok(new
             {
                 Success = false,
                 Message = "An account with that email address already exists"
@@ -75,16 +81,30 @@ public class AccountController : ControllerBase
         var result = await userManager.CreateAsync(newUser, request.Password);
         if (!result.Succeeded)
         {
-            return BadRequest(new
+            return Ok(new
             {
                 Success = false,
                 Message = result.Errors.Select(e => e.Description)
             });
         }
 
+        var httpClient = httpClientFactory.CreateClient();
+
+        var stringToHash = StringUtilities.GetRandomString(32);
+
+        var profileImage = new ThronetekiUserProfileImage
+        {
+            Image = await httpClient.GetByteArrayAsync(new Uri($"https://www.gravatar.com/avatar/{stringToHash}?d=identicon&s=24"))
+        };
+
+        newUser.ProfileImage = profileImage;
+
+        await context.SaveChangesAsync();
+
         return Ok(new
         {
-            Success = true
+            Success = true,
+            Message = "Your account has been created successfully"
         });
     }
 }

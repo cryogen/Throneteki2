@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { NewProfileDetails } from '../components/Account/Profile';
 
 export const loginAccount = async (username: string, password: string) => {
     const response = await axios.post('/api/account/login', {
