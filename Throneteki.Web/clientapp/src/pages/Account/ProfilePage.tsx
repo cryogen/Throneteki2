@@ -1,27 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Col, Alert } from 'react-bootstrap';
+import React, { useEffect } from 'react';
+import { Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
 import ProfileComponent, { NewProfileDetails } from '../../components/Account/Profile';
+import { CustomUserProfile } from '../../components/Navigation/Navigation';
 import ApiStatus from '../../components/Site/ApiStatus';
-import authService from '../../authorisation/AuthoriseService';
-import { Profile } from 'oidc-client';
+import { ApiStateStatus } from '../../slices/account';
 import { clearUserState, saveProfileAsync } from '../../slices/user';
 
 const ProfileContainer: React.FC = () => {
     const { t } = useTranslation('profile');
-    const [user, setUser] = useState<Profile | null | undefined>(null);
-
-    const getUser = async () => {
-        setUser(await authService.getUser());
-    };
-
-    useEffect(() => {
-        getUser();
-    }, []);
     const dispatch = useAppDispatch();
     const account = useAppSelector((state: RootState) => state.account);
+    const auth = useAuth();
+
+    const user = auth.user?.profile as CustomUserProfile;
+
+    const userState = useAppSelector((state: RootState) => state.user);
+
+    useEffect(() => {
+        if (userState.status === ApiStateStatus.Success) {
+            auth.signinSilent();
+        }
+    }, [userState.status]);
     // const authState = useSelector<RootState, AuthState | undefined>(state => state.auth);
     // const apiState = useSelector<RootState, ApiResponseState | undefined>(state => {
     //     const retState = state.api.requests[Auth.UpdateProfile];

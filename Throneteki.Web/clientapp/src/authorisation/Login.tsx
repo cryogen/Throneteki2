@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import authService, { AuthState } from './AuthoriseService';
 import { AuthenticationResultStatus } from './AuthoriseService';
 import { LoginActions, QueryParameterNames, ApplicationPaths } from './AuthorisationConstants';
+import { useAuth } from 'react-oidc-context';
 
 // The main responsibility of this component is to handle the user's login process.
 // This is the starting point for the login process. Any component that needs to authenticate
@@ -15,6 +16,7 @@ interface LoginProps {
 export const Login = (props: LoginProps) => {
     const [message, setMessage] = useState<string | undefined | null>();
     const { action } = props;
+    const auth = useAuth();
 
     const redirectToApiAuthorizationPath = (apiAuthorizationPath: string) => {
         const redirectUrl = `${window.location.origin}/${apiAuthorizationPath}`;
@@ -44,21 +46,24 @@ export const Login = (props: LoginProps) => {
 
     useEffect(() => {
         const login = async (returnUrl: string) => {
-            console.info('login');
-            const state = { returnUrl };
-            const result = await authService.signIn(state);
-            switch (result.status) {
-                case AuthenticationResultStatus.Redirect:
-                    break;
-                case AuthenticationResultStatus.Success:
-                    await navigateToReturnUrl(returnUrl);
-                    break;
-                case AuthenticationResultStatus.Fail:
-                    setMessage(result.message);
-                    break;
-                default:
-                    throw new Error(`Invalid status result ${result.status}.`);
+            if (!auth.isAuthenticated) {
+                auth.signinRedirect();
             }
+            // console.info('login');
+            // const state = { returnUrl };
+            // const result = await authService.signIn(state);
+            // switch (result.status) {
+            //     case AuthenticationResultStatus.Redirect:
+            //         break;
+            //     case AuthenticationResultStatus.Success:
+            //         await navigateToReturnUrl(returnUrl);
+            //         break;
+            //     case AuthenticationResultStatus.Fail:
+            //         setMessage(result.message);
+            //         break;
+            //     default:
+            //         throw new Error(`Invalid status result ${result.status}.`);
+            // }
         };
 
         const redirectToRegister = () => {

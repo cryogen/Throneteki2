@@ -4,7 +4,7 @@ import { Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import { Login, LoginDetails } from '../../components/Account/Login';
-import { ApiStatus, loginAsync } from '../../slices/account';
+import { ApiStateStatus, loginAsync } from '../../slices/account';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
 
@@ -14,7 +14,7 @@ const LoginPage = () => {
 
     const { t } = useTranslation();
 
-    if (account.status === ApiStatus.Success) {
+    if (account.status === ApiStateStatus.Success) {
         window.location.href = account.returnUrl || '/';
         return <></>;
     }

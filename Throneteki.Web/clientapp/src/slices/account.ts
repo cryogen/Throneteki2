@@ -3,7 +3,7 @@ import { loginAccount, registerAccount } from '../api/accountApi';
 import { LoginDetails } from '../components/Account/Login';
 import { RegisterDetails } from '../components/Account/Register';
 
-export enum ApiStatus {
+export enum ApiStateStatus {
     Idle = 'idle',
     Loading = 'loading',
     Failed = 'failed',
@@ -11,7 +11,7 @@ export enum ApiStatus {
 }
 
 export interface ApiState {
-    status: ApiStatus;
+    status: ApiStateStatus;
     message?: string | string[];
 }
 
@@ -20,7 +20,7 @@ export interface AccountState extends ApiState {
 }
 
 const initialState: AccountState = {
-    status: ApiStatus.Idle
+    status: ApiStateStatus.Idle
 };
 
 export const loginAsync = createAsyncThunk('account/login', async (loginDetails: LoginDetails) => {
@@ -56,40 +56,40 @@ export const accountSlice = createSlice({
     initialState,
     reducers: {
         clearState: (state) => {
-            (state.status = ApiStatus.Idle), (state.message = undefined);
+            (state.status = ApiStateStatus.Idle), (state.message = undefined);
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(loginAsync.pending, (state) => {
-                state.status = ApiStatus.Loading;
+                state.status = ApiStateStatus.Loading;
             })
             .addCase(loginAsync.fulfilled, (state, action) => {
                 if (!action.payload.response.success) {
                     state.message = action.payload.response.message;
-                    state.status = ApiStatus.Failed;
+                    state.status = ApiStateStatus.Failed;
                 } else {
-                    state.status = ApiStatus.Success;
+                    state.status = ApiStateStatus.Success;
                     state.returnUrl = action.payload.returnUrl;
                 }
             })
             .addCase(loginAsync.rejected, (state) => {
-                state.status = ApiStatus.Failed;
+                state.status = ApiStateStatus.Failed;
             })
             .addCase(registerAsync.pending, (state) => {
-                state.status = ApiStatus.Loading;
+                state.status = ApiStateStatus.Loading;
             })
             .addCase(registerAsync.fulfilled, (state, action) => {
                 state.message = action.payload.response.message;
 
                 if (!action.payload.response.success) {
-                    state.status = ApiStatus.Failed;
+                    state.status = ApiStateStatus.Failed;
                 } else {
-                    state.status = ApiStatus.Success;
+                    state.status = ApiStateStatus.Success;
                 }
             })
             .addCase(registerAsync.rejected, (state) => {
-                state.status = ApiStatus.Failed;
+                state.status = ApiStateStatus.Failed;
                 state.message =
                     'An error occured while registering your account. Please try again later';
             });

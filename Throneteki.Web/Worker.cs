@@ -35,18 +35,18 @@ public class Worker : IHostedService
                 Permissions =
                 {
                     OpenIddictConstants.Permissions.Endpoints.Authorization,
+                    OpenIddictConstants.Permissions.Endpoints.Logout,
                     OpenIddictConstants.Permissions.Endpoints.Token,
-
+                    OpenIddictConstants.Permissions.Endpoints.Revocation,
                     OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                    OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                    OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                    OpenIddictConstants.Permissions.ResponseTypes.Code,
 
                     OpenIddictConstants.Permissions.Scopes.Email,
                     OpenIddictConstants.Permissions.Scopes.Profile,
                     OpenIddictConstants.Permissions.Scopes.Roles,
 
                     OpenIddictConstants.Permissions.Prefixes.Scope + "api",
-
-                    OpenIddictConstants.Permissions.ResponseTypes.Code
                 }
             }, cancellationToken);
         }

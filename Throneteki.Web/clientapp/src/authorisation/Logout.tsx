@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import authService, { AuthState } from './AuthoriseService';
 import { AuthenticationResultStatus } from './AuthoriseService';
 import { QueryParameterNames, LogoutActions, ApplicationPaths } from './AuthorisationConstants';
+import { useAuth } from 'react-oidc-context';
 
 // The main responsibility of this component is to handle the user's logout process.
 // This is the starting point for the logout process, which is usually initiated when a
@@ -13,16 +14,9 @@ interface LogoutProps {
 
 export const Logout = (props: LogoutProps) => {
     const [message, setMessage] = useState<string | undefined>();
-    const [isReady, setIsReady] = useState(false);
-    const [, setAuthenticated] = useState(false);
+    const auth = useAuth();
 
     const { action } = props;
-
-    const populateAuthenticationState = async () => {
-        const authenticated = await authService.isAuthenticated();
-        setIsReady(true);
-        setAuthenticated(authenticated);
-    };
 
     const getReturnUrl = (state?: AuthState) => {
         const params = new URLSearchParams(window.location.search);
@@ -47,21 +41,9 @@ export const Logout = (props: LogoutProps) => {
     useEffect(() => {
         const logout = async (returnUrl: string) => {
             const state = { returnUrl };
-            const isauthenticated = await authService.isAuthenticated();
+            const isauthenticated = auth.isAuthenticated;
             if (isauthenticated) {
-                const result = await authService.signOut(state);
-                switch (result.status) {
-                    case AuthenticationResultStatus.Redirect:
-                        break;
-                    case AuthenticationResultStatus.Success:
-                        await navigateToReturnUrl(returnUrl);
-                        break;
-                    case AuthenticationResultStatus.Fail:
-                        setMessage(result.message);
-                        break;
-                    default:
-                        throw new Error('Invalid authentication result status.');
-                }
+                auth.signoutRedirect();
             } else {
                 setMessage('You successfully logged out!');
             }
@@ -92,7 +74,6 @@ export const Logout = (props: LogoutProps) => {
                     logout(getReturnUrl());
                 } else {
                     // This prevents regular links to <app>/authentication/logout from triggering a logout
-                    setIsReady(true);
                     setMessage('The logout was not initiated from within the page.');
                 }
                 break;
@@ -100,19 +81,13 @@ export const Logout = (props: LogoutProps) => {
                 processLogoutCallback();
                 break;
             case LogoutActions.LoggedOut:
-                setIsReady(true);
                 setMessage('You successfully logged out!');
                 break;
             default:
                 throw new Error(`Invalid action '${action}'`);
         }
+    }, [action, auth]);
 
-        populateAuthenticationState();
-    }, [action]);
-
-    if (!isReady) {
-        return <div></div>;
-    }
     if (!!message) {
         return <div>{message}</div>;
     } else {

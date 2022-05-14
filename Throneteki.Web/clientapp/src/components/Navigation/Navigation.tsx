@@ -11,8 +11,12 @@ import ProfileDropdown from './ProfileMenu';
 // import GameContextMenu from './GameContextMenu';
 
 import './Navigation.scss';
-import authService from '../../authorisation/AuthoriseService';
-import { Profile } from 'oidc-client';
+import { useAuth } from 'react-oidc-context';
+import { IdTokenClaims } from 'oidc-client-ts';
+
+export interface CustomUserProfile extends IdTokenClaims {
+    role: [string];
+}
 
 interface NavigationProps {
     appName: string;
@@ -23,7 +27,7 @@ interface NavigationProps {
  */
 const Navigation = (props: NavigationProps) => {
     const { t } = useTranslation();
-    const [user, setUser] = useState<Profile | null | undefined>(null);
+    const auth = useAuth();
 
     // const { games, currentGame, lobbyResponse, lobbySocketConnected, lobbySocketConnecting } =
     //     useSelector((state) => ({
@@ -39,25 +43,13 @@ const Navigation = (props: NavigationProps) => {
     //     gameResponse: state.games.responseTime
     // }));
 
-    const getUser = async () => {
-        setUser(await authService.getUser());
-    };
+    const user = auth.user?.profile as CustomUserProfile;
 
-    useEffect(() => {
-        getUser();
-    }, []);
-
-    const userCanSeeMenu = (menuItem: MenuItem, user: Profile | null | undefined) => {
+    const userCanSeeMenu = (menuItem: MenuItem, user: CustomUserProfile | null | undefined) => {
         return !menuItem.permission || user?.role?.includes(menuItem.permission);
     };
 
-    /**
-     * Filter a list of menu items to what the logged in user can see
-     * @param {MenuItem[]} menuItems The list of menu items
-     * @param {User} user The logged in user
-     * @returns {MenuItem[]} The filtered menu items
-     */
-    const filterMenuItems = (menuItems: MenuItem[], user: Profile | null | undefined) => {
+    const filterMenuItems = (menuItems: MenuItem[], user: CustomUserProfile | null | undefined) => {
         const returnedItems = [];
 
         for (const menuItem of menuItems) {

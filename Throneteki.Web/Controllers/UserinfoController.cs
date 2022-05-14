@@ -45,7 +45,7 @@ public class UserinfoController : Controller
         {
             // Note: the "sub" claim is a mandatory claim and must be included in the JSON response.
             [OpenIddictConstants.Claims.Subject] = await userManager.GetUserIdAsync(user),
-            [OpenIddictConstants.Claims.Picture] = $"data:image/png;base64,{Convert.ToBase64String(thronetekiUser.ProfileImage?.Image ?? Array.Empty<byte>())}"
+            [OpenIddictConstants.Claims.Picture] = (thronetekiUser.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(thronetekiUser.ProfileImage.Image)}" : null) ?? string.Empty
         };
 
         if (User.HasScope(OpenIddictConstants.Scopes.Email))

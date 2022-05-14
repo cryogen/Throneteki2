@@ -10,13 +10,13 @@ import { FormikProps } from 'formik';
 // import { PatreonClientId, AuthServerUrl } from '../../constants';
 
 import './ProfileMain.scss';
-import { Profile } from 'oidc-client';
 import { ExistingProfileDetails } from './Profile';
 import PatreonLogo from '../../assets/img/Patreon_Mark_Coral.jpg';
+import { CustomUserProfile } from '../Navigation/Navigation';
 
 type ProfileMainProps = {
     formProps: FormikProps<ExistingProfileDetails>;
-    user: Profile;
+    user: CustomUserProfile;
 };
 
 const ProfileMain = (props: ProfileMainProps) => {
@@ -70,7 +70,7 @@ const ProfileMain = (props: ProfileMainProps) => {
                     <Form.Label>{t('Avatar')}</Form.Label>
                     <div>
                         {!formProps.errors.avatar && localAvatar ? (
-                            <img className='profile-avatar' src={localAvatar} alt={user.username} />
+                            <img className='profile-avatar' src={localAvatar} alt={user.name} />
                         ) : (
                             <Avatar user={user}></Avatar>
                         )}

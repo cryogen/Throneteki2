@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from 'react-oidc-context';
 
 import { store } from './app/store';
 import App from './App';
@@ -10,12 +11,22 @@ import reportWebVitals from './reportWebVitals';
 import './custom.scss';
 import './index.scss';
 
+const oidcConfig = {
+    authority: 'https://localhost:44460/',
+    redirect_uri: 'https://localhost:44460/authentication/login-callback',
+    client_id: 'throneteki',
+    scope: 'openid api email profile roles offline_access',
+    loadUserInfo: true
+};
+
 function AppWrapper() {
     return (
         <React.StrictMode>
             <Provider store={store}>
                 <Router>
-                    <App />
+                    <AuthProvider {...oidcConfig}>
+                        <App />
+                    </AuthProvider>
                 </Router>{' '}
             </Provider>
         </React.StrictMode>

@@ -2,11 +2,11 @@ import React from 'react';
 import classNames from 'classnames';
 
 import './Avatar.scss';
-import { Profile } from 'oidc-client';
+import { CustomUserProfile } from '../Navigation/Navigation';
 
 export interface AvatarProps {
     float?: boolean;
-    user: Profile;
+    user: CustomUserProfile;
 }
 
 const Avatar = (props: AvatarProps) => {

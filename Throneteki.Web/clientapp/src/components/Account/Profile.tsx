@@ -4,15 +4,14 @@ import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
-// import { User } from '../../redux/types';
-// import ProfileMain from '../../components/Profile/ProfileMain';
+import ProfileMain from './ProfileMain';
+
 // import ProfileBackground from '../../components/Profile/ProfileBackground';
 // import KeyforgeGameSettings from '../../components/Profile/KeyforgeGameSettings';
 // import ProfileCardSize from '../../components/Profile/ProfileCardSize';
 
 import './Profile.scss';
-import { Profile } from 'oidc-client';
-import ProfileMain from './ProfileMain';
+import { CustomUserProfile } from '../Navigation/Navigation';
 
 interface SettingsDetails {
     background: string;
@@ -57,7 +56,7 @@ export interface ProfileCardSizeOption {
 
 type ProfileProps = {
     onSubmit: (values: NewProfileDetails) => void;
-    user: Profile | null | undefined;
+    user: CustomUserProfile | null | undefined;
 };
 
 const ProfileComponent = (props: ProfileProps) => {
