@@ -1,22 +1,28 @@
-import React, { ReactElement, useState, useRef } from 'react';
+import React, { ReactElement, useState, useRef, useEffect } from 'react';
 import { Form, Button, Alert, Col, Row, Spinner } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 
+import { CustomUserProfile } from '../Navigation/Navigation';
+import ProfileBackground from './ProfileBackground';
 import ProfileMain from './ProfileMain';
+import BlankBg from '../../assets/img/bgs/blank.png';
+import Background1 from '../../assets/img/bgs/background.png';
+import Background2 from '../../assets/img/bgs/background2.png';
 
-// import ProfileBackground from '../../components/Profile/ProfileBackground';
 // import KeyforgeGameSettings from '../../components/Profile/KeyforgeGameSettings';
 // import ProfileCardSize from '../../components/Profile/ProfileCardSize';
 
 import './Profile.scss';
-import { CustomUserProfile } from '../Navigation/Navigation';
+import ProfileActionWindows from './ProfileActionWindows';
 
 interface SettingsDetails {
-    background: string;
-    cardSize: string;
-    windowTimer: number;
+    background?: string;
+    // cardSize: string;
+    // windowTimer: number;
+    customBackgroundUrl?: string;
+    actionWindows: { [key: string]: boolean };
 }
 
 interface GameOptionsDetails {
@@ -30,17 +36,18 @@ interface ProfileDetails {
     password?: string;
     passwordAgain?: string;
     email?: string;
-    settings: SettingsDetails;
 }
 
 export interface ExistingProfileDetails extends ProfileDetails {
-    gameOptions: GameOptionsDetails;
+    actionWindows: { [window: string]: boolean };
     avatar?: File;
+    gameOptions: GameOptionsDetails;
 }
 
 export interface NewProfileDetails extends ProfileDetails {
-    customData: string;
     avatar?: string | null;
+    customBackground?: string;
+    settings: SettingsDetails;
 }
 
 export interface BackgroundOption {
@@ -59,28 +66,50 @@ type ProfileProps = {
     user: CustomUserProfile | null | undefined;
 };
 
+const toBase64 = (file: File): Promise<string | null | undefined> =>
+    new Promise<string | null | undefined>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (): void => resolve(reader.result?.toString().split(',')[1]);
+        reader.onerror = (error): void => reject(error);
+    });
+
+const defaultActionWindows = {
+    plot: false,
+    draw: false,
+    challengeBegin: false,
+    attackersDeclared: true,
+    defendersDeclared: true,
+    dominance: false,
+    standing: false,
+    taxation: false
+};
+
 const ProfileComponent = (props: ProfileProps) => {
     const { user, onSubmit } = props;
     const { t } = useTranslation('profile');
-    // const [localBackground, setBackground] = useState<string>(user!.settings.background);
+
+    const settings: SettingsDetails = JSON.parse(user?.throneteki_settings || '{}');
+    const [localBackground, setBackground] = useState(settings.background || 'none');
     // const [localCardSize, setCardSize] = useState<string>(user!.settings.cardSize);
+    const [customBg, setCustomBg] = useState<string | null | undefined>(null);
     const topRowRef = useRef<HTMLElement>(null);
 
-    // const backgrounds = [{ name: 'none', label: t('none'), imageUrl: 'img/bgs/blank.png' }];
+    useEffect(() => {
+        setBackground(settings.background || 'none');
+    }, [settings.background]);
+
+    const backgrounds = [
+        { name: 'none', label: t('None'), imageUrl: BlankBg },
+        { name: 'standard', label: t('Standard'), imageUrl: Background1 },
+        { name: 'winter', label: t('Winter'), imageUrl: Background2 }
+    ];
     // const cardSizes = [
     //     { name: 'small', label: t('small') },
     //     { name: 'normal', label: t('normal') },
     //     { name: 'large', label: t('large') },
     //     { name: 'x-large', label: t('extra-large') }
     // ];
-
-    const toBase64 = (file: File): Promise<string | null | undefined> =>
-        new Promise<string | null | undefined>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (): void => resolve(reader.result?.toString().split(',')[1]);
-            reader.onerror = (error): void => reject(error);
-        });
 
     if (!user) {
         return <Alert variant='danger'>You need to be logged in to view your profile.</Alert>;
@@ -93,15 +122,11 @@ const ProfileComponent = (props: ProfileProps) => {
         passwordAgain: '',
         username: user.name || '',
         email: user.email,
-        settings: {
-            background: '',
-            cardSize: '',
-            windowTimer: 0
-        },
         gameOptions: {
             confirmOneClick: false,
             orderForcedAbilities: false
-        }
+        },
+        actionWindows: settings.actionWindows || defaultActionWindows
     };
 
     const schema = yup.object({
@@ -133,18 +158,21 @@ const ProfileComponent = (props: ProfileProps) => {
                     userId: user.sub,
                     avatar: values.avatar ? await toBase64(values.avatar) : null,
                     email: values.email,
-                    settings: values.settings,
-                    customData: JSON.stringify(values.gameOptions),
-                    username: values.username
+                    username: values.username,
+                    settings: { actionWindows: values.actionWindows }
                 };
 
-                // if (localBackground) {
-                //     submitValues.settings.background = localBackground;
-                // }
+                if (localBackground) {
+                    submitValues.settings.background = localBackground;
+                }
 
                 // if (localCardSize) {
                 //     submitValues.settings.cardSize = localCardSize;
                 // }
+
+                if (customBg) {
+                    submitValues.customBackground = customBg;
+                }
 
                 onSubmit(submitValues);
 
@@ -171,11 +199,29 @@ const ProfileComponent = (props: ProfileProps) => {
                     </Row>
                     <Row>
                         <Col sm='12'>
-                            {/* <ProfileBackground
+                            <ProfileBackground
                                 backgrounds={backgrounds}
-                                selectedBackground={localBackground || user!.settings.background}
-                                onBackgroundSelected={(name): void => setBackground(name)}
-                            /> */}
+                                selectedBackground={localBackground}
+                                customBackground={settings?.customBackgroundUrl}
+                                onBackgroundSelected={async (name, file) => {
+                                    if (name === 'custom') {
+                                        if (!file) {
+                                            return;
+                                        }
+
+                                        const base64File = await toBase64(file);
+
+                                        setCustomBg(base64File);
+                                    }
+
+                                    setBackground(name);
+                                }}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <ProfileActionWindows formProps={formProps} user={user} />
                         </Col>
                     </Row>
                     <Row>

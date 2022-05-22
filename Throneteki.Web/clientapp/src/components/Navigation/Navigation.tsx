@@ -14,8 +14,14 @@ import './Navigation.scss';
 import { useAuth } from 'react-oidc-context';
 import { IdTokenClaims } from 'oidc-client-ts';
 
+export interface UserSettings {
+    customBackground: string | undefined;
+    background: string;
+}
+
 export interface CustomUserProfile extends IdTokenClaims {
     role: [string];
+    throneteki_settings?: string;
 }
 
 interface NavigationProps {

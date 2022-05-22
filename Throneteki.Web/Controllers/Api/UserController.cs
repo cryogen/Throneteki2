@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ public class UserController : ControllerBase
 {
     private readonly UserManager<ThronetekiUser> userManager;
     private readonly ThronetekiDbContext dbContext;
+    private readonly IWebHostEnvironment hostEnvironment;
 
-    public UserController(UserManager<ThronetekiUser> userManager, ThronetekiDbContext dbContext)
+    public UserController(UserManager<ThronetekiUser> userManager, ThronetekiDbContext dbContext, IWebHostEnvironment hostEnvironment)
     {
         this.userManager = userManager;
         this.dbContext = dbContext;
+        this.hostEnvironment = hostEnvironment;
     }
 
     [HttpPatch("api/user/{userId}")]
@@ -67,11 +70,43 @@ public class UserController : ControllerBase
             var profileImage = user.ProfileImage ?? new ThronetekiUserProfileImage();
 
             profileImage.Image = resizedStream.ToArray();
+
+            user.ProfileImage = profileImage;
         }
+
+        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}") ?? new ThronetekiUserSettings();
+
+        if (request.CustomBackground != null)
+        {
+            await using var imageStream = new MemoryStream(Convert.FromBase64String(request.CustomBackground));
+            using var image = await Image.LoadAsync(imageStream);
+            var bgPath = Path.Combine(hostEnvironment.WebRootPath, "img", "bgs");
+
+            image.Mutate(img => img.Resize(new Size(1280, 720), KnownResamplers.Bicubic, true));
+
+            if (settings.CustomBackgroundUrl != null && System.IO.File.Exists(Path.Combine(bgPath, settings.CustomBackgroundUrl)))
+            {
+                System.IO.File.Delete(Path.Combine(bgPath, settings.CustomBackgroundUrl));
+            }
+
+            var newFile = $"{user.Id}.png";
+            settings.CustomBackgroundUrl = newFile;
+
+            Directory.CreateDirectory(bgPath);
+            await image.SaveAsync(Path.Combine(bgPath, newFile));
+        }
+
+        settings.Background = request.Settings.Background;
+        settings.ActionWindows = request.Settings.ActionWindows;
+
+        user.Settings = JsonSerializer.Serialize(settings, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
         await userManager.UpdateAsync(user);
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(new
+        {
+            Success = true
+        });
     }
 }

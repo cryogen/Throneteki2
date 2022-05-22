@@ -65,6 +65,11 @@ public class UserinfoController : Controller
             claims[OpenIddictConstants.Claims.Role] = await userManager.GetRolesAsync(user);
         }
 
+        if (User.HasScope(OpenIddictConstants.Scopes.Profile))
+        {
+            claims["throneteki_settings"] = thronetekiUser.Settings ?? string.Empty;
+        }
+
         // Note: the complete list of standard claims supported by the OpenID Connect specification
         // can be found here: http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 

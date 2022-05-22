@@ -8,4 +8,5 @@ public class ThronetekiUser : IdentityUser
     [ForeignKey(nameof(ProfileImage))]
     public Guid? ProfileImageId { get; set; }
     public ThronetekiUserProfileImage? ProfileImage { get; set; }
+    public string? Settings { get; set; }
 }

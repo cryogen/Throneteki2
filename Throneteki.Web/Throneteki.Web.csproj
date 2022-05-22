@@ -39,6 +39,7 @@
     <Folder Include="Controllers\Api\" />
     <Folder Include="Helpers\" />
     <Folder Include="Models\User\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
   <Target BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') " Name="DebugEnsureNodeEnv">
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
