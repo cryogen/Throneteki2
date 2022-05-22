@@ -104,14 +104,15 @@ const ProfileComponent = (props: ProfileProps) => {
     ];
 
     const settings: SettingsDetails = JSON.parse(user?.throneteki_settings || '{}');
-    const [localBackground, setBackground] = useState(settings.background || 'none');
+    const [localBackground, setBackground] = useState(settings.background || 'standard');
     const [localCardSize, setCardSize] = useState(settings.cardSize || 'normal');
     const [customBg, setCustomBg] = useState<string | null | undefined>(null);
     const topRowRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         setBackground(settings.background || 'none');
-    }, [settings.background]);
+        setCardSize(settings.cardSize || 'normal');
+    }, [settings.background, settings.cardSize]);
 
     if (!user) {
         return <Alert variant='danger'>You need to be logged in to view your profile.</Alert>;

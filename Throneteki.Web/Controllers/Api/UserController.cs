@@ -74,7 +74,7 @@ public class UserController : ControllerBase
             user.ProfileImage = profileImage;
         }
 
-        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}") ?? new ThronetekiUserSettings();
+        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }) ?? new ThronetekiUserSettings();
 
         if (request.CustomBackground != null)
         {
@@ -98,6 +98,7 @@ public class UserController : ControllerBase
 
         settings.Background = request.Settings.Background;
         settings.ActionWindows = request.Settings.ActionWindows;
+        settings.CardSize = request.Settings.CardSize;
 
         user.Settings = JsonSerializer.Serialize(settings, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
