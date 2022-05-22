@@ -1,7 +1,7 @@
 import React from 'react';
 import Panel from '../Site/Panel';
 import { Col, Form, Row } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import { CustomUserProfile } from '../Navigation/Navigation';
 import { ExistingProfileDetails } from './Profile';
@@ -27,7 +27,7 @@ const ProfileActionWindows = ({ formProps }: ProfileActionWindowsProps) => {
 
     const renderedWindows = windows.map((window) => {
         return (
-            <Col key={window.name} sm={4}>
+            <Col key={window.name} sm={6}>
                 <Form.Check
                     inline
                     id={window.name}
@@ -44,6 +44,15 @@ const ProfileActionWindows = ({ formProps }: ProfileActionWindowsProps) => {
 
     return (
         <Panel title={t('Action window defaults')}>
+            <p className='form-text small'>
+                <Trans key='action-windows-help'>
+                    If an option is selected here, you will always be prompted if you want to take
+                    an action in that window. If an option is not selected, you will receive no
+                    prompts for that window. For some windows (e.g. dominance) this could mean the
+                    whole window is skipped.
+                </Trans>
+            </p>
+
             <Row>{renderedWindows}</Row>
         </Panel>
     );

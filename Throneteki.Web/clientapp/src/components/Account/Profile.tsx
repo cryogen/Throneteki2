@@ -7,28 +7,28 @@ import * as yup from 'yup';
 import { CustomUserProfile } from '../Navigation/Navigation';
 import ProfileBackground from './ProfileBackground';
 import ProfileMain from './ProfileMain';
+import ProfileActionWindows from './ProfileActionWindows';
+import ProfileCardSize from './ProfileCardSize';
+import ThronetekiGameSettings from './ThronetekiGameSettings';
+
 import BlankBg from '../../assets/img/bgs/blank.png';
 import Background1 from '../../assets/img/bgs/background.png';
 import Background2 from '../../assets/img/bgs/background2.png';
 
-// import KeyforgeGameSettings from '../../components/Profile/KeyforgeGameSettings';
-// import ProfileCardSize from '../../components/Profile/ProfileCardSize';
-
-import './Profile.scss';
-import ProfileActionWindows from './ProfileActionWindows';
-import ProfileCardSize from './ProfileCardSize';
-
-interface SettingsDetails {
-    background?: string;
-    cardSize?: string;
-    // windowTimer: number;
-    customBackgroundUrl?: string;
-    actionWindows: { [key: string]: boolean };
+interface GameSettings {
+    chooseOrder: boolean;
+    chooseCards: boolean;
+    promptDupes: boolean;
+    windowTimer: number;
+    timerEvents: boolean;
+    timerAbilities: boolean;
 }
 
-interface GameOptionsDetails {
-    orderForcedAbilities: boolean;
-    confirmOneClick: boolean;
+interface SettingsDetails extends GameSettings {
+    background?: string;
+    cardSize?: string;
+    customBackgroundUrl?: string;
+    actionWindows: { [key: string]: boolean };
 }
 
 interface ProfileDetails {
@@ -39,10 +39,9 @@ interface ProfileDetails {
     email?: string;
 }
 
-export interface ExistingProfileDetails extends ProfileDetails {
+export interface ExistingProfileDetails extends ProfileDetails, GameSettings {
     actionWindows: { [window: string]: boolean };
     avatar?: File;
-    gameOptions: GameOptionsDetails;
 }
 
 export interface NewProfileDetails extends ProfileDetails {
@@ -125,11 +124,13 @@ const ProfileComponent = (props: ProfileProps) => {
         passwordAgain: '',
         username: user.name || '',
         email: user.email,
-        gameOptions: {
-            confirmOneClick: false,
-            orderForcedAbilities: false
-        },
-        actionWindows: settings.actionWindows || defaultActionWindows
+        actionWindows: settings.actionWindows || defaultActionWindows,
+        chooseOrder: !!settings.chooseOrder,
+        chooseCards: !!settings.chooseCards,
+        promptDupes: !!settings.promptDupes,
+        windowTimer: settings.windowTimer || 10,
+        timerAbilities: !!settings.timerAbilities,
+        timerEvents: settings.timerEvents || true
     };
 
     const schema = yup.object({
@@ -162,7 +163,15 @@ const ProfileComponent = (props: ProfileProps) => {
                     avatar: values.avatar ? await toBase64(values.avatar) : null,
                     email: values.email,
                     username: values.username,
-                    settings: { actionWindows: values.actionWindows }
+                    settings: {
+                        actionWindows: values.actionWindows,
+                        chooseOrder: values.chooseOrder,
+                        chooseCards: values.chooseCards,
+                        promptDupes: values.promptDupes,
+                        windowTimer: values.windowTimer,
+                        timerAbilities: values.timerAbilities,
+                        timerEvents: values.timerEvents
+                    }
                 };
 
                 if (localBackground) {
@@ -175,6 +184,10 @@ const ProfileComponent = (props: ProfileProps) => {
 
                 if (customBg) {
                     submitValues.customBackground = customBg;
+                }
+
+                if (submitValues.settings.windowTimer > 10) {
+                    submitValues.settings.windowTimer = 10;
                 }
 
                 onSubmit(submitValues);
@@ -224,7 +237,7 @@ const ProfileComponent = (props: ProfileProps) => {
                     </Row>
                     <Row>
                         <Col>
-                            <ProfileActionWindows formProps={formProps} user={user} />
+                            <ThronetekiGameSettings formProps={formProps} user={user} />
                         </Col>
                     </Row>
                     <Row>
@@ -236,11 +249,11 @@ const ProfileComponent = (props: ProfileProps) => {
                             />
                         </Col>
                         <Col sm='6'>
-                            {/* <KeyforgeGameSettings formProps={formProps} user={user} /> */}
+                            <ProfileActionWindows formProps={formProps} user={user} />
                         </Col>
                     </Row>
                     <div className='text-center profile-submit'>
-                        <Button variant='primary' type='submit'>
+                        <Button variant='success' type='submit'>
                             {/* {isLoading ? (
                                 <Spinner
                                     animation='border'

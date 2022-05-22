@@ -9,7 +9,6 @@ import { FormikProps } from 'formik';
 // import { ExistingProfileDetails } from '../../pages/components/Profile';
 // import { PatreonClientId, AuthServerUrl } from '../../constants';
 
-import './ProfileMain.scss';
 import { ExistingProfileDetails } from './Profile';
 import PatreonLogo from '../../assets/img/Patreon_Mark_Coral.jpg';
 import { CustomUserProfile } from '../Navigation/Navigation';

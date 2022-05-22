@@ -1,6 +1,4 @@
 import React, { ReactNode } from 'react';
-
-import './Panel.scss';
 import { Card } from 'react-bootstrap';
 
 enum PanelType {

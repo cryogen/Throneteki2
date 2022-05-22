@@ -1,7 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import './Avatar.scss';
 import { CustomUserProfile } from '../Navigation/Navigation';
 
 export interface AvatarProps {

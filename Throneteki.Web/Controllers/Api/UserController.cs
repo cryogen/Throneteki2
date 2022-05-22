@@ -96,9 +96,15 @@ public class UserController : ControllerBase
             await image.SaveAsync(Path.Combine(bgPath, newFile));
         }
 
-        settings.Background = request.Settings.Background;
         settings.ActionWindows = request.Settings.ActionWindows;
+        settings.Background = request.Settings.Background;
         settings.CardSize = request.Settings.CardSize;
+        settings.ChooseCards = request.Settings.ChooseCards;
+        settings.ChooseOrder = request.Settings.ChooseOrder;
+        settings.PromptDupes = request.Settings.PromptDupes;
+        settings.TimerAbilities = request.Settings.TimerAbilities;
+        settings.TimerEvents = request.Settings.TimerEvents;
+        settings.WindowTimer = request.Settings.WindowTimer;
 
         user.Settings = JsonSerializer.Serialize(settings, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
