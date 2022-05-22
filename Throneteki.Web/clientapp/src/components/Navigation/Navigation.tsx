@@ -3,16 +3,14 @@ import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { useAuth } from 'react-oidc-context';
+import { IdTokenClaims } from 'oidc-client-ts';
 
 import { RightMenu, /* ProfileMenu,*/ LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
 import ProfileDropdown from './ProfileMenu';
 // import ServerStatus from './ServerStatus';
 // import GameContextMenu from './GameContextMenu';
-
-import './Navigation.scss';
-import { useAuth } from 'react-oidc-context';
-import { IdTokenClaims } from 'oidc-client-ts';
 
 export interface UserSettings {
     customBackground: string | undefined;

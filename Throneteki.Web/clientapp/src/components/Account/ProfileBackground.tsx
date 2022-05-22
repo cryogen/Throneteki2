@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 
 import Panel from '../Site/Panel';
-import './ProfileBackground.scss';
 
 interface BackgroundOption {
     name: string;
@@ -16,7 +15,7 @@ interface BackgroundProps {
     backgrounds: BackgroundOption[];
     selectedBackground?: string;
     customBackground?: string;
-    onBackgroundSelected(a: string, b: File | null): void;
+    onBackgroundSelected(backgroundName: string, customBgFile: File | null): void;
 }
 
 const ProfileBackground = ({

@@ -1,2 +1,30 @@
 $navbar-height: 45px;
 $scrollbar-width: 20px;
+
+// Z-index layers
+
+$layer-bottom: 1;
+$layer-cards: 10;
+$layer-player-board-our-side: 15;
+$layer-player-board-overlay: 19;
+$layer-pile-header: 20;
+$layer-card-collection: 100;
+$layer-prompt: 110;
+$layer-card-menu: 120;
+$layer-top: 9999;
+
+// card
+
+$throneteki-card-width: 65px;
+$throneteki-card-height: 91px;
+
+$throneteki-card-lg-width: $throneteki-card-width * 1.4;
+$throneteki-card-lg-height: $throneteki-card-height * 1.4;
+
+$throneteki-card-xl-width: $throneteki-card-width * 2;
+$throneteki-card-xl-height: $throneteki-card-height * 2;
+
+$throneteki-card-sm-width: $throneteki-card-width * 0.6;
+$throneteki-card-sm-height: $throneteki-card-height * 0.6;
+
+$controlledBox: 0 0 1px 2px $controlled-border-color;

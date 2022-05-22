@@ -16,10 +16,11 @@ import Background2 from '../../assets/img/bgs/background2.png';
 
 import './Profile.scss';
 import ProfileActionWindows from './ProfileActionWindows';
+import ProfileCardSize from './ProfileCardSize';
 
 interface SettingsDetails {
     background?: string;
-    // cardSize: string;
+    cardSize?: string;
     // windowTimer: number;
     customBackgroundUrl?: string;
     actionWindows: { [key: string]: boolean };
@@ -89,27 +90,28 @@ const ProfileComponent = (props: ProfileProps) => {
     const { user, onSubmit } = props;
     const { t } = useTranslation('profile');
 
-    const settings: SettingsDetails = JSON.parse(user?.throneteki_settings || '{}');
-    const [localBackground, setBackground] = useState(settings.background || 'none');
-    // const [localCardSize, setCardSize] = useState<string>(user!.settings.cardSize);
-    const [customBg, setCustomBg] = useState<string | null | undefined>(null);
-    const topRowRef = useRef<HTMLElement>(null);
-
-    useEffect(() => {
-        setBackground(settings.background || 'none');
-    }, [settings.background]);
+    const cardSizes = [
+        { name: 'small', label: t('Small') },
+        { name: 'normal', label: t('Normal') },
+        { name: 'large', label: t('Large') },
+        { name: 'x-large', label: t('Extra-Large') }
+    ];
 
     const backgrounds = [
         { name: 'none', label: t('None'), imageUrl: BlankBg },
         { name: 'standard', label: t('Standard'), imageUrl: Background1 },
         { name: 'winter', label: t('Winter'), imageUrl: Background2 }
     ];
-    // const cardSizes = [
-    //     { name: 'small', label: t('small') },
-    //     { name: 'normal', label: t('normal') },
-    //     { name: 'large', label: t('large') },
-    //     { name: 'x-large', label: t('extra-large') }
-    // ];
+
+    const settings: SettingsDetails = JSON.parse(user?.throneteki_settings || '{}');
+    const [localBackground, setBackground] = useState(settings.background || 'none');
+    const [localCardSize, setCardSize] = useState(settings.cardSize || 'normal');
+    const [customBg, setCustomBg] = useState<string | null | undefined>(null);
+    const topRowRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        setBackground(settings.background || 'none');
+    }, [settings.background]);
 
     if (!user) {
         return <Alert variant='danger'>You need to be logged in to view your profile.</Alert>;
@@ -166,9 +168,9 @@ const ProfileComponent = (props: ProfileProps) => {
                     submitValues.settings.background = localBackground;
                 }
 
-                // if (localCardSize) {
-                //     submitValues.settings.cardSize = localCardSize;
-                // }
+                if (localCardSize) {
+                    submitValues.settings.cardSize = localCardSize;
+                }
 
                 if (customBg) {
                     submitValues.customBackground = customBg;
@@ -226,11 +228,11 @@ const ProfileComponent = (props: ProfileProps) => {
                     </Row>
                     <Row>
                         <Col sm='6'>
-                            {/* <ProfileCardSize
+                            <ProfileCardSize
                                 cardSizes={cardSizes}
-                                selectedCardSize={localCardSize || user!.settings.cardSize}
+                                selectedCardSize={localCardSize}
                                 onCardSizeSelected={(name): void => setCardSize(name)}
-                            /> */}
+                            />
                         </Col>
                         <Col sm='6'>
                             {/* <KeyforgeGameSettings formProps={formProps} user={user} /> */}

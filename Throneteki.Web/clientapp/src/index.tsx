@@ -9,7 +9,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import './custom.scss';
-import './index.scss';
 
 const oidcConfig = {
     authority: 'https://localhost:44460/',

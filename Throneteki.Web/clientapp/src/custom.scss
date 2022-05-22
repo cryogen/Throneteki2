@@ -1,3 +1,14 @@
-@import 'styles/variables';
 @import 'styles/colours';
+@import 'styles/variables';
+
 @import '~bootstrap/scss/bootstrap.scss';
+
+@import 'index';
+
+@import 'components/Account/CardSizeOption';
+@import 'components/Account/ProfileBackground';
+@import 'components/Account/ProfileMain';
+
+@import 'components/GameBoard/Card';
+
+@import 'components/Navigation/Navigation';
