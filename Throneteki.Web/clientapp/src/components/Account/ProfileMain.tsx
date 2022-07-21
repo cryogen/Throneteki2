@@ -71,7 +71,7 @@ const ProfileMain = (props: ProfileMainProps) => {
                         {!formProps.errors.avatar && localAvatar ? (
                             <img className='profile-avatar' src={localAvatar} alt={user.name} />
                         ) : (
-                            <Avatar user={user}></Avatar>
+                            <Avatar avatar={user.picture}></Avatar>
                         )}
                         <Button variant='secondary' onClick={onAvatarUploadClick}>
                             Change avatar

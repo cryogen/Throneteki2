@@ -1,11 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { CustomUserProfile } from '../Navigation/Navigation';
-
 export interface AvatarProps {
     float?: boolean;
-    user: CustomUserProfile;
+    avatar?: string;
 }
 
 const Avatar = (props: AvatarProps) => {
@@ -13,11 +11,11 @@ const Avatar = (props: AvatarProps) => {
         'pull-left': props.float
     });
 
-    if (!props.user) {
+    if (!props.avatar) {
         return null;
     }
 
-    return <img className={className} src={props.user.picture} alt='' />;
+    return <img className={className} src={props.avatar} alt='' />;
 };
 
 export default Avatar;

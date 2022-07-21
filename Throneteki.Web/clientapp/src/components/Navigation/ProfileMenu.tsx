@@ -22,7 +22,7 @@ const ProfileMenu: React.FC<ProfileMenuProps> = (props) => {
 
     const title = (
         <span>
-            <Avatar user={props.user}></Avatar>
+            <Avatar avatar={props.user.picture}></Avatar>
             {props.user.name}
         </span>
     );
