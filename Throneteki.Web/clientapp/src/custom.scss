@@ -14,5 +14,10 @@
 
 @import 'components/Navigation/Navigation';
 
+@import 'components/Lobby/SideBar';
+@import 'components/Lobby/UserList';
+
 @import 'components/Site/Avatar';
 @import 'components/Site/Panel';
+
+@import 'pages/Lobby';

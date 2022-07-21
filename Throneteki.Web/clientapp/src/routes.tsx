@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router';
-import Home from './components/Home';
+import { useAuth } from 'react-oidc-context';
 import NotFound from './components/NotFound';
 import { ApplicationPaths, QueryParameterNames } from './authorisation/AuthorisationConstants';
 import LoginPage from './pages/Account/LoginPage';
 import RegisterPage from './pages/Account/RegisterPage';
 import ProfilePage from './pages/Account/ProfilePage';
-import { useAuth } from 'react-oidc-context';
+import Lobby from './pages/Lobby';
 
 const Routes = () => {
     const location = useLocation();
@@ -29,7 +29,7 @@ const Routes = () => {
     }=${encodeURIComponent(returnUrl)}`;
 
     return [
-        { path: '/', element: auth.isAuthenticated ? <Home /> : <Navigate to={redirectUrl} /> },
+        { path: '/', element: <Lobby /> },
         { path: '/account/login', element: <LoginPage /> },
         { path: '/account/register', element: <RegisterPage /> },
         { path: '/account/profile', element: <ProfilePage /> },

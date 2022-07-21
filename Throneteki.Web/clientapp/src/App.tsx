@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRoutes } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
+import { useAppDispatch } from './redux/hooks';
 import Navigation from './components/Navigation/Navigation';
 import AuthorisationRoutes from './authorisation/AuthorisationRoutes';
 import routes from './routes';
+import { lobbyActions } from './redux/slices/lobby';
 
 function RouteElement() {
     const routeArray = routes();
@@ -13,6 +15,16 @@ function RouteElement() {
 }
 
 function App() {
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(lobbyActions.startConnecting());
+
+        return () => {
+            dispatch(lobbyActions.disconnect());
+        };
+    }, [dispatch]);
+
     return (
         <>
             <Navigation appName='The Iron Throne' />

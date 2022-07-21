@@ -7,6 +7,8 @@ const target = env.ASPNETCORE_HTTPS_PORT
     ? env.ASPNETCORE_URLS.split(';')[0]
     : 'http://localhost:51264';
 
+const lobbyTarget = 'https://localhost:7182';
+
 const context = [
     '/api',
     '/img',
@@ -18,6 +20,8 @@ const context = [
     '/_framework'
 ];
 
+const lobbyContext = ['/lobbyhub'];
+
 module.exports = function (app) {
     const appProxy = createProxyMiddleware(context, {
         target: target,
@@ -27,5 +31,12 @@ module.exports = function (app) {
         }
     });
 
+    const lobbyProxy = createProxyMiddleware(lobbyContext, {
+        target: lobbyTarget,
+        secure: false,
+        ws: true
+    });
+
     app.use(appProxy);
+    app.use(lobbyProxy);
 };
