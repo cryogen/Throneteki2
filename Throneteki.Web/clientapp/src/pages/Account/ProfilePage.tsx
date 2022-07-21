@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { RootState } from '../../app/store';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { RootState } from '../../redux/store';
 import ProfileComponent, { NewProfileDetails } from '../../components/Account/Profile';
 import { CustomUserProfile } from '../../components/Navigation/Navigation';
 import ApiStatus from '../../components/Site/ApiStatus';
-import { ApiStateStatus } from '../../slices/account';
-import { clearUserState, saveProfileAsync } from '../../slices/user';
+import { ApiStateStatus } from '../../redux/slices/account';
+import { clearUserState, saveProfileAsync } from '../../redux/slices/user';
 
 const ProfileContainer: React.FC = () => {
     const { t } = useTranslation('profile');
@@ -24,7 +24,7 @@ const ProfileContainer: React.FC = () => {
         if (userState.status === ApiStateStatus.Success) {
             auth.signinSilent();
         }
-    }, [userState.status]);
+    }, [userState.status, auth]);
     // const authState = useSelector<RootState, AuthState | undefined>(state => state.auth);
     // const apiState = useSelector<RootState, ApiResponseState | undefined>(state => {
     //     const retState = state.api.requests[Auth.UpdateProfile];

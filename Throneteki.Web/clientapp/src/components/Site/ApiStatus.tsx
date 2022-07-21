@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-bootstrap';
 
-import { ApiState, ApiStateStatus as ApiStatusEnum } from '../../slices/account';
+import { ApiState, ApiStateStatus as ApiStatusEnum } from '../../redux/slices/account';
 
 interface ApiStatusProps {
     state?: ApiState;

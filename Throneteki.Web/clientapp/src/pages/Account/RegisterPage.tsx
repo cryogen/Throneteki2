@@ -4,9 +4,9 @@ import { Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import { Register, RegisterDetails } from '../../components/Account/Register';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { RootState } from '../../app/store';
-import { clearState, registerAsync } from '../../slices/account';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { RootState } from '../../redux/store';
+import { clearState, registerAsync } from '../../redux/slices/account';
 import ApiStatus from '../../components/Site/ApiStatus';
 
 const RegisterPage = () => {

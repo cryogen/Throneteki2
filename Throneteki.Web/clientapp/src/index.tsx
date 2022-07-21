@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from 'react-oidc-context';
 
-import { store } from './app/store';
+import { store } from './redux/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

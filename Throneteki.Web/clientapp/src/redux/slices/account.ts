@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginAccount, registerAccount } from '../api/accountApi';
-import { LoginDetails } from '../components/Account/Login';
-import { RegisterDetails } from '../components/Account/Register';
+import { loginAccount, registerAccount } from '../../api/accountApi';
+import { LoginDetails } from '../../components/Account/Login';
+import { RegisterDetails } from '../../components/Account/Register';
 
 export enum ApiStateStatus {
     Idle = 'idle',

@@ -4,9 +4,9 @@ import { Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import { Login, LoginDetails } from '../../components/Account/Login';
-import { ApiStateStatus, loginAsync } from '../../slices/account';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { RootState } from '../../app/store';
+import { ApiStateStatus, loginAsync } from '../../redux/slices/account';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { RootState } from '../../redux/store';
 
 const LoginPage = () => {
     const dispatch = useAppDispatch();

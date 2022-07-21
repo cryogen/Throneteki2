@@ -4,7 +4,7 @@ import { Col, Form, Button, Row } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import * as yup from 'yup';
 import { Link } from 'react-router-dom';
-import { useQuery } from '../../app/hooks';
+import { useQuery } from '../../redux/hooks';
 
 export interface LoginDetails {
     username: string;
