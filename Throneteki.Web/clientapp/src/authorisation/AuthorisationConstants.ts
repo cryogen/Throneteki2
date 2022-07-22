@@ -1,4 +1,4 @@
-export const ApplicationName = 'Provisioning.Web';
+export const ApplicationName = 'Throneteki';
 
 export const QueryParameterNames = {
     ReturnUrl: 'returnUrl',
