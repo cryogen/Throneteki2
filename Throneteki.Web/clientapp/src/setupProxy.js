@@ -16,6 +16,7 @@ const context = [
     '/.well-known',
     '/Identity',
     '/connect',
+    '/introspect',
     '/ApplyDatabaseMigrations',
     '/_framework'
 ];

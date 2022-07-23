@@ -1,4 +1,5 @@
 
+using OpenIddict.Validation.AspNetCore;
 using Throneteki.Lobby;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,22 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DontCare", policyBuilder => policyBuilder.WithOrigins("https://localhost:44460").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 });
+
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
+    {
+        options.SetIssuer("https://localhost:44460/");
+        options.AddAudiences("throneteki-lobby");
+
+        options.UseIntrospection()
+            .SetClientId("throneteki-lobby")
+            .SetClientSecret("E4A95BCD-C8F8-45C4-A89A-6F7B62CF840F");
+
+        options.UseSystemNetHttp();
+        options.UseAspNetCore();
+    });
+
+builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 var app = builder.Build();
 
@@ -26,6 +43,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCors("DontCare");

@@ -47,6 +47,45 @@ public class Worker : IHostedService
                     OpenIddictConstants.Permissions.Scopes.Roles,
 
                     OpenIddictConstants.Permissions.Prefixes.Scope + "api",
+                    OpenIddictConstants.Permissions.Prefixes.Scope + "lobby",
+                }
+            }, cancellationToken);
+        }
+
+        if (await manager.FindByClientIdAsync("throneteki-lobby", cancellationToken) is null)
+        {
+            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            {
+                ClientId = "throneteki-lobby",
+                ClientSecret = "E4A95BCD-C8F8-45C4-A89A-6F7B62CF840F",
+                Permissions =
+                {
+                    OpenIddictConstants.Permissions.Endpoints.Introspection
+                }
+            }, cancellationToken);
+        }
+
+        var scopeManager = scope.ServiceProvider.GetRequiredService<IOpenIddictScopeManager>();
+        if (await scopeManager.FindByNameAsync("api", cancellationToken) is null)
+        {
+            await scopeManager.CreateAsync(new OpenIddictScopeDescriptor
+            {
+                Name = "api",
+                Resources =
+                {
+                    "throneteki"
+                }
+            }, cancellationToken);
+        }
+
+        if (await scopeManager.FindByNameAsync("lobby", cancellationToken) is null)
+        {
+            await scopeManager.CreateAsync(new OpenIddictScopeDescriptor
+            {
+                Name = "lobby",
+                Resources =
+                {
+                    "throneteki-lobby"
                 }
             }, cancellationToken);
         }
@@ -69,7 +108,6 @@ public class Worker : IHostedService
             };
 
             await userManager.CreateAsync(adminUser, "Passw0rd!");
-
             await userManager.AddToRolesAsync(adminUser, new[] { Roles.UserManager, Roles.PermissionsManager });
         }
     }

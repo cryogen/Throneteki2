@@ -14,7 +14,7 @@ const oidcConfig = {
     authority: 'https://localhost:44460/',
     redirect_uri: 'https://localhost:44460/authentication/login-callback',
     client_id: 'throneteki',
-    scope: 'openid api email profile roles offline_access',
+    scope: 'openid api email profile roles offline_access lobby',
     loadUserInfo: true,
     onSigninCallback: (): void => {
         window.history.replaceState({}, document.title, window.location.pathname);

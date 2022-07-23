@@ -62,11 +62,12 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize");
         options.SetLogoutEndpointUris("/connect/logout");
         options.SetUserinfoEndpointUris("/connect/userinfo");
+        options.SetIntrospectionEndpointUris("/introspect");
 
         options.AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
 
         options.AddEphemeralEncryptionKey().AddEphemeralSigningKey();
-        options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api");
+        options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
 
         options.UseAspNetCore()
             .EnableTokenEndpointPassthrough()
