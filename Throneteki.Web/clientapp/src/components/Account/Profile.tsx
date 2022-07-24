@@ -254,15 +254,6 @@ const ProfileComponent = (props: ProfileProps) => {
                     </Row>
                     <div className='text-center profile-submit'>
                         <Button variant='success' type='submit'>
-                            {/* {isLoading ? (
-                                <Spinner
-                                    animation='border'
-                                    size='sm'
-                                    as={'span'}
-                                    role='status'
-                                    aria-hidden='true'
-                                />
-                            ) : null} */}
                             {t('Save')}
                         </Button>
                     </div>

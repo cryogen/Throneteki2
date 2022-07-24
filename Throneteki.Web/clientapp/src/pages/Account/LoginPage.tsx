@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Col } from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import { Login, LoginDetails } from '../../components/Account/Login';
@@ -8,6 +8,7 @@ import { ApiStateStatus, clearState, loginAsync } from '../../redux/slices/accou
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import ApiStatus from '../../components/Site/ApiStatus';
 
 const LoginPage = () => {
     const dispatch = useAppDispatch();
@@ -29,11 +30,10 @@ const LoginPage = () => {
 
     return (
         <Col lg={{ span: 8, offset: 2 }}>
-            {loginStatus === ApiStateStatus.Failed && (
-                <Alert variant='danger' dismissible onClose={() => dispatch(clearState())}>
-                    {message}
-                </Alert>
-            )}
+            <ApiStatus
+                onClose={() => dispatch(clearState())}
+                state={{ status: loginStatus, message: message }}
+            />
             <Panel title={t('Login')}>
                 <Login onSubmit={(values: LoginDetails) => dispatch(loginAsync(values))} />
             </Panel>

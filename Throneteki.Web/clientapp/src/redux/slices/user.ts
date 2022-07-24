@@ -42,6 +42,8 @@ export const userSlice = createSlice({
                     state.status = ApiStateStatus.Failed;
                 } else {
                     state.status = ApiStateStatus.Success;
+                    state.message =
+                        'Profile saved successfully.  Please note settings changed here may only apply at the start of your next game.';
                 }
             })
             .addCase(saveProfileAsync.rejected, (state) => {
