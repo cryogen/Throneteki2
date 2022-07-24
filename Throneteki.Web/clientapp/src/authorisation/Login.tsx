@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LoginActions, QueryParameterNames, ApplicationPaths } from './AuthorisationConstants';
 import { useAuth } from 'react-oidc-context';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 // The main responsibility of this component is to handle the user's login process.
 // This is the starting point for the login process. Any component that needs to authenticate
@@ -91,9 +92,9 @@ export const Login = (props: LoginProps) => {
     } else {
         switch (action) {
             case LoginActions.Login:
-                return <div>Processing login</div>;
+                return <LoadingSpinner text='Processing login' />;
             case LoginActions.LoginCallback:
-                return <div>Processing login callback</div>;
+                return <LoadingSpinner text='Processing login callback' />;
             case LoginActions.Profile:
             case LoginActions.Register:
                 return <div></div>;
