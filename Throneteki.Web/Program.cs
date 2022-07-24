@@ -64,7 +64,7 @@ builder.Services.AddOpenIddict()
         options.SetUserinfoEndpointUris("/connect/userinfo");
         options.SetIntrospectionEndpointUris("/introspect");
 
-        options.AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
+        options.AllowClientCredentialsFlow().AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
 
         options.AddEphemeralEncryptionKey().AddEphemeralSigningKey();
         options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
@@ -81,7 +81,7 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<DataInitialisationWorker>();
 
 var app = builder.Build();
 

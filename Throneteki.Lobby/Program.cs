@@ -28,6 +28,8 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
+builder.Services.AddSingleton<UserServiceFactory>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

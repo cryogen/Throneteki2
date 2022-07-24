@@ -9,7 +9,16 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="3.1.1" />
-    <PackageReference Include="OpenIddict.Validation.SystemNetHttp" Version="3.1.1" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.47.0" />
+    <PackageReference Include="IdentityModel" Version="6.0.0" />
+    <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="3.1.1">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="OpenIddict.Validation.SystemNetHttp" Version="3.1.1">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Throneteki.WebService\Throneteki.WebService.csproj" />
   </ItemGroup>
 </Project>

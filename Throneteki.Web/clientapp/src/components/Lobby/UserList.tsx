@@ -21,9 +21,9 @@ const UserList = ({ users }: UserListProps) => {
 
     const userList = users.map((user) => {
         return (
-            <div className='user-row' key={user.name}>
+            <div className='user-row' key={user.username}>
                 <Avatar avatar={user.avatar} />
-                <span>{user.name}</span>
+                <span>{user.username}</span>
             </div>
         );
     });

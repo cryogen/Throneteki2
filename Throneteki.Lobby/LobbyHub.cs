@@ -1,25 +1,41 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Throneteki.WebService;
 
 namespace Throneteki.Lobby;
 
 public class LobbyHub : Hub
 {
     private readonly ILogger<LobbyHub> logger;
+    private readonly UserServiceFactory userServiceFactory;
 
-    public LobbyHub(ILogger<LobbyHub> logger)
+    private static readonly Dictionary<string, ThronetekiUser> UsersByName = new();
+
+    public LobbyHub(ILogger<LobbyHub> logger, UserServiceFactory userServiceFactory)
     {
         this.logger = logger;
+        this.userServiceFactory = userServiceFactory;
     }
 
     public override async Task OnConnectedAsync()
     {
-        await Clients.Caller.SendAsync("users", new List<string>());
+        var userService = await userServiceFactory.GetUserServiceClient();
+
+        if (userService == null)
+        {
+            throw new ApplicationException("No user service");
+        }
 
         if (Context.User?.Identity?.IsAuthenticated == true)
         {
+            var user = (await userService.GetUserByUsernameAsync(new GetUserByUsernameRequest { Username = Context.User.Identity.Name })).User;
+
+            UsersByName[user.Username] = user;
+
             logger.LogDebug("Authenticated user connected");
         }
+
+        await Clients.Caller.SendAsync("users", UsersByName.Values);
 
         await base.OnConnectedAsync();
     }

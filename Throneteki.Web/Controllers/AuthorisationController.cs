@@ -246,6 +246,21 @@ public class AuthorisationController : Controller
             return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
+        if (request.IsClientCredentialsGrantType())
+        {
+            var identity = new ClaimsIdentity(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            identity.AddClaim(Claims.Subject, request.ClientId ?? throw new InvalidOperationException());
+
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            claimsPrincipal.SetAudiences(request.ClientId);
+            claimsPrincipal.SetResources(request.ClientId);
+            claimsPrincipal.SetScopes(request.GetScopes());
+
+
+            return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
         throw new InvalidOperationException("The specified grant type is not supported.");
     }
 
