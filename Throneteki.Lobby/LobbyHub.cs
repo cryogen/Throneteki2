@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using Throneteki.WebService;
 
@@ -9,7 +9,7 @@ public class LobbyHub : Hub
     private readonly ILogger<LobbyHub> logger;
     private readonly UserServiceFactory userServiceFactory;
 
-    private static readonly Dictionary<string, ThronetekiUser> UsersByName = new();
+    private static readonly ConcurrentDictionary<string, ThronetekiUser> UsersByName = new();
 
     public LobbyHub(ILogger<LobbyHub> logger, UserServiceFactory userServiceFactory)
     {

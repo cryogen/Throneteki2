@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using Quartz;
 using Throneteki.Data;
@@ -66,7 +67,7 @@ builder.Services.AddOpenIddict()
 
         options.AllowClientCredentialsFlow().AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
 
-        options.AddEphemeralEncryptionKey().AddEphemeralSigningKey();
+        options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
         options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
 
         options.UseAspNetCore()

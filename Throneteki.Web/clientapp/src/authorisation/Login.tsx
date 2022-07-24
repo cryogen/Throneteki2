@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import authService, { AuthState } from './AuthoriseService';
-import { AuthenticationResultStatus } from './AuthoriseService';
 import { LoginActions, QueryParameterNames, ApplicationPaths } from './AuthorisationConstants';
 import { useAuth } from 'react-oidc-context';
 
@@ -32,20 +30,8 @@ export const Login = (props: LoginProps) => {
         window.location.replace(returnUrl);
     };
 
-    const getReturnUrl = (state?: AuthState) => {
-        const params = new URLSearchParams(window.location.search);
-        const fromQuery = params.get(QueryParameterNames.ReturnUrl);
-        if (fromQuery && !fromQuery.startsWith(`${window.location.origin}/`)) {
-            // This is an extra check to prevent open redirects.
-            throw new Error(
-                'Invalid return url. The return url needs to have the same origin as the current page.'
-            );
-        }
-        return (state && state.returnUrl) || fromQuery || `${window.location.origin}/`;
-    };
-
     useEffect(() => {
-        const login = async (returnUrl: string) => {
+        const login = async () => {
             if (!auth.isAuthenticated) {
                 auth.signinRedirect();
             }
@@ -78,31 +64,11 @@ export const Login = (props: LoginProps) => {
             redirectToApiAuthorizationPath(ApplicationPaths.IdentityManagePath);
         };
 
-        const processLoginCallback = async () => {
-            const url = window.location.href;
-            const result = await authService.completeSignIn(url);
-            switch (result.status) {
-                case AuthenticationResultStatus.Redirect:
-                    // There should not be any redirects as the only time completeSignIn finishes
-                    // is when we are doing a redirect sign in flow.
-                    throw new Error('Should not redirect.');
-                case AuthenticationResultStatus.Success:
-                    await navigateToReturnUrl(getReturnUrl(result.state));
-                    break;
-                case AuthenticationResultStatus.Fail:
-                    setMessage(result.message);
-                    break;
-                default:
-                    throw new Error(`Invalid authentication result status '${result.status}'.`);
-            }
-        };
-
         switch (action) {
             case LoginActions.Login:
-                login(getReturnUrl());
+                login();
                 break;
             case LoginActions.LoginCallback:
-                processLoginCallback();
                 break;
             case LoginActions.LoginFailed:
                 const params = new URLSearchParams(window.location.search);

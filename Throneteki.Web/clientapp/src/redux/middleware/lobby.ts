@@ -1,20 +1,11 @@
 import { Middleware } from 'redux';
-import { User } from 'oidc-client-ts';
 import * as signalR from '@microsoft/signalr';
 import { lobbyActions } from '../slices/lobby';
 import { UserSummary } from '../../types/lobby';
+import { getUser } from '../../helpers/UserHelper';
 
 enum LobbyEvent {
     UsersMessage = 'users'
-}
-
-function getUser() {
-    const oidcStorage = sessionStorage.getItem('oidc.user:https://localhost:44460/:throneteki');
-    if (!oidcStorage) {
-        return null;
-    }
-
-    return User.fromStorageString(oidcStorage);
 }
 
 const chatMiddleware: Middleware = (store) => {

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from 'react-oidc-context';
+import { WebStorageStateStore } from 'oidc-client-ts';
 
 import { store } from './redux/store';
 import App from './App';
@@ -18,7 +19,9 @@ const oidcConfig = {
     loadUserInfo: true,
     onSigninCallback: (): void => {
         window.history.replaceState({}, document.title, window.location.pathname);
-    }
+        window.location.href = '/';
+    },
+    userStore: new WebStorageStateStore({ store: window.localStorage })
 };
 
 function AppWrapper() {
