@@ -15,6 +15,7 @@
     <PackageReference Include="Quartz.AspNetCore" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Models\" />
   </ItemGroup>
 </Project>

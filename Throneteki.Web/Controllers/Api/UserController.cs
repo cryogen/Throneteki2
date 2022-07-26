@@ -8,26 +8,30 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.Web.Models;
 using Throneteki.Web.Models.User;
 
 namespace Throneteki.Web.Controllers.Api;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
 public class UserController : ControllerBase
 {
     private readonly UserManager<ThronetekiUser> userManager;
     private readonly ThronetekiDbContext dbContext;
     private readonly IWebHostEnvironment hostEnvironment;
+    private readonly JsonSerializerOptions serializerOptions;
 
     public UserController(UserManager<ThronetekiUser> userManager, ThronetekiDbContext dbContext, IWebHostEnvironment hostEnvironment)
     {
         this.userManager = userManager;
         this.dbContext = dbContext;
         this.hostEnvironment = hostEnvironment;
+
+        serializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     }
 
     [HttpPatch("api/user/{userId}")]
-    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     public async Task<IActionResult> SaveUser(string userId, SaveUserRequest request)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -74,7 +78,7 @@ public class UserController : ControllerBase
             user.ProfileImage = profileImage;
         }
 
-        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }) ?? new ThronetekiUserSettings();
+        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", serializerOptions) ?? new ThronetekiUserSettings();
 
         if (request.CustomBackground != null)
         {
@@ -106,7 +110,94 @@ public class UserController : ControllerBase
         settings.TimerEvents = request.Settings.TimerEvents;
         settings.WindowTimer = request.Settings.WindowTimer;
 
-        user.Settings = JsonSerializer.Serialize(settings, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        user.Settings = JsonSerializer.Serialize(settings, serializerOptions);
+
+        await userManager.UpdateAsync(user);
+        await dbContext.SaveChangesAsync();
+
+        return Ok(new
+        {
+            Success = true
+        });
+    }
+
+    [HttpGet("api/user/{userId}/blocklist")]
+    public async Task<IActionResult> GetBlockList(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        if (User.Identity?.Name != user.UserName)
+        {
+            return Forbid();
+        }
+
+        user = await userManager.Users
+            .Include(u => u.BlockListEntries)
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(new
+        {
+            Success = true,
+            BlockList = user.BlockListEntries.Select(bl => new
+            {
+                Id = bl.BlockedUserId,
+                Username = bl.BlockedUser?.UserName
+            })
+        });
+    }
+
+    [HttpPost("api/user/{userId}/blocklist")]
+    public async Task<IActionResult> AddToBlockList(string userId, AddBlockListEntryRequest request)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        if (User.Identity?.Name != user.UserName)
+        {
+            return Forbid();
+        }
+
+        user = await userManager.Users.Include(u => u.BlockListEntries).FirstOrDefaultAsync(u => u.Id == user.Id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var blockedUser = await userManager.FindByNameAsync(request.UserName);
+        if (blockedUser == null)
+        {
+            return Ok(new
+            {
+                Success = false,
+                Message = "The user to block does not exist"
+            });
+        }
+
+        if (user.BlockListEntries.Any(bl => bl.BlockedUserId == blockedUser.Id))
+        {
+            return Conflict(new
+            {
+                Success = false,
+                Message = "User already blocked"
+            });
+        }
+
+        user.BlockListEntries.Add(new BlockListEntry
+        {
+            ThronetekiUserId = user.Id,
+            BlockedUserId = blockedUser.Id
+        });
 
         await userManager.UpdateAsync(user);
         await dbContext.SaveChangesAsync();

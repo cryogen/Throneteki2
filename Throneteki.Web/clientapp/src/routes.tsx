@@ -7,19 +7,13 @@ import LoginPage from './pages/Account/LoginPage';
 import RegisterPage from './pages/Account/RegisterPage';
 import ProfilePage from './pages/Account/ProfilePage';
 import Lobby from './pages/Lobby';
+import BlockListPage from './pages/Account/BlockListPage';
 
 const Routes = () => {
     const location = useLocation();
     const auth = useAuth();
 
     const path = location.pathname;
-
-    useEffect(() => {
-        // const subscription = authService.subscribe(() => authenticationChanged());
-        // return () => {
-        //     authService.unsubscribe(subscription);
-        // };
-    });
 
     const link = document.createElement('a');
     link.href = path;
@@ -30,9 +24,13 @@ const Routes = () => {
 
     return [
         { path: '/', element: <Lobby /> },
+        {
+            path: '/account/blocklist',
+            element: auth.user && <BlockListPage />
+        },
         { path: '/account/login', element: <LoginPage /> },
         { path: '/account/register', element: <RegisterPage /> },
-        { path: '/account/profile', element: <ProfilePage /> },
+        { path: '/account/profile', element: auth.user && <ProfilePage /> },
         { path: '*', element: <NotFound /> }
     ];
 };

@@ -12,7 +12,7 @@ using Throneteki.Data;
 namespace Throneteki.Data.Migrations
 {
     [DbContext(typeof(ThronetekiDbContext))]
-    [Migration("20220512134019_Initial")]
+    [Migration("20220725091756_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -358,6 +358,27 @@ namespace Throneteki.Data.Migrations
                     b.ToTable("OpenIddictTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Throneteki.Data.Models.BlockListEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BlockedUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ThronetekiUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockedUserId");
+
+                    b.HasIndex("ThronetekiUserId");
+
+                    b.ToTable("BlockListEntry");
+                });
+
             modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
                 {
                     b.Property<string>("Id")
@@ -404,6 +425,9 @@ namespace Throneteki.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Settings")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -518,6 +542,21 @@ namespace Throneteki.Data.Migrations
                     b.Navigation("Authorization");
                 });
 
+            modelBuilder.Entity("Throneteki.Data.Models.BlockListEntry", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.ThronetekiUser", "BlockedUser")
+                        .WithMany("BlockListEntries")
+                        .HasForeignKey("BlockedUserId");
+
+                    b.HasOne("Throneteki.Data.Models.ThronetekiUser", "ThronetekiUser")
+                        .WithMany()
+                        .HasForeignKey("ThronetekiUserId");
+
+                    b.Navigation("BlockedUser");
+
+                    b.Navigation("ThronetekiUser");
+                });
+
             modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
                 {
                     b.HasOne("Throneteki.Data.Models.ThronetekiUserProfileImage", "ProfileImage")
@@ -537,6 +576,11 @@ namespace Throneteki.Data.Migrations
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", b =>
                 {
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
+                {
+                    b.Navigation("BlockListEntries");
                 });
 #pragma warning restore 612, 618
         }

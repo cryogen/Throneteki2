@@ -14,4 +14,11 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
         : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<ThronetekiUser>().HasMany(u => u.BlockListEntries).WithOne(bl => bl.BlockedUser).HasForeignKey(bl => bl.BlockedUserId);
+    }
 }

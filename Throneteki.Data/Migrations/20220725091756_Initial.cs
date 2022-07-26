@@ -128,6 +128,7 @@ namespace Throneteki.Data.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProfileImageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Settings = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -271,6 +272,29 @@ namespace Throneteki.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BlockListEntry",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ThronetekiUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    BlockedUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlockListEntry", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BlockListEntry_AspNetUsers_BlockedUserId",
+                        column: x => x.BlockedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BlockListEntry_AspNetUsers_ThronetekiUserId",
+                        column: x => x.ThronetekiUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -314,6 +338,16 @@ namespace Throneteki.Data.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlockListEntry_BlockedUserId",
+                table: "BlockListEntry",
+                column: "BlockedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlockListEntry_ThronetekiUserId",
+                table: "BlockListEntry",
+                column: "ThronetekiUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
@@ -368,6 +402,9 @@ namespace Throneteki.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BlockListEntry");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictScopes");
