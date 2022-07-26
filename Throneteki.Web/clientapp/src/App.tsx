@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRoutes } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
+import { useAuth } from 'react-oidc-context';
 
 import { useAppDispatch } from './redux/hooks';
 import Navigation from './components/Navigation/Navigation';
@@ -16,14 +17,26 @@ function RouteElement() {
 
 function App() {
     const dispatch = useAppDispatch();
+    const auth = useAuth();
 
     useEffect(() => {
+        if (auth.user) {
+            auth.signinRedirect();
+        }
+
         dispatch(lobbyActions.startConnecting());
 
         return () => {
             dispatch(lobbyActions.disconnect());
         };
     }, [dispatch]);
+
+    useEffect(() => {
+        // the `return` is important - addAccessTokenExpiring() returns a cleanup function
+        return auth.events.addAccessTokenExpiring(() => {
+            auth.signinSilent();
+        });
+    }, [auth.events, auth.signinSilent]);
 
     return (
         <>
