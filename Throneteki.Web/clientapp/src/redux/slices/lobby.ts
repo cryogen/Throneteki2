@@ -27,6 +27,24 @@ const lobbySlice = createSlice({
         disconnect: (state) => {
             state.isConnected = false;
         },
+        receiveUser: (
+            state,
+            action: PayloadAction<{
+                user: UserSummary;
+            }>
+        ) => {
+            if (!state.users.some((user) => user.username === action.payload.user.username)) {
+                state.users.push(action.payload.user);
+            }
+        },
+        receiveUserLeft: (
+            state,
+            action: PayloadAction<{
+                user: string;
+            }>
+        ) => {
+            state.users = state.users.filter((user) => user.username !== action.payload.user);
+        },
         receiveUsers: (
             state,
             action: PayloadAction<{

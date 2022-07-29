@@ -21,6 +21,8 @@ public class UserServiceImpl : UserService.UserServiceBase
 
         var user = await dbContext.Users
             .Include(u => u.ProfileImage)
+            .Include(u => u.BlockListEntries)
+            .ThenInclude(bl => bl.BlockedUser)
             .FirstOrDefaultAsync(u => u.UserName == request.Username);
 
         if (user == null)
@@ -34,6 +36,12 @@ public class UserServiceImpl : UserService.UserServiceBase
             Id = user.Id,
             Username = user.UserName
         };
+
+        ret.User.BlockList.AddRange(user.BlockListEntries.Select(bl => new BlockListEntry
+        {
+            UserId = bl.BlockedUserId,
+            Username = bl.BlockedUser?.UserName
+        }));
 
         return ret;
     }

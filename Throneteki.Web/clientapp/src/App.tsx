@@ -29,13 +29,15 @@ function App() {
         return () => {
             dispatch(lobbyActions.disconnect());
         };
-    }, [dispatch]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, auth.signinRedirect]);
 
     useEffect(() => {
         // the `return` is important - addAccessTokenExpiring() returns a cleanup function
         return auth.events.addAccessTokenExpiring(() => {
             auth.signinSilent();
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auth.events, auth.signinSilent]);
 
     return (

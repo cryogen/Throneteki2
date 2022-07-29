@@ -5,6 +5,8 @@ import { UserSummary } from '../../types/lobby';
 import { getUser } from '../../helpers/UserHelper';
 
 enum LobbyEvent {
+    NewUserMessage = 'newuser',
+    UserLeftMessage = 'userleft',
     UsersMessage = 'users'
 }
 
@@ -29,6 +31,14 @@ const chatMiddleware: Middleware = (store) => {
                 store.dispatch(lobbyActions.connectionEstablished());
             });
             // .catch((err) => lobbyActions.connectionFailed(err));
+
+            connection.on(LobbyEvent.NewUserMessage, (user: UserSummary) => {
+                store.dispatch(lobbyActions.receiveUser({ user }));
+            });
+
+            connection.on(LobbyEvent.UserLeftMessage, (user: string) => {
+                store.dispatch(lobbyActions.receiveUserLeft({ user }));
+            });
 
             connection.on(LobbyEvent.UsersMessage, (users: UserSummary[]) => {
                 store.dispatch(lobbyActions.receiveUsers({ users }));

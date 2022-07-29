@@ -6,6 +6,11 @@ service UserService {
 	rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
 }
 
+message BlockListEntry {
+	string UserId = 1;
+	string Username = 2;
+}
+
 message GetUserByUsernameRequest {
 	string Username = 1;
 }
@@ -18,4 +23,5 @@ message ThronetekiUser {
 	string Id = 1;
 	string Username = 2;
 	string Avatar = 3;
+	repeated BlockListEntry BlockList = 4;
 }

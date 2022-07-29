@@ -19,6 +19,11 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<ThronetekiUser>().HasMany(u => u.BlockListEntries).WithOne(bl => bl.BlockedUser).HasForeignKey(bl => bl.BlockedUserId);
+        builder
+            .Entity<ThronetekiUser>()
+            .HasMany(user => user.BlockListEntries)
+            .WithOne(blockListEntry => blockListEntry.ThronetekiUser)
+            .HasForeignKey(blockListEntry => blockListEntry.ThronetekiUserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

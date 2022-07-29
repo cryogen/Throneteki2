@@ -137,6 +137,7 @@ public class UserController : ControllerBase
 
         user = await userManager.Users
             .Include(u => u.BlockListEntries)
+            .ThenInclude(bl => bl.BlockedUser)
             .FirstOrDefaultAsync(u => u.Id == user.Id);
         if (user == null)
         {
@@ -177,10 +178,10 @@ public class UserController : ControllerBase
         var blockedUser = await userManager.FindByNameAsync(request.UserName);
         if (blockedUser == null)
         {
-            return Ok(new
+            return BadRequest(new
             {
                 Success = false,
-                Message = "The user to block does not exist"
+                Message = "The user to block does not exist."
             });
         }
 
@@ -189,7 +190,16 @@ public class UserController : ControllerBase
             return Conflict(new
             {
                 Success = false,
-                Message = "User already blocked"
+                Message = "User already blocked."
+            });
+        }
+
+        if (user.Id == blockedUser.Id)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "You cannot block yourself!"
             });
         }
 

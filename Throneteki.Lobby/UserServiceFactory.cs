@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Grpc.Net.Client;
 using IdentityModel.Client;
 using Throneteki.WebService;
@@ -18,24 +17,23 @@ public class UserServiceFactory
         this.httpClient = httpClient;
     }
 
-    public async Task<UserService.UserServiceClient?> GetUserServiceClient()
+    public Task<UserService.UserServiceClient> GetUserServiceClient()
     {
-        var address = "https://localhost:7125/UserService";
+        const string address = "https://localhost:7125/UserService";
 
         if (userServiceClient != null)
         {
-            return userServiceClient;
+            return Task.FromResult(userServiceClient);
         }
 
-        var accessToken = await GetAccessToken();
-
-        var credentials = CallCredentials.FromInterceptor((_, metadata) =>
+        var credentials = CallCredentials.FromInterceptor(async (_, metadata) =>
         {
+            var accessToken = await GetAccessToken();
+
             if (!string.IsNullOrEmpty(accessToken))
             {
                 metadata.Add("Authorization", $"Bearer {accessToken}");
             }
-            return Task.CompletedTask;
         });
 
         var channel = GrpcChannel.ForAddress(address, new GrpcChannelOptions
@@ -45,7 +43,7 @@ public class UserServiceFactory
 
         userServiceClient = new UserService.UserServiceClient(channel);
 
-        return userServiceClient;
+        return Task.FromResult(userServiceClient);
     }
 
     private async Task<string> GetAccessToken()
