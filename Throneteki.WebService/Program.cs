@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using Throneteki.Data;
 using Throneteki.WebService.Services;
@@ -20,9 +21,8 @@ builder.Services.AddOpenIddict()
         options.SetIssuer("https://localhost:44460/");
         options.AddAudiences("throneteki-webservices");
 
-        options.UseIntrospection()
-            .SetClientId("throneteki-webservices")
-            .SetClientSecret("27EB193C-DDA7-4BE4-9A6B-81A4A04FA2AF");
+        options.AddEncryptionKey(new SymmetricSecurityKey(
+            Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
 
         options.UseSystemNetHttp();
         options.UseAspNetCore();

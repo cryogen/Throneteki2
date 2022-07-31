@@ -1,4 +1,5 @@
 
+using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using Throneteki.Lobby;
 
@@ -18,9 +19,8 @@ builder.Services.AddOpenIddict()
         options.SetIssuer("https://localhost:44460/");
         options.AddAudiences("throneteki-lobby");
 
-        options.UseIntrospection()
-            .SetClientId("throneteki-lobby")
-            .SetClientSecret("E4A95BCD-C8F8-45C4-A89A-6F7B62CF840F");
+        options.AddEncryptionKey(new SymmetricSecurityKey(
+            Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
 
         options.UseSystemNetHttp();
         options.UseAspNetCore();
