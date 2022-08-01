@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
 import { IdTokenClaims } from 'oidc-client-ts';
 
-import { RightMenu, /* ProfileMenu,*/ LeftMenu, MenuItem, ProfileMenu } from './menus';
+import { useAppSelector } from '../../redux/hooks';
+import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
 import ProfileDropdown from './ProfileMenu';
+import ServerStatus from './ServerStatus';
 // import ServerStatus from './ServerStatus';
 // import GameContextMenu from './GameContextMenu';
 
@@ -32,6 +33,13 @@ interface NavigationProps {
 const Navigation = (props: NavigationProps) => {
     const { t } = useTranslation();
     const auth = useAuth();
+    const {
+        isConnected: lobbyConnected,
+        isEstablishingConnection: lobbyConnecting,
+        responseTime: lobbyResponseTime
+    } = useAppSelector((state) => state.lobby);
+
+    const currentGame = undefined;
 
     // const { games, currentGame, lobbyResponse, lobbySocketConnected, lobbySocketConnecting } =
     //     useSelector((state) => ({
@@ -133,24 +141,26 @@ const Navigation = (props: NavigationProps) => {
                 <Nav>{renderMenuItems(LeftMenu)}</Nav>
                 <Navbar.Collapse id='navbar' className='justify-content-end'>
                     <Nav className='ml-auto pr-md-5'>
-                        {/* <GameContextMenu />
-                    {numGames}
-                    {!currentGame && (
-                        <ServerStatus
-                            connected={lobbySocketConnected}
-                            connecting={lobbySocketConnecting}
-                            serverType='Lobby'
-                            responseTime={lobbyResponse}
-                        />
-                    )}
-                    {currentGame?.started && (
-                        <ServerStatus
-                            connected={gameConnected}
-                            connecting={gameConnecting}
-                            serverType='Game server'
-                            responseTime={gameResponse}
-                        />
-                    )} */}
+                        {
+                            /* <GameContextMenu />
+                    {numGames}*/
+                            !currentGame && (
+                                <ServerStatus
+                                    connected={lobbyConnected}
+                                    connecting={lobbyConnecting}
+                                    serverType='Lobby'
+                                    responseTime={lobbyResponseTime}
+                                />
+                            )
+                        }
+                        {/* /*currentGame?.started && (
+                            <ServerStatus
+                                connected={gameConnected}
+                                connecting={gameConnecting}
+                                serverType='Game server'
+                                responseTime={gameResponse}
+                            />
+                        ) */}
                         {renderMenuItems(RightMenu)}
                         <ProfileDropdown menu={ProfileMenu} user={user} />
                         {/* <LanguageSelector /> */}

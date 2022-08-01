@@ -2,14 +2,16 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UserSummary } from '../../types/lobby';
 
 export interface LobbyState {
-    isEstablishingConnection: boolean;
     isConnected: boolean;
+    isEstablishingConnection: boolean;
+    responseTime: number;
     users: UserSummary[];
 }
 
 const initialState: LobbyState = {
     isEstablishingConnection: false,
     isConnected: false,
+    responseTime: -1,
     users: []
 };
 
@@ -26,6 +28,14 @@ const lobbySlice = createSlice({
         },
         disconnect: (state) => {
             state.isConnected = false;
+        },
+        receivePing: (
+            state,
+            action: PayloadAction<{
+                responseTime: number;
+            }>
+        ) => {
+            state.responseTime = action.payload.responseTime;
         },
         receiveUser: (
             state,

@@ -104,6 +104,11 @@ public class LobbyHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
+    public async Task Ping()
+    {
+        await Clients.Caller.SendAsync("pong");
+    }
+
     private IEnumerable<ThronetekiUser> FilterUserListForUserByBlockList(ThronetekiUser sourceUser, IEnumerable<ThronetekiUser> userList)
     {
         return userList.Where(u =>

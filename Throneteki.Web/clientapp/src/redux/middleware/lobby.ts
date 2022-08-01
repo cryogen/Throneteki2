@@ -6,12 +6,14 @@ import { getUser } from '../../helpers/UserHelper';
 
 enum LobbyEvent {
     NewUserMessage = 'newuser',
+    PongMessage = 'pong',
     UserLeftMessage = 'userleft',
     UsersMessage = 'users'
 }
 
 const chatMiddleware: Middleware = (store) => {
     let connection: signalR.HubConnection | null = null;
+    let pingSentTime: Date;
 
     return (next) => (action) => {
         const isConnectionEstablished = connection && store.getState().lobby.isConnected;
@@ -29,6 +31,9 @@ const chatMiddleware: Middleware = (store) => {
 
             connection.start().then(() => {
                 store.dispatch(lobbyActions.connectionEstablished());
+
+                connection?.invoke('ping');
+                pingSentTime = new Date();
             });
             // .catch((err) => lobbyActions.connectionFailed(err));
 
@@ -42,6 +47,19 @@ const chatMiddleware: Middleware = (store) => {
 
             connection.on(LobbyEvent.UsersMessage, (users: UserSummary[]) => {
                 store.dispatch(lobbyActions.receiveUsers({ users }));
+            });
+
+            connection.on(LobbyEvent.PongMessage, () => {
+                store.dispatch(
+                    lobbyActions.receivePing({
+                        responseTime: new Date().getTime() - pingSentTime.getTime()
+                    })
+                );
+
+                setTimeout(() => {
+                    connection?.invoke('ping');
+                    pingSentTime = new Date();
+                }, 2 * 1000 * 60);
             });
         }
 

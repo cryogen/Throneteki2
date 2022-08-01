@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 // import { toastr } from 'react-redux-toastr';
 import { Trans, useTranslation } from 'react-i18next';
 import { Col } from 'react-bootstrap';
@@ -11,7 +11,6 @@ import Panel from '../components/Site/Panel';
 // import Typeahead from '../Components/Form/Typeahead';
 import SideBar from '../components/Lobby/SideBar';
 import UserList from '../components/Lobby/UserList';
-import { RootState } from '../redux/store';
 // import UserList from '../Components/Lobby/UserList';
 // import LobbyChat from '../Components/Lobby/LobbyChat';
 // import { clearChatStatus, loadNews, removeLobbyMessage, sendSocketMessage } from '../redux/actions';
@@ -21,7 +20,7 @@ import { RootState } from '../redux/store';
 
 const Lobby = () => {
     const dispatch = useAppDispatch();
-    const lobby = useAppSelector((state: RootState) => state.lobby);
+    const { users } = useAppSelector((state) => state.lobby);
 
     // const { bannerNotice, lobbyError, messages, motd, users } = useSelector((state) => ({
     //     bannerNotice: state.lobby.bannerNotice,
@@ -92,7 +91,7 @@ const Lobby = () => {
     return (
         <div className='flex-container'>
             <SideBar>
-                <UserList users={lobby.users} />
+                <UserList users={users} />
             </SideBar>
             <div>
                 <Col sm={{ span: 10, offset: 1 }}>
@@ -153,7 +152,7 @@ const Lobby = () => {
             <Col sm={{ span: 10, offset: 1 }} className='chat-container'>
                 <Panel
                     title={t('Lobby Chat ({{users}}) online', {
-                        users: lobby.users.length
+                        users: users.length
                     })}
                 >
                     {/* <div>
