@@ -20,17 +20,19 @@ function App() {
     const auth = useAuth();
 
     useEffect(() => {
-        if (auth.user) {
-            auth.signinRedirect();
+        if (auth.user && !auth.isLoading && !auth.isAuthenticated) {
+            auth.signinSilent();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth.signinRedirect, auth.isLoading, auth.isAuthenticated]);
 
+    useEffect(() => {
         dispatch(lobbyActions.startConnecting());
 
         return () => {
             dispatch(lobbyActions.disconnect());
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [dispatch, auth.signinRedirect]);
+    }, [dispatch]);
 
     useEffect(() => {
         // the `return` is important - addAccessTokenExpiring() returns a cleanup function
