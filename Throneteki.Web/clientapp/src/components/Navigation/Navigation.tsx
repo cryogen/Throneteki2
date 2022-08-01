@@ -10,7 +10,6 @@ import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
 import ProfileDropdown from './ProfileMenu';
 import ServerStatus from './ServerStatus';
-// import ServerStatus from './ServerStatus';
 // import GameContextMenu from './GameContextMenu';
 
 export interface UserSettings {
