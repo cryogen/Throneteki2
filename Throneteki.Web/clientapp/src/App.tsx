@@ -20,11 +20,9 @@ function App() {
     const auth = useAuth();
 
     useEffect(() => {
-        if (auth.user && !auth.isLoading && !auth.isAuthenticated) {
-            auth.signinSilent();
-        }
+        auth.signinSilent();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auth.signinRedirect, auth.isLoading, auth.isAuthenticated]);
+    }, []);
 
     useEffect(() => {
         dispatch(lobbyActions.startConnecting());
