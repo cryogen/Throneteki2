@@ -9,6 +9,7 @@ using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web;
 using Throneteki.Web.Helpers;
+using Throneteki.Web.Models.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,10 +50,49 @@ builder.Services.AddQuartz(options =>
 
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+var thronesDbOptions = new ThronesDbOptions();
+builder.Configuration.GetSection("ThronesDb").Bind(thronesDbOptions);
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddOAuth("ThronesDB", options =>
+    {
+        options.ClientId = thronesDbOptions.ClientId ?? string.Empty;
+        options.ClientSecret = thronesDbOptions.ClientSecret ?? string.Empty;
+        options.CallbackPath = "/signin-thronesdb";
+        options.AuthorizationEndpoint = "https://thronesdb.com/oauth/v2/auth";
+        options.TokenEndpoint = "https://thronesdb.com/oauth/v2/token";
+        options.Events.OnCreatingTicket = async ctx =>
+        {
+            var dbContext = ctx.HttpContext.RequestServices.GetRequiredService<ThronetekiDbContext>();
+            var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<ThronetekiUser>>();
+
+            var user = await userManager.FindByNameAsync(ctx.Properties.Items["UserId"]);
+            user = await userManager.Users.Include(u => u.ExternalTokens).SingleOrDefaultAsync(u => u.Id == user.Id);
+            if (user == null)
+            {
+                ctx.Fail("No user logged in");
+
+                return;
+            }
+
+            var tdbToken = user.ExternalTokens.FirstOrDefault(et => et.ExternalId == "ThronesDB");
+            if (tdbToken == null)
+            {
+                tdbToken = new ExternalToken();
+                user.ExternalTokens.Add(tdbToken);
+            }
+
+            tdbToken.AccessToken = ctx.AccessToken ?? string.Empty;
+            tdbToken.RefreshToken = ctx.RefreshToken ?? string.Empty;
+            tdbToken.Expiry = DateTime.Now.AddSeconds(ctx.ExpiresIn.GetValueOrDefault(TimeSpan.Zero).TotalSeconds);
+            tdbToken.ExternalId = "ThronesDB";
+            tdbToken.UserId = user.Id;
+
+            await dbContext.SaveChangesAsync();
+        };
+    });
 
 builder.Services.AddOpenIddict()
-
     .AddCore(options =>
     {
         options.UseEntityFrameworkCore().UseDbContext<ThronetekiDbContext>();

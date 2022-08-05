@@ -16,6 +16,7 @@ const context = [
     '/.well-known',
     '/Identity',
     '/connect',
+    '/signin-thronesdb',
     '/introspect',
     '/ApplyDatabaseMigrations',
     '/_framework'

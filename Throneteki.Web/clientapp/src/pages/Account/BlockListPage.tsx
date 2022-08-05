@@ -35,7 +35,6 @@ const BlockListPage = () => {
 
     const sortedBlockList = useMemo(() => {
         const sortedBlockList = response?.blockList ? response.blockList.slice() : [];
-        // Sort posts in descending chronological order
         sortedBlockList.sort((a: BlockListEntry, b: BlockListEntry) =>
             b.username.localeCompare(a.username)
         );

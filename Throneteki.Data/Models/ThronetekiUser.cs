@@ -15,4 +15,5 @@ public class ThronetekiUser : IdentityUser
     public ThronetekiUserProfileImage? ProfileImage { get; set; }
     public string? Settings { get; set; }
     public ICollection<BlockListEntry> BlockListEntries { get; init; }
+    public ICollection<ExternalToken> ExternalTokens { get; set; } = new List<ExternalToken>();
 }

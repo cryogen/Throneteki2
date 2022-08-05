@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using Throneteki.Data;
 using Throneteki.Data.Models;
@@ -19,13 +20,48 @@ public class DataInitialisationWorker : IHostedService
         using var scope = serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ThronetekiDbContext>();
-        await context.Database.EnsureCreatedAsync(cancellationToken);
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ThronetekiUser>>();
+        if ((await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+        {
+            await context.Database.MigrateAsync(cancellationToken);
+        }
 
         await SetupClients(scope, cancellationToken);
         await SetupScopes(scope, cancellationToken);
+        await SetupUsersAndRoles(scope);
+        await SetupFactions(scope, cancellationToken);
+    }
 
+    private static async Task SetupFactions(IServiceScope scope, CancellationToken cancellationToken = default)
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ThronetekiDbContext>();
+        await AddFactionIfNotExists(context, "baratheon", "House Baratheon", cancellationToken);
+        await AddFactionIfNotExists(context, "greyjoy", "House Greyjoy", cancellationToken);
+        await AddFactionIfNotExists(context, "lannister", "House Lannister", cancellationToken);
+        await AddFactionIfNotExists(context, "martell", "House Martell", cancellationToken);
+        await AddFactionIfNotExists(context, "neutral", "Neutral", cancellationToken);
+        await AddFactionIfNotExists(context, "stark", "House Stark", cancellationToken);
+        await AddFactionIfNotExists(context, "targaryen", "House Targaryen", cancellationToken);
+        await AddFactionIfNotExists(context, "thenightswatch", "The Night\'s Watch", cancellationToken);
+        await AddFactionIfNotExists(context, "tyrell", "House Tyrell", cancellationToken);
+    }
+
+    private static async Task AddFactionIfNotExists(ThronetekiDbContext context, string factionCode, string factionName, CancellationToken cancellationToken = default)
+    {
+        if (!await context.Factions!.AnyAsync(f => f.Code == factionCode, cancellationToken))
+        {
+            context.Factions!.Add(new Faction
+            {
+                Code = factionCode,
+                Name = factionName
+            });
+
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static async Task SetupUsersAndRoles(IServiceScope scope)
+    {
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ThronetekiUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         foreach (var role in Roles.AvailableRoles)
         {

@@ -377,6 +377,245 @@ namespace Throneteki.Data.Migrations
                     b.ToTable("BlockListEntry");
                 });
 
+            modelBuilder.Entity("Throneteki.Data.Models.Card", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("Claim")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Cost")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DeckLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FactionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Flavor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icons")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Illustrator")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Income")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Initiative")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Intrigue")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Loyal")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Military")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PackId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Power")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("Reserve")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Strength")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Traits")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Unique")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("FactionId");
+
+                    b.HasIndex("PackId");
+
+                    b.ToTable("Cards");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.Deck", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("AgendaId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ExternalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FactionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgendaId");
+
+                    b.HasIndex("FactionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Decks");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.DeckCard", b =>
+                {
+                    b.Property<int>("DeckId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CardType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("int");
+
+                    b.HasKey("DeckId", "CardId");
+
+                    b.HasIndex("CardId");
+
+                    b.ToTable("DeckCard");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.ExternalToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Expiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ExternalToken");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.Faction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Factions");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.Pack", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Packs");
+                });
+
             modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
                 {
                     b.Property<string>("Id")
@@ -556,6 +795,80 @@ namespace Throneteki.Data.Migrations
                     b.Navigation("ThronetekiUser");
                 });
 
+            modelBuilder.Entity("Throneteki.Data.Models.Card", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.Faction", "Faction")
+                        .WithMany()
+                        .HasForeignKey("FactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Throneteki.Data.Models.Pack", "Pack")
+                        .WithMany("Cards")
+                        .HasForeignKey("PackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Faction");
+
+                    b.Navigation("Pack");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.Deck", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.Card", "Agenda")
+                        .WithMany()
+                        .HasForeignKey("AgendaId");
+
+                    b.HasOne("Throneteki.Data.Models.Faction", "Faction")
+                        .WithMany()
+                        .HasForeignKey("FactionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Throneteki.Data.Models.ThronetekiUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Agenda");
+
+                    b.Navigation("Faction");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.DeckCard", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.Card", "Card")
+                        .WithMany()
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Throneteki.Data.Models.Deck", "Deck")
+                        .WithMany("DeckCards")
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("Deck");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.ExternalToken", b =>
+                {
+                    b.HasOne("Throneteki.Data.Models.ThronetekiUser", "User")
+                        .WithMany("ExternalTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
                 {
                     b.HasOne("Throneteki.Data.Models.ThronetekiUserProfileImage", "ProfileImage")
@@ -577,9 +890,21 @@ namespace Throneteki.Data.Migrations
                     b.Navigation("Tokens");
                 });
 
+            modelBuilder.Entity("Throneteki.Data.Models.Deck", b =>
+                {
+                    b.Navigation("DeckCards");
+                });
+
+            modelBuilder.Entity("Throneteki.Data.Models.Pack", b =>
+                {
+                    b.Navigation("Cards");
+                });
+
             modelBuilder.Entity("Throneteki.Data.Models.ThronetekiUser", b =>
                 {
                     b.Navigation("BlockListEntries");
+
+                    b.Navigation("ExternalTokens");
                 });
 #pragma warning restore 612, 618
         }

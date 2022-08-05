@@ -27,15 +27,13 @@ const oidcConfig = {
 
 function AppWrapper() {
     return (
-        <React.StrictMode>
-            <Provider store={store}>
-                <Router>
-                    <AuthProvider {...oidcConfig}>
-                        <App />
-                    </AuthProvider>
-                </Router>{' '}
-            </Provider>
-        </React.StrictMode>
+        <Provider store={store}>
+            <Router>
+                <AuthProvider {...oidcConfig}>
+                    <App />
+                </AuthProvider>
+            </Router>{' '}
+        </Provider>
     );
 }
 

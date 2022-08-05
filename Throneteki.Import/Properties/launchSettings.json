@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Throneteki.Import": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

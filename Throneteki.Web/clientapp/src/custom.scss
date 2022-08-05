@@ -1,8 +1,8 @@
 @import 'styles/colours';
 @import 'styles/variables';
+@import 'styles/fonts';
 
-@import '~bootstrap/scss/bootstrap.scss';
-
+@import '~bootstrap/scss/bootstrap';
 @import 'index';
 
 @import 'components/Account/CardSizeOption';

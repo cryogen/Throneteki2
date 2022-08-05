@@ -19,7 +19,7 @@ interface PanelProps {
 
 const Panel = ({ type = PanelType.Primary, title, titleClass, children }: PanelProps) => {
     return (
-        <Card border={type} bg='dark'>
+        <Card border={type} bg='dark' text='light'>
             {title && (
                 <Card.Header className={`${titleClass || ' '}text-center bg-primary`}>
                     {title}

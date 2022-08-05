@@ -1,8 +1,6 @@
-@import '../../styles/variables';
-@import '../../styles/colours';
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-@import '~bootstrap/scss/mixins';
+.navbar {
+    color: $navbar-dark-color;
+}
 
 .navbar-sm {
     min-height: $navbar-height;

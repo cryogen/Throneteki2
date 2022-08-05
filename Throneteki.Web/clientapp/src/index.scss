@@ -26,3 +26,29 @@ body {
 .content {
   padding-top: $navbar-height + 5px;
 }
+
+.table-hover tbody tr:hover td {
+    background-color: $info;
+}
+
+.table-scroll {
+    overflow-y: auto;
+    height: 50vh;
+
+    th {
+        position: sticky;
+        top: 0;
+        background-color: $primary;
+    }
+
+    // Make checkboxes selectable by clicking anywhere in the cell
+    td {
+        padding: 0.5rem;
+      }
+      
+      td > label, th > label, th > div > label {
+        display: block;
+        margin: -0.5rem;
+        padding: 0.5rem;
+      }
+}

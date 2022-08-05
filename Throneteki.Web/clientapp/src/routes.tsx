@@ -8,6 +8,9 @@ import RegisterPage from './pages/Account/RegisterPage';
 import ProfilePage from './pages/Account/ProfilePage';
 import Lobby from './pages/Lobby';
 import BlockListPage from './pages/Account/BlockListPage';
+import DecksPage from './pages/Decks/DecksPage';
+import ImportDeckPage from './pages/Decks/ImportDeckPage';
+import ThronesDbDecksPage from './pages/Decks/ThronesDbDecksPage';
 
 const Routes = () => {
     const location = useLocation();
@@ -31,6 +34,9 @@ const Routes = () => {
         { path: '/account/login', element: <LoginPage /> },
         { path: '/account/register', element: <RegisterPage /> },
         { path: '/account/profile', element: auth.user && <ProfilePage /> },
+        { path: '/decks', element: auth.user && <DecksPage /> },
+        { path: '/decks/import', element: auth.user && <ImportDeckPage /> },
+        { path: '/decks/thronesdb', element: auth.user && <ThronesDbDecksPage /> },
         { path: '*', element: <NotFound /> }
     ];
 };
