@@ -52,6 +52,7 @@ builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete
 
 var thronesDbOptions = new ThronesDbOptions();
 builder.Configuration.GetSection("ThronesDb").Bind(thronesDbOptions);
+builder.Services.Configure<ThronesDbOptions>(builder.Configuration.GetSection("ThronesDb"));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddOAuth("ThronesDB", options =>
