@@ -1,6 +1,6 @@
 import { BaseQueryFn, createApi, FetchArgs, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getUser } from '../../helpers/UserHelper';
 
+import { getUser } from '../../helpers/UserHelper';
 export interface ApiError {
     data: {
         message: string;
@@ -18,7 +18,30 @@ export const apiSlice = createApi({
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }
+
             return headers;
+        },
+        paramsSerializer: (params: Record<string, unknown>) => {
+            const queryStr = new URLSearchParams();
+
+            for (const param in params) {
+                if (!Array.isArray(params[param])) {
+                    queryStr.append(param, params[param] as string);
+                } else {
+                    let index = 0;
+                    for (const arrayVal of params[param] as Array<Record<string, unknown>>) {
+                        for (const arrayParam in arrayVal) {
+                            queryStr.append(
+                                `${param}[${index}].${arrayParam}`,
+                                arrayVal[arrayParam] as string
+                            );
+                        }
+
+                        index++;
+                    }
+                }
+            }
+            return queryStr.toString();
         }
     }) as BaseQueryFn<string | FetchArgs, unknown, ApiError, unknown>,
     endpoints: (builder) => ({
@@ -41,6 +64,18 @@ export const apiSlice = createApi({
         }),
         getCards: builder.query({
             query: () => '/data/cards'
+        }),
+        getDecks: builder.query({
+            query: (loadOptions) => {
+                return {
+                    url: '/decks',
+                    params: {
+                        pageSize: loadOptions.pageSize,
+                        pageNumber: loadOptions.pageIndex,
+                        sorting: loadOptions.sorting
+                    }
+                };
+            }
         }),
         getFactions: builder.query({
             query: () => '/data/factions'
@@ -69,6 +104,7 @@ export const {
     useAddDeckMutation,
     useGetBlockListQuery,
     useGetCardsQuery,
+    useGetDecksQuery,
     useGetFactionsQuery,
     useGetPacksQuery,
     useGetThronesDbDecksQuery,

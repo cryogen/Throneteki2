@@ -20,7 +20,7 @@ const DecksPage = () => {
     const { t } = useTranslation();
 
     return (
-        <Col lg={{ span: 5, offset: 1 }}>
+        <Col lg={{ span: 12 }}>
             <Decks />
         </Col>
     );

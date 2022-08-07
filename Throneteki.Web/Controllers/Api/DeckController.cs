@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenIddict.Validation.AspNetCore;
+using System.Linq.Dynamic.Core;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.Web.Models;
 using Throneteki.Web.Models.Options;
 
 namespace Throneteki.Web.Controllers.Api
@@ -93,7 +95,7 @@ namespace Throneteki.Web.Controllers.Api
         }
 
         [HttpGet("/api/decks")]
-        public async Task<IActionResult> GetDecks()
+        public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
@@ -101,7 +103,49 @@ namespace Throneteki.Web.Controllers.Api
                 return Unauthorized();
             }
 
-            return Ok(await context.Decks.Where(d => d.UserId == user.Id).ToListAsync());
+            var baseQuery = context.Decks
+                    .Include(d => d.Faction)
+                    .Include(d => d.Agenda)
+                    .Include(d => d.DeckCards)
+                    .ThenInclude(dc => dc.Card)
+                    .Where(d => d.UserId == user.Id);
+
+            if (options.Sorting != null && options.Sorting.Any())
+            {
+                baseQuery = baseQuery.OrderBy(string.Join(", ", options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
+            }
+
+            return Ok(new
+            {
+                Success = true,
+                TotalCount = await context.Decks.Where(d => d.UserId == user.Id).CountAsync(),
+                Decks = await baseQuery
+                    .Skip(options.PageNumber * options.PageSize)
+                    .Take(options.PageSize)
+                    .Select(d => new
+                    {
+                        d.Id,
+                        d.Name,
+                        d.Created,
+                        d.Updated,
+                        Agenda = d.Agenda != null ? new
+                        {
+                            d.Agenda.Code,
+                            d.Agenda.Label
+                        } : null,
+                        Faction = d.Faction.Name,
+                        DeckCards = d.DeckCards.Select(dc => new
+                        {
+                            dc.Count,
+                            Card = new
+                            {
+                                dc.Card.Code,
+                                dc.Card.Label
+                            }
+                        })
+                    })
+                    .ToListAsync()
+            });
         }
 
         [HttpGet("/api/decks/thronesdb/status")]

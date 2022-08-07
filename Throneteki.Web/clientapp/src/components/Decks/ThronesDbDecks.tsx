@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Alert, Button, Col, Table } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -62,7 +62,7 @@ const ThronesDbDecks = () => {
 
     let content;
 
-    const columns = React.useMemo<ColumnDef<ThronesDbDeck>[]>(
+    const columns = useMemo<ColumnDef<ThronesDbDeck>[]>(
         () => [
             {
                 id: 'select',
@@ -169,7 +169,7 @@ const ThronesDbDecks = () => {
         );
     } else if (data.decks.length === 0) {
         content = (
-            <Alert variant='danger'>
+            <Alert variant='info'>
                 {t('There are no decks in your ThronesDB account to import.')}
             </Alert>
         );
