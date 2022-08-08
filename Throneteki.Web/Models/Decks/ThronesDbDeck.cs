@@ -17,5 +17,6 @@
         public string? Problem { get; set; }
         public string? Tags { get; set; }
         public string? Uuid { get; set; }
+        public bool IsSynced { get; set; }
     }
 }

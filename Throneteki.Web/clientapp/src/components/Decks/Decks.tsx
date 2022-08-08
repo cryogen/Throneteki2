@@ -130,7 +130,11 @@ const Decks = () => {
             </div>
         );
     } else if (data.decks.length === 0) {
-        content = <Alert variant='info'>{t('You have no decks.')}</Alert>;
+        content = (
+            <Alert variant='info'>
+                {t('You have no decks. Use the options above to add some.')}
+            </Alert>
+        );
     } else {
         content = (
             <div>
@@ -296,21 +300,27 @@ const Decks = () => {
 
     return (
         <Panel title={t('Decks')}>
-            <LinkContainer to='/decks/new'>
-                <FaIconButton variant='light' icon={faFileCirclePlus} text='New' />
-            </LinkContainer>
-            <LinkContainer to='/decks/import'>
-                <FaIconButton variant='light' className='ms-2' icon={faDownload} text='Import' />
-            </LinkContainer>
-            <LinkContainer to='/decks/thronesdb'>
-                <Button variant='light' className='ms-2'>
-                    <Trans>
-                        <span className='pe-2'>ThronesDB</span>
-                    </Trans>
-                    <span className='icon icon-power'></span>
-                </Button>
-            </LinkContainer>
-
+            <div className='mb-3'>
+                <LinkContainer to='/decks/new'>
+                    <FaIconButton variant='light' icon={faFileCirclePlus} text='New' />
+                </LinkContainer>
+                <LinkContainer to='/decks/import'>
+                    <FaIconButton
+                        variant='light'
+                        className='ms-2'
+                        icon={faDownload}
+                        text='Import'
+                    />
+                </LinkContainer>
+                <LinkContainer to='/decks/thronesdb'>
+                    <Button variant='light' className='ms-2'>
+                        <Trans>
+                            <span className='pe-2'>ThronesDB</span>
+                        </Trans>
+                        <span className='icon icon-power'></span>
+                    </Button>
+                </LinkContainer>
+            </div>
             {content}
         </Panel>
     );

@@ -8,10 +8,10 @@ using OpenIddict.Validation.AspNetCore;
 using System.Linq.Dynamic.Core;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web.Models;
+using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
 
 namespace Throneteki.Web.Controllers.Api
@@ -54,11 +54,11 @@ namespace Throneteki.Web.Controllers.Api
             var deck = new Deck
             {
                 UserId = user.Id,
-                Name = request.Name!, // Name is validated by required attribute
+                Name = request.Name, // Name is validated by required attribute
                 FactionId = request.Faction,
                 AgendaId = request.Agenda,
                 Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow,
+                Updated = DateTime.UtcNow
             };
 
             var deckCards = new List<DeckCard>();
@@ -96,7 +96,6 @@ namespace Throneteki.Web.Controllers.Api
 
             var baseQuery = context.Decks
                     .Where(d => d.UserId == user.Id);
-
 
             if (options.Filters != null && options.Filters.Any())
             {
@@ -225,23 +224,32 @@ namespace Throneteki.Web.Controllers.Api
             var dbDecks = await context.Decks
                 .Include(d => d.DeckCards)
                 .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId.Value, v => v, cancellationToken);
+                .ToDictionaryAsync(k => k.ExternalId!.Value, v => v, cancellationToken);
 
-            var ret = await httpClient.GetStringAsync("oauth2/decks", cancellationToken);
-            var response = JsonNode.Parse(ret);
-
-            foreach (var deck in response.AsArray())
+            var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", cancellationToken);
+            if (decks == null)
             {
-                if (dbDecks.ContainsKey((int)deck["id"]!))
+                return BadRequest(new
                 {
-                    deck["is_synced"] = true;
+                    Success = false,
+                    Message = "An error occurred fetching decks from ThronesDB"
+                });
+            }
+
+            decks = decks.ToList();
+
+            foreach (var deck in decks)
+            {
+                if (dbDecks.ContainsKey(deck.Id))
+                {
+                    deck.IsSynced = true;
                 }
             }
 
             return Ok(new
             {
                 Success = true,
-                Decks = response
+                Decks = decks
             });
         }
 
@@ -289,36 +297,29 @@ namespace Throneteki.Web.Controllers.Api
 
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-            var ret = await httpClient.GetStringAsync("oauth2/decks", cancellationToken);
-            var response = JsonNode.Parse(ret);
-
-            if (response == null)
+            var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", cancellationToken);
+            if (thronesDbDecks == null)
             {
-                return Ok(new
+                return BadRequest(new
                 {
                     Success = false,
                     Message = "An error occurred importing decks, please try again later"
                 });
             }
 
-            var decks = response.AsArray().Where(d => deckIds.Contains((int)d!["id"]!));
+            var decks = thronesDbDecks.Where(d => deckIds.Contains(d.Id));
             var dbDecks = await context.Decks
                 .Include(d => d.DeckCards)
                 .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId.Value, v => v, cancellationToken);
+                .ToDictionaryAsync(k => k.ExternalId!.Value, v => v, cancellationToken);
             var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
             var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
 
-            const string BannerAgendaCode = "06018";
+            const string bannerAgendaCode = "06018";
 
             foreach (var deck in decks)
             {
-                if (deck == null)
-                {
-                    continue;
-                }
-
-                var deckId = (int)deck["id"]!;
+                var deckId = deck.Id;
 
                 if (!dbDecks.TryGetValue(deckId, out var dbDeck))
                 {
@@ -327,18 +328,17 @@ namespace Throneteki.Web.Controllers.Api
                 }
 
                 dbDeck.ExternalId = deckId;
-                dbDeck.Name = (string)deck["name"]!;
-                dbDeck.Created = (DateTime)deck["date_creation"]!;
-                dbDeck.Updated = (DateTime)deck["date_update"]!;
-                dbDeck.Faction = dbFactions[(string)deck["faction_code"]!];
+                dbDeck.Name = deck.Name ?? string.Empty;
+                dbDeck.Created = deck.DateCreation;
+                dbDeck.Updated = deck.DateUpdate;
+                dbDeck.Faction = dbFactions[deck.FactionCode!];
                 dbDeck.UserId = user.Id;
 
-                var agendas = deck["agendas"].Deserialize<IEnumerable<string>>()!;
-                if (agendas.Any(a => a == BannerAgendaCode))
+                if (deck.Agendas != null && deck.Agendas.Any(a => a == bannerAgendaCode))
                 {
-                    dbDeck.Agenda = dbCards[BannerAgendaCode];
+                    dbDeck.Agenda = dbCards[bannerAgendaCode];
 
-                    foreach (var agenda in agendas.Where(a => a != BannerAgendaCode))
+                    foreach (var agenda in deck.Agendas.Where(a => a != bannerAgendaCode))
                     {
                         if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[agenda].Id))
                         {
@@ -352,39 +352,28 @@ namespace Throneteki.Web.Controllers.Api
                         }
                     }
                 }
-                else
+                else if (deck.Agendas != null && deck.Agendas.Any())
                 {
-                    if (agendas.Any())
-                    {
-                        dbDeck.Agenda = dbCards[agendas.First()];
-                    }
+                    dbDeck.Agenda = dbCards[deck.Agendas.First()];
                 }
 
-                if (deck["slots"]!.ToJsonString() != "[]")
+
+                foreach (var (code, count) in deck.Slots!)
                 {
-                    var cardsObject = deck["slots"]!.AsObject();
-                    if (cardsObject != null)
+                    if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[code].Id))
                     {
-                        var cards = cardsObject.Deserialize<Dictionary<string, int>>();
-
-                        foreach (var (code, count) in cards!)
+                        if (dbCards[code].Type == "agenda")
                         {
-                            if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[code].Id))
-                            {
-                                if (dbCards[code].Type == "agenda")
-                                {
-                                    continue;
-                                }
-
-                                dbDeck.DeckCards.Add(new DeckCard
-                                {
-                                    Card = dbCards[code],
-                                    CardType = dbCards[code].Type == "plot" ? DeckCardType.Plot : DeckCardType.Draw,
-                                    Deck = dbDeck,
-                                    Count = count
-                                });
-                            }
+                            continue;
                         }
+
+                        dbDeck.DeckCards.Add(new DeckCard
+                        {
+                            Card = dbCards[code],
+                            CardType = dbCards[code].Type == "plot" ? DeckCardType.Plot : DeckCardType.Draw,
+                            Deck = dbDeck,
+                            Count = count
+                        });
                     }
                 }
             }

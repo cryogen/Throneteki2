@@ -97,11 +97,11 @@ const ThronesDbDecks = () => {
                 header: t('Name') as string
             },
             {
-                accessorKey: 'faction_name',
+                accessorKey: 'factionName',
                 header: t('Faction') as string
             },
             {
-                accessorKey: 'date_creation',
+                accessorKey: 'dateCreation',
                 cell: (info) =>
                     moment(info.getValue() as Date)
                         .local()
@@ -109,7 +109,7 @@ const ThronesDbDecks = () => {
                 header: t('Created') as string
             },
             {
-                accessorKey: 'date_update',
+                accessorKey: 'dateUpdate',
                 cell: (info) =>
                     moment(info.getValue() as Date)
                         .local()
@@ -118,7 +118,7 @@ const ThronesDbDecks = () => {
             },
             {
                 id: 'is_synced',
-                accessorKey: 'is_synced',
+                accessorKey: 'isSynced',
                 cell: (info) =>
                     info.getValue() ? (
                         <div className='text-center text-primary'>
