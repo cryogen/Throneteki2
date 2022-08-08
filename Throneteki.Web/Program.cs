@@ -62,6 +62,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.CallbackPath = "/signin-thronesdb";
         options.AuthorizationEndpoint = "https://thronesdb.com/oauth/v2/auth";
         options.TokenEndpoint = "https://thronesdb.com/oauth/v2/token";
+        options.Scope.Add("read_deck");
         options.Events.OnCreatingTicket = async ctx =>
         {
             var dbContext = ctx.HttpContext.RequestServices.GetRequiredService<ThronetekiDbContext>();

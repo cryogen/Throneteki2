@@ -20,7 +20,19 @@ function App() {
     const auth = useAuth();
 
     useEffect(() => {
-        auth.signinSilent();
+        const checkAuth = async () => {
+            await auth.clearStaleState();
+
+            try {
+                if (auth.user) {
+                    await auth.signinSilent();
+                }
+            } catch (err) {
+                auth.signoutRedirect();
+            }
+        };
+
+        checkAuth();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
