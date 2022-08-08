@@ -14,7 +14,7 @@ import {
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
 import { lookupCardByName } from '../../helpers/DeckHelper';
-import { Deck } from '../../types/decks';
+import { SaveDeck } from '../../types/decks';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface DeckCard {
@@ -144,7 +144,7 @@ const ImportDeckPage = () => {
             return;
         }
 
-        const deck: Deck = {
+        const deck: SaveDeck = {
             name: deckName,
             faction: faction.id,
             agenda: agenda?.id,

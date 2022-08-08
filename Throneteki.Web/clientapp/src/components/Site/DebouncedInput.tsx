@@ -28,9 +28,19 @@ const DebouncedInput = ({
         }, debounce);
 
         return () => clearTimeout(timeout);
-    }, [value, debounce, onChange]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
 
-    return <Form.Control {...props} value={value} onChange={(e) => setValue(e.target.value)} />;
+    return (
+        <Form.Control
+            {...props}
+            value={value}
+            onChange={(e) => {
+                console.info('onchange', e.target.value, value);
+                setValue(e.target.value);
+            }}
+        />
+    );
 };
 
 export default DebouncedInput;

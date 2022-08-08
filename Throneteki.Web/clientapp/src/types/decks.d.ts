@@ -1,10 +1,22 @@
-export interface Deck {
+import { ApiResponse, Card, Faction } from './data';
+
+export interface SaveDeck {
     name: string;
     faction: number;
     agenda: number | undefined;
     bannerCards: number[] | undefined;
     plotCards: { [number: number]: number };
     drawCards: { [number: number]: number };
+}
+
+export interface Deck {
+    id: number;
+    agenda?: Card;
+    created: Date;
+    deckCards: DeckCard[];
+    faction: Faction;
+    name: string;
+    updated: Date;
 }
 
 export interface ThronesDbDeck {
@@ -24,4 +36,9 @@ export interface ThronesDbDeck {
     tags: string;
     uuid: string;
     is_synced?: boolean;
+}
+
+export interface DecksResponse extends ApiResponse {
+    decks: Deck[];
+    totalCount: number;
 }

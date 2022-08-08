@@ -30,3 +30,8 @@ export interface Card {
     packCode: string;
     label: string;
 }
+
+export interface ApiResponse {
+    success: boolean;
+    message: string;
+}

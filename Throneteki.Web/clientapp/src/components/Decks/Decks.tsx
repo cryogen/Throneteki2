@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Form, InputGroup, Table } from 'react-bootstrap';
+import { Alert, Button, InputGroup, Row, Table } from 'react-bootstrap';
 import {
     faFileCirclePlus,
     faDownload,
@@ -11,12 +11,6 @@ import {
     faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
-
-import Panel from '../../components/Site/Panel';
-import FaIconButton from '../Site/FaIconButton';
-import { useGetDecksQuery } from '../../redux/api/apiSlice';
-import LoadingSpinner from '../LoadingSpinner';
-import { Deck } from '../../types/decks';
 import {
     getCoreRowModel,
     flexRender,
@@ -28,8 +22,18 @@ import {
 } from '@tanstack/react-table';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import Panel from '../../components/Site/Panel';
+import FaIconButton from '../Site/FaIconButton';
+import { useGetCardsQuery, useGetDecksQuery } from '../../redux/api/apiSlice';
+import LoadingSpinner from '../LoadingSpinner';
+import { Deck } from '../../types/decks';
 import TablePagination from '../Site/TablePagination';
 import DebouncedInput from '../Site/DebouncedInput';
+import { Card, Faction } from '../../types/data';
+import FactionImage from '../Images/FactionImage';
+import CardImage from '../Images/CardImage';
+import { Link } from 'react-router-dom';
 
 const Decks = () => {
     const { t } = useTranslation();
@@ -53,16 +57,70 @@ const Decks = () => {
     };
 
     const { data, isLoading, isError } = useGetDecksQuery(fetchDataOptions);
+    // const { data: cards, isLoading: isCardsLoading, isError: isCardsError } = useGetCardsQuery({});
+
+    // const cardsByCode = useMemo(() => {
+    //     return cards && Object.assign({}, ...cards.map((card: Card) => ({ [card.code]: card })));
+    // }, [cards]);
 
     const columns = useMemo<ColumnDef<Deck>[]>(
         () => [
             {
                 accessorKey: 'name',
-                header: t('Name') as string
+                header: t('Name') as string,
+                cell: (info) => {
+                    return (
+                        <Link to={`/decks/${info.row.original.id}/`}>
+                            <Trans>{info.getValue() as string}</Trans>
+                        </Link>
+                    );
+                }
             },
             {
-                accessorKey: 'faction',
-                header: t('Faction') as string
+                id: 'faction.name',
+                accessorFn: (row) => row.faction,
+                cell: (info) => {
+                    const faction = info.getValue() as Faction;
+                    return (
+                        <div className='d-flex justify-content-center'>
+                            <FactionImage faction={faction.code} />
+                        </div>
+                    );
+                },
+                header: t('Faction') as string,
+                enableColumnFilter: false
+            },
+            {
+                accessorFn: (row) => row.agenda,
+                id: 'agenda.label',
+                cell: (info) => {
+                    const agenda = info.getValue() as Card;
+                    const agendas = [];
+
+                    if (agenda) {
+                        agendas.push(agenda.code);
+                    }
+
+                    for (const agenda of info.row.original.deckCards.filter(
+                        (dc) => dc.type == 'Banner'
+                    )) {
+                        agendas.push(agenda.card.code);
+                    }
+
+                    const content =
+                        agendas.length === 0 ? (
+                            <Trans>None</Trans>
+                        ) : (
+                            agendas.map((agenda: string) => {
+                                return <CardImage className='me-1' key={agenda} card={agenda} />;
+                            })
+                        );
+
+                    return <div className='d-flex justify-content-center'>{content}</div>;
+                },
+                header: t('Agenda(s)') as string,
+                enableColumnFilter: false,
+                enableSorting: false
             },
             {
                 accessorKey: 'created',
@@ -70,6 +128,7 @@ const Decks = () => {
                     moment(info.getValue() as Date)
                         .local()
                         .format('YYYY-MM-DD HH:mm'),
+
                 header: t('Created') as string
             },
             {
@@ -145,7 +204,7 @@ const Decks = () => {
                     </div>
                 </div>
                 <div className='table-scroll'>
-                    <Table striped variant='dark' bordered>
+                    <Table striped variant='dark' bordered hover>
                         <thead>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <tr key={headerGroup.id}>
@@ -153,7 +212,7 @@ const Decks = () => {
                                         <th
                                             key={header.id}
                                             colSpan={header.colSpan}
-                                            className='user-select-none'
+                                            className='user-select-none align-top'
                                         >
                                             {header.isPlaceholder ? null : (
                                                 <>
@@ -198,16 +257,15 @@ const Decks = () => {
                                                     {header.column.getCanFilter() && (
                                                         <InputGroup>
                                                             <>
-                                                                <InputGroup.Text className='text-dark'>
+                                                                <InputGroup.Text className='border-dark bg-dark text-light'>
                                                                     <FontAwesomeIcon
                                                                         icon={faMagnifyingGlass}
                                                                     />
                                                                 </InputGroup.Text>
                                                                 <DebouncedInput
-                                                                    className='bg-light text-dark'
+                                                                    className=''
                                                                     value={
-                                                                        (header.column.getFilterValue() ??
-                                                                            '') as string
+                                                                        header.column.getFilterValue() as string
                                                                     }
                                                                     onChange={(value) =>
                                                                         header.column.setFilterValue(

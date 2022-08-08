@@ -101,13 +101,7 @@ namespace Throneteki.Web.Controllers.Api
             {
                 foreach (var filter in options.Filters)
                 {
-                    var columnToFilter = filter.Id switch
-                    {
-                        "faction" => "Faction.Name",
-                        _ => filter.Id
-                    };
-
-                    baseQuery = baseQuery.Where($"{columnToFilter}.Contains(@0)", filter.Value);
+                    baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
                 }
             }
 
@@ -136,12 +130,18 @@ namespace Throneteki.Web.Controllers.Api
                         d.Name,
                         d.Created,
                         d.Updated,
-                        Agenda = d.Agenda != null ? new
+                        Agenda = d.Agenda != null
+                            ? new
+                            {
+                                d.Agenda.Code,
+                                d.Agenda.Label
+                            }
+                            : null,
+                        Faction = new
                         {
-                            d.Agenda.Code,
-                            d.Agenda.Label
-                        } : null,
-                        Faction = d.Faction.Name,
+                            d.Faction.Code,
+                            d.Faction.Name
+                        },
                         DeckCards = d.DeckCards.Select(dc => new
                         {
                             dc.Count,
@@ -149,7 +149,8 @@ namespace Throneteki.Web.Controllers.Api
                             {
                                 dc.Card.Code,
                                 dc.Card.Label
-                            }
+                            },
+                            Type = dc.CardType.ToString()
                         })
                     })
                     .ToListAsync()
@@ -226,7 +227,7 @@ namespace Throneteki.Web.Controllers.Api
                 .Where(d => d.UserId == user.Id && d.ExternalId != null)
                 .ToDictionaryAsync(k => k.ExternalId!.Value, v => v, cancellationToken);
 
-            var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", cancellationToken);
+            var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
             if (decks == null)
             {
                 return BadRequest(new
@@ -297,7 +298,7 @@ namespace Throneteki.Web.Controllers.Api
 
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-            var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", cancellationToken);
+            var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
             if (thronesDbDecks == null)
             {
                 return BadRequest(new
