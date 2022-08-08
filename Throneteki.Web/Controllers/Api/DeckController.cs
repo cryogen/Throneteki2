@@ -42,15 +42,6 @@ namespace Throneteki.Web.Controllers.Api
                 return Unauthorized();
             }
 
-            if (request == null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Request cannot be null"
-                });
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(new
@@ -104,11 +95,29 @@ namespace Throneteki.Web.Controllers.Api
             }
 
             var baseQuery = context.Decks
-                    .Include(d => d.Faction)
+                    .Where(d => d.UserId == user.Id);
+
+
+            if (options.Filters != null && options.Filters.Any())
+            {
+                foreach (var filter in options.Filters)
+                {
+                    var columnToFilter = filter.Id switch
+                    {
+                        "faction" => "Faction.Name",
+                        _ => filter.Id
+                    };
+
+                    baseQuery = baseQuery.Where($"{columnToFilter}.Contains(@0)", filter.Value);
+                }
+            }
+
+            var rowCount = await baseQuery.CountAsync();
+
+            baseQuery = baseQuery.Include(d => d.Faction)
                     .Include(d => d.Agenda)
                     .Include(d => d.DeckCards)
-                    .ThenInclude(dc => dc.Card)
-                    .Where(d => d.UserId == user.Id);
+                    .ThenInclude(dc => dc.Card);
 
             if (options.Sorting != null && options.Sorting.Any())
             {
@@ -118,7 +127,7 @@ namespace Throneteki.Web.Controllers.Api
             return Ok(new
             {
                 Success = true,
-                TotalCount = await context.Decks.Where(d => d.UserId == user.Id).CountAsync(),
+                TotalCount = rowCount,
                 Decks = await baseQuery
                     .Skip(options.PageNumber * options.PageSize)
                     .Take(options.PageSize)
@@ -206,7 +215,7 @@ namespace Throneteki.Web.Controllers.Api
                     return Ok(new
                     {
                         Success = false,
-                        Message = "An error occured loading decks, your account needs to be re-linked to ThronesDB"
+                        Message = "An error occurred loading decks, your account needs to be re-linked to ThronesDB"
                     });
                 }
             }
@@ -273,7 +282,7 @@ namespace Throneteki.Web.Controllers.Api
                     return Ok(new
                     {
                         Success = false,
-                        Message = "An error occured importing decks, your account needs to be re-linked to ThronesDB"
+                        Message = "An error occurred importing decks, your account needs to be re-linked to ThronesDB"
                     });
                 }
             }
@@ -288,7 +297,7 @@ namespace Throneteki.Web.Controllers.Api
                 return Ok(new
                 {
                     Success = false,
-                    Message = "An error occured importing decks, please try again later"
+                    Message = "An error occurred importing decks, please try again later"
                 });
             }
 
@@ -396,12 +405,12 @@ namespace Throneteki.Web.Controllers.Api
             }
 
             var request = new List<KeyValuePair<string, string>>
-                {
-                    new KeyValuePair<string, string>("client_id", thronesDbOptions.ClientId),
-                    new KeyValuePair<string, string>("client_secret", thronesDbOptions.ClientSecret),
-                    new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                    new KeyValuePair<string, string>("refresh_token", token.RefreshToken)
-                };
+            {
+                new("client_id", thronesDbOptions.ClientId),
+                new("client_secret", thronesDbOptions.ClientSecret),
+                new("grant_type", "refresh_token"),
+                new("refresh_token", token.RefreshToken)
+            };
 
             using var content = new FormUrlEncodedContent(request);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");

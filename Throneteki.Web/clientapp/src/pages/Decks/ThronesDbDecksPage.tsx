@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Alert, Col } from 'react-bootstrap';
+import { Trans, useTranslation } from 'react-i18next';
+import { Alert, Button, Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import { useGetThronesDbStatusQuery } from '../../redux/api/apiSlice';
@@ -25,7 +25,19 @@ const ThronesDbDecksPage = () => {
     } else if (response.linked) {
         content = <ThronesDbDecks />;
     } else {
-        content = <div>Link your account yo</div>;
+        content = (
+            <>
+                <div>
+                    <Trans>
+                        You can link your account to ThronesDB and import decks from there. Click
+                        the button below to get started
+                    </Trans>
+                </div>
+                <Button href='/connect/link-tdb'>
+                    <Trans>Link Account</Trans>
+                </Button>
+            </>
+        );
     }
 
     return (

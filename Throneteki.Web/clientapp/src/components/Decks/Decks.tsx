@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Table } from 'react-bootstrap';
+import { Alert, Button, Form, InputGroup, Table } from 'react-bootstrap';
 import {
     faFileCirclePlus,
     faDownload,
     faRefresh,
     faArrowUpLong,
-    faArrowDownLong
+    faArrowDownLong,
+    faMagnifyingGlass,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 
@@ -17,16 +19,17 @@ import LoadingSpinner from '../LoadingSpinner';
 import { Deck } from '../../types/decks';
 import {
     getCoreRowModel,
-    getPaginationRowModel,
     flexRender,
     useReactTable,
     SortingState,
     ColumnDef,
-    PaginationState
+    PaginationState,
+    ColumnFiltersState
 } from '@tanstack/react-table';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TablePagination from '../Site/TablePagination';
+import DebouncedInput from '../Site/DebouncedInput';
 
 const Decks = () => {
     const { t } = useTranslation();
@@ -40,8 +43,10 @@ const Decks = () => {
             desc: true
         }
     ]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
     const fetchDataOptions = {
+        columnFilters,
         pageIndex,
         pageSize,
         sorting
@@ -79,7 +84,7 @@ const Decks = () => {
         [t]
     );
 
-    const pagination = React.useMemo(
+    const pagination = useMemo(
         () => ({
             pageIndex,
             pageSize
@@ -90,16 +95,19 @@ const Decks = () => {
     const table = useReactTable({
         data: data?.decks,
         columns,
+        enableFilters: true,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        manualFiltering: true,
         manualPagination: true,
         manualSorting: true,
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
         pageCount: Math.ceil(data?.totalCount / pageSize) ?? -1,
         state: {
             sorting,
-            pagination
+            pagination,
+            columnFilters
         }
     });
 
@@ -144,44 +152,88 @@ const Decks = () => {
                                             className='user-select-none'
                                         >
                                             {header.isPlaceholder ? null : (
-                                                <div
-                                                    className={`d-flex ${
-                                                        header.column.id === 'select'
-                                                            ? 'justify-content-center'
-                                                            : 'justify-content-between'
-                                                    }`}
-                                                    {...{
-                                                        role: header.column.getCanSort()
-                                                            ? 'button'
-                                                            : '',
-                                                        onClick:
-                                                            header.column.getToggleSortingHandler()
-                                                    }}
-                                                >
-                                                    {flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
+                                                <>
+                                                    <div
+                                                        className={`d-flex ${
+                                                            header.column.id === 'select'
+                                                                ? 'justify-content-center'
+                                                                : 'justify-content-between'
+                                                        }`}
+                                                        {...{
+                                                            role: header.column.getCanSort()
+                                                                ? 'button'
+                                                                : '',
+                                                            onClick:
+                                                                header.column.getToggleSortingHandler()
+                                                        }}
+                                                    >
+                                                        {flexRender(
+                                                            header.column.columnDef.header,
+                                                            header.getContext()
+                                                        )}
+                                                        {{
+                                                            asc: (
+                                                                <div>
+                                                                    {' '}
+                                                                    <FontAwesomeIcon
+                                                                        icon={faArrowUpLong}
+                                                                    />
+                                                                </div>
+                                                            ),
+                                                            desc: (
+                                                                <div>
+                                                                    {' '}
+                                                                    <FontAwesomeIcon
+                                                                        icon={faArrowDownLong}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        }[header.column.getIsSorted() as string] ??
+                                                            null}
+                                                    </div>
+                                                    {header.column.getCanFilter() && (
+                                                        <InputGroup>
+                                                            <>
+                                                                <InputGroup.Text className='text-dark'>
+                                                                    <FontAwesomeIcon
+                                                                        icon={faMagnifyingGlass}
+                                                                    />
+                                                                </InputGroup.Text>
+                                                                <DebouncedInput
+                                                                    className='bg-light text-dark'
+                                                                    value={
+                                                                        (header.column.getFilterValue() ??
+                                                                            '') as string
+                                                                    }
+                                                                    onChange={(value) =>
+                                                                        header.column.setFilterValue(
+                                                                            value
+                                                                        )
+                                                                    }
+                                                                />
+                                                                {header.column.getFilterValue() && (
+                                                                    <button
+                                                                        type='button'
+                                                                        className='btn bg-transparent text-danger'
+                                                                        style={{
+                                                                            marginLeft: '-40px',
+                                                                            zIndex: '100'
+                                                                        }}
+                                                                        onClick={() => {
+                                                                            header.column.setFilterValue(
+                                                                                ''
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <FontAwesomeIcon
+                                                                            icon={faTimes}
+                                                                        />
+                                                                    </button>
+                                                                )}
+                                                            </>
+                                                        </InputGroup>
                                                     )}
-                                                    {{
-                                                        asc: (
-                                                            <div>
-                                                                {' '}
-                                                                <FontAwesomeIcon
-                                                                    icon={faArrowUpLong}
-                                                                />
-                                                            </div>
-                                                        ),
-                                                        desc: (
-                                                            <div>
-                                                                {' '}
-                                                                <FontAwesomeIcon
-                                                                    icon={faArrowDownLong}
-                                                                />
-                                                            </div>
-                                                        )
-                                                    }[header.column.getIsSorted() as string] ??
-                                                        null}
-                                                </div>
+                                                </>
                                             )}
                                         </th>
                                     ))}

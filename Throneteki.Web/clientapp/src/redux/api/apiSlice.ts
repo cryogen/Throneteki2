@@ -72,7 +72,8 @@ export const apiSlice = createApi({
                     params: {
                         pageSize: loadOptions.pageSize,
                         pageNumber: loadOptions.pageIndex,
-                        sorting: loadOptions.sorting
+                        sorting: loadOptions.sorting,
+                        filters: loadOptions.columnFilters
                     }
                 };
             }
