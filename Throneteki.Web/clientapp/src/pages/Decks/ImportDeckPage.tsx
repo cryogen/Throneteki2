@@ -14,13 +14,8 @@ import {
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
 import { lookupCardByName } from '../../helpers/DeckHelper';
-import { SaveDeck } from '../../types/decks';
+import { SaveDeck, SaveDeckCard } from '../../types/decks';
 import LoadingSpinner from '../../components/LoadingSpinner';
-
-interface DeckCard {
-    count: number;
-    card: Card;
-}
 
 const ImportDeckPage = () => {
     const { t } = useTranslation();
@@ -55,7 +50,7 @@ const ImportDeckPage = () => {
         return { count: count, card: card };
     };
 
-    const addCard = (list: DeckCard[], card: Card, number: number) => {
+    const addCard = (list: SaveDeckCard[], card: Card, number: number) => {
         const cardCode = parseInt(card.code);
         if (list[cardCode]) {
             list[cardCode].count += number;
@@ -130,8 +125,8 @@ const ImportDeckPage = () => {
             setError('Invalid deck. Ensure you have exported a plain text deck from ThronesDb.');
         }
 
-        const plotCards: DeckCard[] = [];
-        const drawCards: DeckCard[] = [];
+        const plotCards: SaveDeckCard[] = [];
+        const drawCards: SaveDeckCard[] = [];
 
         for (const line of split) {
             const { card, count } = parseCardLine(line);

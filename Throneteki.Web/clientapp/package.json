@@ -16,6 +16,7 @@
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
     "axios": "^0.27.2",
+    "classnames": "^2.3.1",
     "formik": "^2.2.9",
     "moment": "^2.29.4",
     "oidc-client-ts": "^2.0.4",

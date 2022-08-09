@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router';
+import React from 'react';
 import { useAuth } from 'react-oidc-context';
 import NotFound from './components/NotFound';
-import { ApplicationPaths, QueryParameterNames } from './authorisation/AuthorisationConstants';
 import LoginPage from './pages/Account/LoginPage';
 import RegisterPage from './pages/Account/RegisterPage';
 import ProfilePage from './pages/Account/ProfilePage';
@@ -11,19 +9,20 @@ import BlockListPage from './pages/Account/BlockListPage';
 import DecksPage from './pages/Decks/DecksPage';
 import ImportDeckPage from './pages/Decks/ImportDeckPage';
 import ThronesDbDecksPage from './pages/Decks/ThronesDbDecksPage';
+import DeckPage from './pages/Decks/DeckPage';
 
 const Routes = () => {
-    const location = useLocation();
+    // const location = useLocation();
     const auth = useAuth();
 
-    const path = location.pathname;
+    // const path = location.pathname;
 
-    const link = document.createElement('a');
-    link.href = path;
-    const returnUrl = `${link.protocol}//${link.host}${link.pathname}${link.search}${link.hash}`;
-    const redirectUrl = `${ApplicationPaths.Login}?${
-        QueryParameterNames.ReturnUrl
-    }=${encodeURIComponent(returnUrl)}`;
+    // const link = document.createElement('a');
+    // link.href = path;
+    // const returnUrl = `${link.protocol}//${link.host}${link.pathname}${link.search}${link.hash}`;
+    // const redirectUrl = `${ApplicationPaths.Login}?${
+    //     QueryParameterNames.ReturnUrl
+    // }=${encodeURIComponent(returnUrl)}`;
 
     return [
         { path: '/', element: <Lobby /> },
@@ -35,6 +34,7 @@ const Routes = () => {
         { path: '/account/register', element: <RegisterPage /> },
         { path: '/account/profile', element: auth.user && <ProfilePage /> },
         { path: '/decks', element: auth.user && <DecksPage /> },
+        { path: '/decks/:deckId', element: auth.user && <DeckPage /> },
         { path: '/decks/import', element: auth.user && <ImportDeckPage /> },
         { path: '/decks/thronesdb', element: auth.user && <ThronesDbDecksPage /> },
         { path: '*', element: <NotFound /> }

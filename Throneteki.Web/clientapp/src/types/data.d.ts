@@ -17,7 +17,7 @@ export interface Card {
     name: string;
     quantity: number;
     unique: boolean;
-    faction: string;
+    faction: Faction;
     loyal: boolean;
     cost: number;
     icons: string[];

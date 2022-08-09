@@ -65,6 +65,9 @@ export const apiSlice = createApi({
         getCards: builder.query({
             query: () => '/data/cards'
         }),
+        getDeck: builder.query({
+            query: (deckId) => `/decks/${deckId}`
+        }),
         getDecks: builder.query({
             query: (loadOptions) => {
                 return {
@@ -105,6 +108,7 @@ export const {
     useAddDeckMutation,
     useGetBlockListQuery,
     useGetCardsQuery,
+    useGetDeckQuery,
     useGetDecksQuery,
     useGetFactionsQuery,
     useGetPacksQuery,

@@ -1,3 +1,11 @@
 .faction-image {
-    width: 32px;
+    &.sm {
+        width: 32px;
+    }
+    &.md {
+        width: 64px;
+    }
+    &.lg {
+        width: 128px;
+    }
 }

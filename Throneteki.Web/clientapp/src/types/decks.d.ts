@@ -9,6 +9,17 @@ export interface SaveDeck {
     drawCards: { [number: number]: number };
 }
 
+export interface DeckCard {
+    card: Card;
+    count: number;
+    type: DrawCardType;
+}
+
+export interface SaveDeckCard {
+    card: Card;
+    count: number;
+}
+
 export interface Deck {
     id: number;
     agenda?: Card;

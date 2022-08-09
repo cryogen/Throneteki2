@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, InputGroup, Row, Table } from 'react-bootstrap';
+import { Alert, Button, InputGroup, Table } from 'react-bootstrap';
 import {
     faFileCirclePlus,
     faDownload,
@@ -25,15 +25,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Panel from '../../components/Site/Panel';
 import FaIconButton from '../Site/FaIconButton';
-import { useGetCardsQuery, useGetDecksQuery } from '../../redux/api/apiSlice';
+import { useGetDecksQuery } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../LoadingSpinner';
-import { Deck } from '../../types/decks';
 import TablePagination from '../Site/TablePagination';
 import DebouncedInput from '../Site/DebouncedInput';
 import { Card, Faction } from '../../types/data';
 import FactionImage from '../Images/FactionImage';
 import CardImage from '../Images/CardImage';
 import { Link } from 'react-router-dom';
+import { Deck, DeckCard } from '../../types/decks';
+import { DrawCardType } from '../../types/enums';
 
 const Decks = () => {
     const { t } = useTranslation();
@@ -57,11 +58,6 @@ const Decks = () => {
     };
 
     const { data, isLoading, isError } = useGetDecksQuery(fetchDataOptions);
-    // const { data: cards, isLoading: isCardsLoading, isError: isCardsError } = useGetCardsQuery({});
-
-    // const cardsByCode = useMemo(() => {
-    //     return cards && Object.assign({}, ...cards.map((card: Card) => ({ [card.code]: card })));
-    // }, [cards]);
 
     const columns = useMemo<ColumnDef<Deck>[]>(
         () => [
@@ -102,7 +98,7 @@ const Decks = () => {
                     }
 
                     for (const agenda of info.row.original.deckCards.filter(
-                        (dc) => dc.type == 'Banner'
+                        (dc: DeckCard) => dc.type == DrawCardType.Banner
                     )) {
                         agendas.push(agenda.card.code);
                     }
@@ -116,7 +112,7 @@ const Decks = () => {
                             })
                         );
 
-                    return <div className='d-flex justify-content-center'>{content}</div>;
+                    return <div className='d-flex'>{content}</div>;
                 },
                 header: t('Agenda(s)') as string,
                 enableColumnFilter: false,

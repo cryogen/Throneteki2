@@ -157,6 +157,67 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
+        [HttpGet("/api/decks/{deckId}")]
+        public async Task<IActionResult> GetDeck(int deckId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var deck = await context.Decks
+                .Include(d => d.Faction)
+                .Include(d => d.Agenda)
+                .Include(d => d.DeckCards)
+                .ThenInclude(dc => dc.Card)
+                .FirstOrDefaultAsync(d => d.Id == deckId);
+
+            if (deck == null)
+            {
+                return NotFound();
+            }
+
+            if (deck.UserId != user.Id)
+            {
+                return Forbid();
+            }
+
+            return Ok(new
+            {
+                Success = true,
+                Deck = new
+                {
+                    deck.Id,
+                    deck.Name,
+                    deck.Created,
+                    deck.Updated,
+                    Agenda = deck.Agenda != null
+                        ? new
+                        {
+                            deck.Agenda.Code,
+                            deck.Agenda.Label
+                        }
+                        : null,
+                    Faction = new
+                    {
+                        deck.Faction.Code,
+                        deck.Faction.Name
+                    },
+                    DeckCards = deck.DeckCards.Select(dc => new
+                    {
+                        dc.Count,
+                        Card = new
+                        {
+                            dc.Card.Code,
+                            dc.Card.Label
+                        },
+                        Type = dc.CardType.ToString()
+                    })
+                }
+            });
+        }
+
         [HttpGet("/api/decks/thronesdb/status")]
         public async Task<IActionResult> GetThronesDbLinkStatus()
         {

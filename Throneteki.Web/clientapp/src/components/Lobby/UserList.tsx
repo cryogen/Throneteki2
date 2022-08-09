@@ -4,8 +4,6 @@ import { UserSummary } from '../../types/lobby';
 
 import Avatar from '../Site/Avatar';
 
-import './UserList.scss';
-
 interface UserListProps {
     users: UserSummary[];
 }

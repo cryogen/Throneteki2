@@ -30,9 +30,9 @@ namespace Throneteki.Web.Controllers.Api
         public async Task<IActionResult> GetCards(CancellationToken cancellationToken)
         {
             return Ok((await context.Cards
-                .Include(c => c.Faction)
-                .Include(c => c.Pack)
-                .ToListAsync(cancellationToken))
+                    .Include(c => c.Faction)
+                    .Include(c => c.Pack)
+                    .ToListAsync(cancellationToken))
                 .Select(card => new
                 {
                     card.Id,
@@ -40,7 +40,11 @@ namespace Throneteki.Web.Controllers.Api
                     card.Type,
                     card.Name,
                     card.Unique,
-                    Faction = card.Faction.Name,
+                    Faction = new
+                    {
+                        card.Faction.Code,
+                        card.Faction.Name
+                    },
                     card.Loyal,
                     card.Cost,
                     card.Strength,
