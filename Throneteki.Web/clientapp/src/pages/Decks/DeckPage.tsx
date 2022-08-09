@@ -86,7 +86,7 @@ const DeckPage = () => {
         let currentContainer: JSX.Element[] = splitCards[0];
         for (const [type, cards] of Object.entries(groupedCards)) {
             currentContainer.push(
-                <div className='mt-2 mb-2'>
+                <div className='mt-2 mb-2' key={type}>
                     <span className={`me-1 icon icon-${type}`}></span>
                     <strong>
                         {type[0].toUpperCase() + type.slice(1)} ({cards.length})
@@ -95,15 +95,15 @@ const DeckPage = () => {
             );
             for (const deckCard of cards) {
                 currentContainer.push(
-                    <>
-                        <div key={deckCard.card.code}>
+                    <React.Fragment key={deckCard.card.code}>
+                        <div>
                             {deckCard.count}x{' '}
                             <span
                                 className={`me-1 icon icon-${type} text-${deckCard.card.faction.code}`}
                             ></span>
                             {deckCard.card.label}
                         </div>
-                    </>
+                    </React.Fragment>
                 );
                 cardIndex++;
 

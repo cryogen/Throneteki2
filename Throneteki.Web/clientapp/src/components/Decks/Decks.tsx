@@ -32,12 +32,14 @@ import DebouncedInput from '../Site/DebouncedInput';
 import { Card, Faction } from '../../types/data';
 import FactionImage from '../Images/FactionImage';
 import CardImage from '../Images/CardImage';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Deck, DeckCard } from '../../types/decks';
 import { DrawCardType } from '../../types/enums';
 
 const Decks = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
     const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10
@@ -65,11 +67,7 @@ const Decks = () => {
                 accessorKey: 'name',
                 header: t('Name') as string,
                 cell: (info) => {
-                    return (
-                        <Link to={`/decks/${info.row.original.id}/`}>
-                            <Trans>{info.getValue() as string}</Trans>
-                        </Link>
-                    );
+                    return <Trans>{info.getValue() as string}</Trans>;
                 }
             },
             {
@@ -300,7 +298,12 @@ const Decks = () => {
                         </thead>
                         <tbody>
                             {table.getRowModel().rows.map((row) => (
-                                <tr key={row.id}>
+                                <tr
+                                    key={row.id}
+                                    onClick={() => {
+                                        navigate(`/decks/${row.original.id}/`);
+                                    }}
+                                >
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id}>
                                             {flexRender(
