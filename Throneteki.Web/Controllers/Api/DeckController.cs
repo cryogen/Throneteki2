@@ -167,7 +167,8 @@ namespace Throneteki.Web.Controllers.Api
                                 dc.Card.Label
                             },
                             Type = dc.CardType.ToString()
-                        })
+                        }),
+                        d.IsFavourite
                     })
                     .ToListAsync()
             });

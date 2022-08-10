@@ -14,8 +14,10 @@ const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilt
     const { data, isLoading, isError } = fetchData(args);
     const initialFilterState: Record<string, boolean> = {};
 
-    for (const value of filter.value as string[]) {
-        initialFilterState[value] = true;
+    if (filter?.value) {
+        for (const value of filter.value as string[]) {
+            initialFilterState[value] = true;
+        }
     }
 
     const [filters, setFilters] = useState<Record<string, boolean>>(initialFilterState);

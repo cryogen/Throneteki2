@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Throneteki.Data;
 
@@ -11,9 +12,10 @@ using Throneteki.Data;
 namespace Throneteki.Data.Migrations
 {
     [DbContext(typeof(ThronetekiDbContext))]
-    partial class ThronetekiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220810195023_Favourite")]
+    partial class Favourite
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

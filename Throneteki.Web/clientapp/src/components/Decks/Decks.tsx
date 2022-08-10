@@ -9,8 +9,11 @@ import {
     faArrowDownLong,
     faMagnifyingGlass,
     faTimes,
-    faFilter
+    faFilter,
+    faHeart,
+    IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 import {
     getCoreRowModel,
@@ -23,7 +26,7 @@ import {
     RowData
 } from '@tanstack/react-table';
 import moment from 'moment';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon, FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
 
 import Panel from '../../components/Site/Panel';
 import FaIconButton from '../Site/FaIconButton';
@@ -81,7 +84,7 @@ const Decks = () => {
                     return <Trans>{info.getValue() as string}</Trans>;
                 },
                 meta: {
-                    colWidth: 5
+                    colWidth: 4
                 }
             },
             {
@@ -180,6 +183,24 @@ const Decks = () => {
                 header: t('Updated') as string,
                 meta: {
                     colWidth: 2
+                },
+                enableColumnFilter: false
+            },
+            {
+                accessorKey: 'isFavourite',
+                cell: (info) => (
+                    <div className='d-flex justify-content-center text-danger'>
+                        <>
+                            {info.getValue() && <FontAwesomeIcon icon={faHeart} />}
+                            {info.getValue() || (
+                                <FontAwesomeIcon icon={faHeartRegular as IconDefinition} />
+                            )}
+                        </>
+                    </div>
+                ),
+                header: t('Favourite') as string,
+                meta: {
+                    colWidth: 1
                 },
                 enableColumnFilter: false
             }

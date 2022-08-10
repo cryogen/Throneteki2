@@ -18,5 +18,6 @@ namespace Throneteki.Data.Models
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public string? ExternalId { get; set; }
+        public bool IsFavourite { get; set; }
     }
 }
