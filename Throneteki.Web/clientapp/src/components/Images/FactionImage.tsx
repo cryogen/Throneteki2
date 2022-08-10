@@ -11,8 +11,12 @@ interface FactionImageProps {
 }
 
 const FactionImage = ({ faction, className, size = 'sm' }: FactionImageProps) => {
-    const classString = classNames('faction-image', className, size);
-    return <Image className={classString} fluid src={Constants.FactionsImagePaths[faction]} />;
+    const classString = classNames(className, size);
+    return (
+        <div className='faction-image'>
+            <Image className={classString} fluid src={Constants.FactionsImagePaths[faction]} />
+        </div>
+    );
 };
 
 export default FactionImage;

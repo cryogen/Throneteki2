@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.Web.Helpers;
 using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
@@ -18,6 +19,7 @@ namespace Throneteki.Web.Controllers.Api
 {
     [ApiController]
     [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    [Route("/api/decks/")]
     public class DeckController : ControllerBase
     {
         private readonly ThronetekiDbContext context;
@@ -33,7 +35,7 @@ namespace Throneteki.Web.Controllers.Api
             jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
         }
 
-        [HttpPost("api/decks")]
+        [HttpPost]
         public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
         {
             var user = await userManager.GetUserAsync(User);
@@ -85,7 +87,7 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
-        [HttpGet("/api/decks")]
+        [HttpGet]
         public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
         {
             var user = await userManager.GetUserAsync(User);
@@ -101,7 +103,20 @@ namespace Throneteki.Web.Controllers.Api
             {
                 foreach (var filter in options.Filters)
                 {
-                    baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
+                    if (filter.Id == null)
+                    {
+                        continue;
+                    }
+
+                    if (filter.Value != null && filter.Value.Contains(','))
+                    {
+                        var filterList = filter.Value.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                        baseQuery = baseQuery.Where("(@0).Contains(faction.name)", filterList);
+                    }
+                    else
+                    {
+                        baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
+                    }
                 }
             }
 
@@ -128,6 +143,7 @@ namespace Throneteki.Web.Controllers.Api
                     {
                         d.Id,
                         d.Name,
+                        d.ExternalId,
                         d.Created,
                         d.Updated,
                         Agenda = d.Agenda != null
@@ -157,7 +173,7 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
-        [HttpGet("/api/decks/{deckId}")]
+        [HttpGet("{deckId}")]
         public async Task<IActionResult> GetDeck(int deckId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -190,6 +206,7 @@ namespace Throneteki.Web.Controllers.Api
                 {
                     deck.Id,
                     deck.Name,
+                    deck.ExternalId,
                     deck.Created,
                     deck.Updated,
                     Agenda = deck.Agenda != null
@@ -218,7 +235,35 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
-        [HttpGet("/api/decks/thronesdb/status")]
+        [HttpGet("groupFilter")]
+        public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var query = context.Decks
+                .Where(d => d.UserId == user.Id);
+
+            if (options.Filters != null && options.Filters.Any())
+            {
+                foreach (var filter in options.Filters)
+                {
+                    if (filter.Value == null || filter.Value.Contains(','))
+                    {
+                        continue;
+                    }
+
+                    query = query.Where($"{filter.Id}.Contains(@0)", filter.Value);
+                }
+            }
+
+            return Ok(query.Select(column).Distinct());
+        }
+
+        [HttpGet("thronesdb/status")]
         public async Task<IActionResult> GetThronesDbLinkStatus()
         {
             var user = await userManager.GetUserAsync(User);
@@ -238,7 +283,7 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
-        [HttpGet("/api/decks/thronesdb")]
+        [HttpGet("thronesdb")]
         public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
         {
             var user = await userManager.GetUserAsync(User);
@@ -286,7 +331,7 @@ namespace Throneteki.Web.Controllers.Api
             var dbDecks = await context.Decks
                 .Include(d => d.DeckCards)
                 .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId!.Value, v => v, cancellationToken);
+                .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
 
             var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
             if (decks == null)
@@ -302,7 +347,7 @@ namespace Throneteki.Web.Controllers.Api
 
             foreach (var deck in decks)
             {
-                if (dbDecks.ContainsKey(deck.Id))
+                if (deck.Uuid != null && dbDecks.ContainsKey(deck.Uuid))
                 {
                     deck.IsSynced = true;
                 }
@@ -315,7 +360,7 @@ namespace Throneteki.Web.Controllers.Api
             });
         }
 
-        [HttpPost("/api/decks/thronesdb")]
+        [HttpPost("thronesdb")]
         public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
         {
             var user = await userManager.GetUserAsync(User);
@@ -373,7 +418,7 @@ namespace Throneteki.Web.Controllers.Api
             var dbDecks = await context.Decks
                 .Include(d => d.DeckCards)
                 .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId!.Value, v => v, cancellationToken);
+                .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
             var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
             var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
 
@@ -381,7 +426,11 @@ namespace Throneteki.Web.Controllers.Api
 
             foreach (var deck in decks)
             {
-                var deckId = deck.Id;
+                var deckId = deck.Uuid;
+                if (deckId == null)
+                {
+                    continue;
+                }
 
                 if (!dbDecks.TryGetValue(deckId, out var dbDeck))
                 {
@@ -389,7 +438,7 @@ namespace Throneteki.Web.Controllers.Api
                     context.Decks.Add(dbDeck);
                 }
 
-                dbDeck.ExternalId = deckId;
+                dbDeck.ExternalId = deck.Uuid;
                 dbDeck.Name = deck.Name ?? string.Empty;
                 dbDeck.Created = deck.DateCreation;
                 dbDeck.Updated = deck.DateUpdate;

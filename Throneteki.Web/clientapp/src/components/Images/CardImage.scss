@@ -1,12 +1,16 @@
 .game-card-image {
     border-radius: 5px;
-    &.sm {
+    height: 45px;
+
+    .sm {
         width: 32px;
     }
-    &.md {
+
+    .md {
         width: 64px;
     }
-    &.lg {
+        
+    .lg {
         width: 128px;
     }
 }

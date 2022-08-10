@@ -17,6 +17,6 @@ namespace Throneteki.Data.Models
         public ICollection<DeckCard> DeckCards { get; set; } = new List<DeckCard>();
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
-        public int? ExternalId { get; set; }
+        public string? ExternalId { get; set; }
     }
 }

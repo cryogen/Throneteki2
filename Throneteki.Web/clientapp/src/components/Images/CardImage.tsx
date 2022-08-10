@@ -9,9 +9,13 @@ interface CardImageProps {
 }
 
 const CardImage = ({ card, className, size = 'sm' }: CardImageProps) => {
-    const classString = classNames('game-card-image', className, size);
+    const classString = classNames(className, size);
 
-    return <Image className={classString} fluid src={`/img/cards/${card}.png`} />;
+    return (
+        <div className='game-card-image'>
+            <Image className={classString} fluid src={`/img/cards/${card}.png`} />
+        </div>
+    );
 };
 
 export default CardImage;

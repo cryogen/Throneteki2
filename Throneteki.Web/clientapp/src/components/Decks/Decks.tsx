@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, InputGroup, Table } from 'react-bootstrap';
+import { Alert, Button, InputGroup, OverlayTrigger, Popover, Table } from 'react-bootstrap';
 import {
     faFileCirclePlus,
     faDownload,
@@ -8,7 +8,8 @@ import {
     faArrowUpLong,
     faArrowDownLong,
     faMagnifyingGlass,
-    faTimes
+    faTimes,
+    faFilter
 } from '@fortawesome/free-solid-svg-icons';
 import { LinkContainer } from 'react-router-bootstrap';
 import {
@@ -18,14 +19,15 @@ import {
     SortingState,
     ColumnDef,
     PaginationState,
-    ColumnFiltersState
+    ColumnFiltersState,
+    RowData
 } from '@tanstack/react-table';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Panel from '../../components/Site/Panel';
 import FaIconButton from '../Site/FaIconButton';
-import { useGetDecksQuery } from '../../redux/api/apiSlice';
+import { useGetDecksQuery, useGetFilterOptionsForDecksQuery } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../LoadingSpinner';
 import TablePagination from '../Site/TablePagination';
 import DebouncedInput from '../Site/DebouncedInput';
@@ -35,6 +37,15 @@ import CardImage from '../Images/CardImage';
 import { useNavigate } from 'react-router-dom';
 import { Deck, DeckCard } from '../../types/decks';
 import { DrawCardType } from '../../types/enums';
+import TableGroupFilter from '../Site/TableGroupFilter';
+
+declare module '@tanstack/table-core' {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface ColumnMeta<TData extends RowData, TValue> {
+        colWidth: number;
+        groupingFilter?: JSX.Element;
+    }
+}
 
 const Decks = () => {
     const { t } = useTranslation();
@@ -68,6 +79,9 @@ const Decks = () => {
                 header: t('Name') as string,
                 cell: (info) => {
                     return <Trans>{info.getValue() as string}</Trans>;
+                },
+                meta: {
+                    colWidth: 5
                 }
             },
             {
@@ -81,8 +95,33 @@ const Decks = () => {
                         </div>
                     );
                 },
-                header: t('Faction') as string,
-                enableColumnFilter: false
+                meta: {
+                    colWidth: 1,
+                    groupingFilter: (
+                        <Popover>
+                            <Popover.Body className='text-dark bg-light'>
+                                <TableGroupFilter
+                                    onOkClick={(filter) => {
+                                        if (filter.length > 0) {
+                                            table.getColumn('faction.name').setFilterValue(filter);
+                                        }
+                                    }}
+                                    fetchData={useGetFilterOptionsForDecksQuery}
+                                    filter={
+                                        fetchDataOptions.columnFilters.filter(
+                                            (f) => f.id === 'faction.name'
+                                        )[0]
+                                    }
+                                    args={{
+                                        column: 'faction.name',
+                                        columnFilters: fetchDataOptions.columnFilters
+                                    }}
+                                />
+                            </Popover.Body>
+                        </Popover>
+                    )
+                },
+                header: t('Faction') as string
             },
             {
                 accessorFn: (row) => row.agenda,
@@ -112,6 +151,9 @@ const Decks = () => {
 
                     return <div className='d-flex'>{content}</div>;
                 },
+                meta: {
+                    colWidth: 2
+                },
                 header: t('Agenda(s)') as string,
                 enableColumnFilter: false,
                 enableSorting: false
@@ -123,7 +165,11 @@ const Decks = () => {
                         .local()
                         .format('YYYY-MM-DD HH:mm'),
 
-                header: t('Created') as string
+                header: t('Created') as string,
+                meta: {
+                    colWidth: 2
+                },
+                enableColumnFilter: false
             },
             {
                 accessorKey: 'updated',
@@ -131,7 +177,11 @@ const Decks = () => {
                     moment(info.getValue() as Date)
                         .local()
                         .format('YYYY-MM-DD HH:mm'),
-                header: t('Updated') as string
+                header: t('Updated') as string,
+                meta: {
+                    colWidth: 2
+                },
+                enableColumnFilter: false
             }
         ],
         [t]
@@ -206,7 +256,9 @@ const Decks = () => {
                                         <th
                                             key={header.id}
                                             colSpan={header.colSpan}
-                                            className='user-select-none align-top'
+                                            className={`user-select-none align-top col-${
+                                                header.column.columnDef.meta?.colWidth || 3
+                                            }`}
                                         >
                                             {header.isPlaceholder ? null : (
                                                 <>
@@ -216,18 +268,22 @@ const Decks = () => {
                                                                 ? 'justify-content-center'
                                                                 : 'justify-content-between'
                                                         }`}
-                                                        {...{
-                                                            role: header.column.getCanSort()
-                                                                ? 'button'
-                                                                : '',
-                                                            onClick:
-                                                                header.column.getToggleSortingHandler()
-                                                        }}
+                                                        {...{}}
                                                     >
-                                                        {flexRender(
-                                                            header.column.columnDef.header,
-                                                            header.getContext()
-                                                        )}
+                                                        <span
+                                                            className='flex-grow-1'
+                                                            role={
+                                                                header.column.getCanSort()
+                                                                    ? 'button'
+                                                                    : ''
+                                                            }
+                                                            onClick={header.column.getToggleSortingHandler()}
+                                                        >
+                                                            {flexRender(
+                                                                header.column.columnDef.header,
+                                                                header.getContext()
+                                                            )}
+                                                        </span>
                                                         {{
                                                             asc: (
                                                                 <div>
@@ -247,48 +303,68 @@ const Decks = () => {
                                                             )
                                                         }[header.column.getIsSorted() as string] ??
                                                             null}
-                                                    </div>
-                                                    {header.column.getCanFilter() && (
-                                                        <InputGroup>
+                                                        {header.column.columnDef.meta
+                                                            ?.groupingFilter && (
                                                             <>
-                                                                <InputGroup.Text className='border-dark bg-dark text-light'>
+                                                                <OverlayTrigger
+                                                                    trigger='click'
+                                                                    placement='right'
+                                                                    rootClose={true}
+                                                                    overlay={
+                                                                        header.column.columnDef.meta
+                                                                            ?.groupingFilter
+                                                                    }
+                                                                >
                                                                     <FontAwesomeIcon
-                                                                        icon={faMagnifyingGlass}
+                                                                        icon={faFilter}
                                                                     />
-                                                                </InputGroup.Text>
-                                                                <DebouncedInput
-                                                                    className=''
-                                                                    value={
-                                                                        header.column.getFilterValue() as string
-                                                                    }
-                                                                    onChange={(value) =>
-                                                                        header.column.setFilterValue(
-                                                                            value
-                                                                        )
-                                                                    }
-                                                                />
-                                                                {header.column.getFilterValue() && (
-                                                                    <button
-                                                                        type='button'
-                                                                        className='btn bg-transparent text-danger'
-                                                                        style={{
-                                                                            marginLeft: '-40px',
-                                                                            zIndex: '100'
-                                                                        }}
-                                                                        onClick={() => {
-                                                                            header.column.setFilterValue(
-                                                                                ''
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <FontAwesomeIcon
-                                                                            icon={faTimes}
-                                                                        />
-                                                                    </button>
-                                                                )}
+                                                                </OverlayTrigger>
                                                             </>
-                                                        </InputGroup>
-                                                    )}
+                                                        )}
+                                                    </div>
+                                                    {header.column.getCanFilter() &&
+                                                        !header.column.columnDef.meta
+                                                            ?.groupingFilter && (
+                                                            <InputGroup>
+                                                                <>
+                                                                    <InputGroup.Text className='border-dark bg-dark text-light'>
+                                                                        <FontAwesomeIcon
+                                                                            icon={faMagnifyingGlass}
+                                                                        />
+                                                                    </InputGroup.Text>
+                                                                    <DebouncedInput
+                                                                        className=''
+                                                                        value={
+                                                                            header.column.getFilterValue() as string
+                                                                        }
+                                                                        onChange={(value) =>
+                                                                            header.column.setFilterValue(
+                                                                                value
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    {header.column.getFilterValue() && (
+                                                                        <button
+                                                                            type='button'
+                                                                            className='btn bg-transparent text-danger'
+                                                                            style={{
+                                                                                marginLeft: '-40px',
+                                                                                zIndex: '100'
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                header.column.setFilterValue(
+                                                                                    ''
+                                                                                );
+                                                                            }}
+                                                                        >
+                                                                            <FontAwesomeIcon
+                                                                                icon={faTimes}
+                                                                            />
+                                                                        </button>
+                                                                    )}
+                                                                </>
+                                                            </InputGroup>
+                                                        )}
                                                 </>
                                             )}
                                         </th>
@@ -305,7 +381,12 @@ const Decks = () => {
                                     }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <td key={cell.id}>
+                                        <td
+                                            key={cell.id}
+                                            className={`col-${
+                                                cell.column.columnDef.meta?.colWidth || '1'
+                                            }`}
+                                        >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()

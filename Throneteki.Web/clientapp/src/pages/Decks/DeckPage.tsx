@@ -139,6 +139,22 @@ const DeckPage = () => {
                         </Col>
                     </Row>
                 ))}
+                {deck.externalId && (
+                    <Row className='mb-0' as='dl'>
+                        <Col sm={3} as='dt'>
+                            <Trans>ThronesDB</Trans>
+                        </Col>
+                        <Col sm={3} className='mb-0' as='dd'>
+                            <a
+                                href={`https://thronesdb.com/deck/view/${deck.externalId}`}
+                                target='_blank'
+                                rel='noreferrer'
+                            >
+                                <Trans>Link</Trans>
+                            </a>
+                        </Col>
+                    </Row>
+                )}
                 <Row className='mt-3'>
                     <Col sm={4}>{splitCards[0]}</Col>
                     <Col sm={4}>{splitCards[1]}</Col>

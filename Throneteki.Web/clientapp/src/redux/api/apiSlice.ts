@@ -84,6 +84,15 @@ export const apiSlice = createApi({
         getFactions: builder.query({
             query: () => '/data/factions'
         }),
+        getFilterOptionsForDecks: builder.query({
+            query: ({ column, columnFilters }) => ({
+                url: `/decks/groupFilter`,
+                params: {
+                    column: column,
+                    filters: columnFilters
+                }
+            })
+        }),
         getPacks: builder.query({
             query: () => '/data/packs'
         }),
@@ -111,6 +120,7 @@ export const {
     useGetDeckQuery,
     useGetDecksQuery,
     useGetFactionsQuery,
+    useGetFilterOptionsForDecksQuery,
     useGetPacksQuery,
     useGetThronesDbDecksQuery,
     useGetThronesDbStatusQuery,
