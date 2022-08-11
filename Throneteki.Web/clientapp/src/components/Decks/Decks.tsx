@@ -26,11 +26,15 @@ import {
     RowData
 } from '@tanstack/react-table';
 import moment from 'moment';
-import { FontAwesomeIcon, FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Panel from '../../components/Site/Panel';
 import FaIconButton from '../Site/FaIconButton';
-import { useGetDecksQuery, useGetFilterOptionsForDecksQuery } from '../../redux/api/apiSlice';
+import {
+    useGetDecksQuery,
+    useGetFilterOptionsForDecksQuery,
+    useToggleDeckFavouriteMutation
+} from '../../redux/api/apiSlice';
 import LoadingSpinner from '../LoadingSpinner';
 import TablePagination from '../Site/TablePagination';
 import DebouncedInput from '../Site/DebouncedInput';
@@ -74,6 +78,8 @@ const Decks = () => {
     };
 
     const { data, isLoading, isError } = useGetDecksQuery(fetchDataOptions);
+
+    const [toggleFavourite, { isLoading: isToggleLoading }] = useToggleDeckFavouriteMutation();
 
     const columns = useMemo<ColumnDef<Deck>[]>(
         () => [
@@ -189,12 +195,25 @@ const Decks = () => {
             {
                 accessorKey: 'isFavourite',
                 cell: (info) => (
-                    <div className='d-flex justify-content-center text-danger'>
+                    <div
+                        className='d-flex justify-content-center text-danger'
+                        role='button'
+                        onClick={async (event) => {
+                            event.stopPropagation();
+
+                            await toggleFavourite(info.row.original.id);
+                        }}
+                    >
                         <>
-                            {info.getValue() && <FontAwesomeIcon icon={faHeart} />}
-                            {info.getValue() || (
-                                <FontAwesomeIcon icon={faHeartRegular as IconDefinition} />
-                            )}
+                            {
+                                <FontAwesomeIcon
+                                    icon={
+                                        info.getValue()
+                                            ? faHeart
+                                            : (faHeartRegular as IconDefinition)
+                                    }
+                                />
+                            }
                         </>
                     </div>
                 ),

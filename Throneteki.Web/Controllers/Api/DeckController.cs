@@ -10,7 +10,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Throneteki.Data;
 using Throneteki.Data.Models;
-using Throneteki.Web.Helpers;
 using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
@@ -489,6 +488,36 @@ namespace Throneteki.Web.Controllers.Api
                     }
                 }
             }
+
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Ok(new
+            {
+                Success = true
+            });
+        }
+
+        [HttpPost("{deckId}/toggleFavourite")]
+        public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var deck = await context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
+            if (deck == null)
+            {
+                return NotFound();
+            }
+
+            if (deck.UserId != user.Id)
+            {
+                return Forbid();
+            }
+
+            deck.IsFavourite = !deck.IsFavourite;
 
             await context.SaveChangesAsync(cancellationToken);
 
