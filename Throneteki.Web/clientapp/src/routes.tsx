@@ -25,7 +25,7 @@ const Routes = () => {
     // }=${encodeURIComponent(returnUrl)}`;
 
     return [
-        { path: '/', element: <Lobby /> },
+        { path: '/', element: <Lobby />, breadcrumb: 'Home' },
         {
             path: '/account/blocklist',
             element: auth.user && <BlockListPage />
