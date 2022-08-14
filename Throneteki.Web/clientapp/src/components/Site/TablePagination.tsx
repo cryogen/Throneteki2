@@ -22,9 +22,9 @@ const TablePagination = ({
         const pageNumber = index + 1;
         const isPageNumberFirst = pageNumber === 1;
         const isPageNumberLast = pageNumber === pageCount;
-        const isCurrentPageWithinTwoPageNumbers = Math.abs(pageNumber - currentPage) <= 2;
+        const isCurrentPageWithinOnePageNumber = Math.abs(pageNumber - currentPage) <= 1;
 
-        if (isPageNumberFirst || isPageNumberLast || isCurrentPageWithinTwoPageNumbers) {
+        if (isPageNumberFirst || isPageNumberLast || isCurrentPageWithinOnePageNumber) {
             isPageNumberOutOfRange = false;
             return (
                 <Pagination.Item

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { BreadcrumbData } from 'use-react-router-breadcrumbs';
 
 const Breadcrumbs = ({ breadcrumbs }: { breadcrumbs: BreadcrumbData<string>[] }) => {
-    console.info(breadcrumbs);
     return (
         <Breadcrumb>
             {breadcrumbs.map(({ match, breadcrumb }) => (

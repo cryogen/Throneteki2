@@ -6,14 +6,18 @@ interface CardImageProps {
     className?: string;
     card: string;
     size?: 'sm' | 'md' | 'lg';
+    selected?: boolean;
 }
 
-const CardImage = ({ card, className, size = 'sm' }: CardImageProps) => {
-    const classString = classNames(className, size);
+const CardImage = ({ card, className, size = 'sm', selected = false }: CardImageProps) => {
+    const imageClass = classNames(className, size);
+    const containerClass = classNames('game-card-image', {
+        selected: selected
+    });
 
     return (
-        <div className='game-card-image'>
-            <Image className={classString} fluid src={`/img/cards/${card}.png`} />
+        <div className={containerClass}>
+            <Image className={imageClass} fluid src={`/img/cards/${card}.png`} />
         </div>
     );
 };

@@ -29,10 +29,17 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet("/api/data/cards")]
         public async Task<IActionResult> GetCards(CancellationToken cancellationToken)
         {
-            return Ok((await context.Cards
-                    .Include(c => c.Faction)
-                    .Include(c => c.Pack)
-                    .ToListAsync(cancellationToken))
+            var excludedPackCodes = new List<string>
+            {
+                "VDS",
+                "VHotK",
+                "VKm"
+            };
+
+            return Ok(await context.Cards
+                .Include(c => c.Faction)
+                .Include(c => c.Pack)
+                .Where(card => !excludedPackCodes.Contains(card.Pack.Code))
                 .Select(card => new
                 {
                     card.Id,
@@ -60,11 +67,13 @@ namespace Throneteki.Web.Controllers.Api
                         card.Intrigue,
                         card.Power
                     },
-                    Traits = card.Traits?.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                    Traits = card.Traits != null ? card.Traits.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) : Array.Empty<string>(),
                     card.Income,
                     card.Claim,
-                    card.Reserve
-                }));
+                    card.Reserve,
+                    card.Initiative
+                })
+                .ToListAsync(cancellationToken));
         }
     }
 }

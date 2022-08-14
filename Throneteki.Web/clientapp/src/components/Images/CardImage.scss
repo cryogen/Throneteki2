@@ -1,6 +1,9 @@
 .game-card-image {
-    border-radius: 5px;
-    height: 45px;
+    img {
+        border-radius: 6px;
+    }
+
+    min-height: 45px;
 
     .sm {
         width: 32px;

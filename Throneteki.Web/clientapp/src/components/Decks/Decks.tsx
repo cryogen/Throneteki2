@@ -308,7 +308,6 @@ const Decks = () => {
                                                                 ? 'justify-content-center'
                                                                 : 'justify-content-between'
                                                         }`}
-                                                        {...{}}
                                                     >
                                                         <span
                                                             className='flex-grow-1'
