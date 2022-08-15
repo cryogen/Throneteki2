@@ -12,7 +12,7 @@ export interface SaveDeck {
 export interface DeckCard {
     card: Card;
     count: number;
-    type: DrawCardType;
+    type?: DrawCardType;
 }
 
 export interface SaveDeckCard {
@@ -21,13 +21,13 @@ export interface SaveDeckCard {
 }
 
 export interface Deck {
-    id: number;
+    id?: number;
     agenda?: Card;
-    created: Date;
+    created?: Date;
     deckCards: DeckCard[];
     faction: Faction;
     name: string;
-    updated: Date;
+    updated?: Date;
 }
 
 export interface ThronesDbDeck {

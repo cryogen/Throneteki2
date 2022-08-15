@@ -18,12 +18,13 @@ import {
     useGetFactionsQuery
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
-import { Constants } from '../../constants';
+import { BannersForFaction, Constants } from '../../constants';
 import { ColumnDef, RowData } from '@tanstack/react-table';
 import { SaveDeck, SaveDeckCard } from '../../types/decks';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ReactTable from '../Table/ReactTable';
+import DeckSummary from './DeckSummary';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,17 +37,6 @@ interface DeckEditorProps {
     deck: { faction: string; agendas: string[] };
     onBackClick: () => void;
 }
-
-const bannersForFaction: Record<string, string> = {
-    '01198': 'baratheon',
-    '01199': 'greyjoy',
-    '01200': 'lannister',
-    '01201': 'martell',
-    '01202': 'thenightswatch',
-    '01203': 'stark',
-    '01204': 'targaryen',
-    '01205': 'tyrell'
-};
 
 const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     const { t } = useTranslation();
@@ -61,7 +51,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
         [deck.faction]
             .concat(['neutral'])
             .concat(
-                deck.agendas.filter((a) => bannersForFaction[a]).map((a) => bannersForFaction[a])
+                deck.agendas.filter((a) => BannersForFaction[a]).map((a) => BannersForFaction[a])
             )
     );
     const [typeFilter, setTypeFilter] = useState<string[]>(['character', 'agenda', 'plot']);
@@ -69,6 +59,27 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     const [deckName, setDeckName] = useState<string>('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const buildSaveDeck = () => {
+        const saveDeck: SaveDeck = {
+            name: deckName,
+            faction: factionsByCode[deck.faction].id,
+            agenda: deck.agendas && cardsByCode[deck.agendas[0]].id,
+            bannerCards: [],
+            plotCards: {},
+            drawCards: {}
+        };
+
+        for (const deckCard of deckCards.filter((dc) => dc.card.type === 'plot')) {
+            saveDeck.plotCards[deckCard.card.id] = deckCard.count;
+        }
+
+        for (const deckCard of deckCards.filter((dc) => dc.card.type !== 'plot')) {
+            saveDeck.drawCards[deckCard.card.id] = deckCard.count;
+        }
+
+        return saveDeck;
+    };
 
     const columns = useMemo<ColumnDef<Card>[]>(
         () => [
@@ -223,51 +234,6 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     let cardTypes = cards.filter((c: Card) => c.type !== 'title').map((card: Card) => card.type);
     cardTypes = Array.from(new Set(cardTypes));
 
-    const groupedCards: Record<string, SaveDeckCard[]> = {};
-
-    for (const deckCard of deckCards) {
-        const type = deckCard.card.type;
-        if (!groupedCards[type]) {
-            groupedCards[type] = [deckCard];
-        } else {
-            groupedCards[type].push(deckCard);
-        }
-    }
-
-    const splitCards = [[], [], []];
-    let cardIndex = 0;
-    let currentContainer: JSX.Element[] = splitCards[0];
-    for (const [type, cards] of Object.entries(groupedCards)) {
-        currentContainer.push(
-            <div className='mt-2 mb-2' key={type}>
-                <span className={`me-1 icon icon-${type}`}></span>
-                <strong>
-                    {type[0].toUpperCase() + type.slice(1)} ({cards.length})
-                </strong>
-            </div>
-        );
-        for (const deckCard of cards) {
-            currentContainer.push(
-                <React.Fragment key={deckCard.card.code}>
-                    <div>
-                        {deckCard.count}x{' '}
-                        <span
-                            className={`me-1 icon icon-${type} text-${deckCard.card.faction.code}`}
-                        ></span>
-                        {deckCard.card.label}
-                    </div>
-                </React.Fragment>
-            );
-            cardIndex++;
-
-            if (cardIndex > 40) {
-                currentContainer = splitCards[2];
-            } else if (cardIndex > 20) {
-                currentContainer = splitCards[1];
-            }
-        }
-    }
-
     return (
         <Row>
             <Col sm={6}>
@@ -279,29 +245,10 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         variant='primary'
                         disabled={isAddLoading}
                         onClick={async () => {
-                            const saveDeck: SaveDeck = {
-                                name: deckName,
-                                faction: factionsByCode[deck.faction].id,
-                                agenda: deck.agendas && cardsByCode[deck.agendas[0]].id,
-                                bannerCards: [],
-                                plotCards: {},
-                                drawCards: {}
-                            };
-
                             setError('');
                             setSuccess('');
 
-                            for (const deckCard of deckCards.filter(
-                                (dc) => dc.card.type === 'plot'
-                            )) {
-                                saveDeck.plotCards[deckCard.card.id] = deckCard.count;
-                            }
-
-                            for (const deckCard of deckCards.filter(
-                                (dc) => dc.card.type !== 'plot'
-                            )) {
-                                saveDeck.drawCards[deckCard.card.id] = deckCard.count;
-                            }
+                            const saveDeck = buildSaveDeck();
 
                             try {
                                 const response = await addDeck(saveDeck).unwrap();
@@ -402,11 +349,13 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 />
             </Col>
             <Col sm={6}>
-                <Row className='mt-3'>
-                    <Col sm={4}>{splitCards[0]}</Col>
-                    <Col sm={4}>{splitCards[1]}</Col>
-                    <Col sm={4}>{splitCards[2]}</Col>
-                </Row>
+                <DeckSummary
+                    deck={{
+                        name: deckName,
+                        deckCards: deckCards,
+                        faction: factionsByCode[deck.faction]
+                    }}
+                />
             </Col>
         </Row>
     );
