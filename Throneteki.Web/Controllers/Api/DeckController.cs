@@ -135,7 +135,7 @@ namespace Throneteki.Web.Controllers.Api
             {
                 Success = true,
                 TotalCount = rowCount,
-                Decks = await baseQuery
+                Data = await baseQuery
                     .Skip(options.PageNumber * options.PageSize)
                     .Take(options.PageSize)
                     .Select(d => new
@@ -356,7 +356,7 @@ namespace Throneteki.Web.Controllers.Api
             return Ok(new
             {
                 Success = true,
-                Decks = decks
+                Data = decks
             });
         }
 

@@ -6,10 +6,8 @@ import {
     ButtonGroup,
     ButtonToolbar,
     ToggleButton,
-    Table,
     Button,
-    Form,
-    InputGroup
+    Form
 } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import LoadingSpinner from '../LoadingSpinner';
@@ -21,28 +19,11 @@ import {
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
 import { Constants } from '../../constants';
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    RowData,
-    SortingState,
-    useReactTable
-} from '@tanstack/react-table';
+import { ColumnDef, RowData } from '@tanstack/react-table';
 import { SaveDeck, SaveDeckCard } from '../../types/decks';
-import TablePagination from '../Site/TablePagination';
-import {
-    faArrowUpLong,
-    faArrowDownLong,
-    faMagnifyingGlass,
-    faTimes,
-    faCircleNotch
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DebouncedInput from '../Site/DebouncedInput';
+import ReactTable from '../Table/ReactTable';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -56,7 +37,7 @@ interface DeckEditorProps {
     onBackClick: () => void;
 }
 
-const bannersToFaction: Record<string, string> = {
+const bannersForFaction: Record<string, string> = {
     '01198': 'baratheon',
     '01199': 'greyjoy',
     '01200': 'lannister',
@@ -79,17 +60,13 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     const [factionFilter, setFactionFilter] = useState<string[]>(
         [deck.faction]
             .concat(['neutral'])
-            .concat(deck.agendas.filter((a) => bannersToFaction[a]).map((a) => bannersToFaction[a]))
+            .concat(
+                deck.agendas.filter((a) => bannersForFaction[a]).map((a) => bannersForFaction[a])
+            )
     );
     const [typeFilter, setTypeFilter] = useState<string[]>(['character', 'agenda', 'plot']);
     const [deckCards, setDeckCards] = useState<SaveDeckCard[]>([]);
     const [deckName, setDeckName] = useState<string>('');
-    const [sorting, setSorting] = React.useState<SortingState>([
-        {
-            id: 'type',
-            desc: true
-        }
-    ]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -215,19 +192,6 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
         [t]
     );
 
-    const table = useReactTable({
-        data: cards,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        onSortingChange: setSorting,
-        state: {
-            sorting
-        }
-    });
-
     const cardsByCode = useMemo(() => {
         return cards && Object.assign({}, ...cards.map((card: Card) => ({ [card.code]: card })));
     }, [cards]);
@@ -243,11 +207,6 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
         setDeckCards(deck.agendas.map((a) => ({ card: cardsByCode[a], count: 1 })));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cardsByCode]);
-
-    useEffect(() => {
-        table.getColumn('type').setFilterValue(typeFilter);
-        table.getColumn('faction').setFilterValue(factionFilter);
-    }, [table, typeFilter, factionFilter, cardsByCode, deck]);
 
     if (isLoading || isFactionsLoading) {
         return <LoadingSpinner text={t('Loading, please wait...')} />;
@@ -404,7 +363,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         })}
                     </ButtonGroup>
                 </ButtonToolbar>
-                <ButtonToolbar className='mt-1'>
+                <ButtonToolbar className='mt-1 mb-3'>
                     <ButtonGroup aria-label='First group'>
                         {Constants.Factions.concat('neutral').map((faction: string) => {
                             return (
@@ -428,164 +387,19 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         })}
                     </ButtonGroup>
                 </ButtonToolbar>
-                <div className='table-scroll mt-2' style={{ height: '49vh' }}>
-                    <Table variant='dark' striped hover>
-                        <thead>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <tr key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => (
-                                        <th
-                                            key={header.id}
-                                            colSpan={header.colSpan}
-                                            className={`user-select-none align-top col-${
-                                                header.column.columnDef.meta?.colWidth || 3
-                                            }`}
-                                        >
-                                            {header.isPlaceholder ? null : (
-                                                <>
-                                                    <div
-                                                        className={`d-flex ${
-                                                            header.column.id === 'select'
-                                                                ? 'justify-content-center'
-                                                                : 'justify-content-between'
-                                                        }`}
-                                                    >
-                                                        <span
-                                                            className='flex-grow-1'
-                                                            role={
-                                                                header.column.getCanSort()
-                                                                    ? 'button'
-                                                                    : ''
-                                                            }
-                                                            onClick={header.column.getToggleSortingHandler()}
-                                                        >
-                                                            {flexRender(
-                                                                header.column.columnDef.header,
-                                                                header.getContext()
-                                                            )}
-                                                        </span>
-                                                        {{
-                                                            asc: (
-                                                                <div>
-                                                                    {' '}
-                                                                    <FontAwesomeIcon
-                                                                        icon={faArrowUpLong}
-                                                                    />
-                                                                </div>
-                                                            ),
-                                                            desc: (
-                                                                <div>
-                                                                    {' '}
-                                                                    <FontAwesomeIcon
-                                                                        icon={faArrowDownLong}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                        }[header.column.getIsSorted() as string] ??
-                                                            null}
-                                                    </div>
-                                                    {header.column.getCanFilter() && (
-                                                        <InputGroup>
-                                                            <>
-                                                                <InputGroup.Text className='border-dark bg-dark text-light'>
-                                                                    <FontAwesomeIcon
-                                                                        icon={faMagnifyingGlass}
-                                                                    />
-                                                                </InputGroup.Text>
-                                                                <DebouncedInput
-                                                                    className=''
-                                                                    value={
-                                                                        header.column.getFilterValue() as string
-                                                                    }
-                                                                    onChange={(value) =>
-                                                                        header.column.setFilterValue(
-                                                                            value
-                                                                        )
-                                                                    }
-                                                                />
-                                                                {header.column.getFilterValue() && (
-                                                                    <button
-                                                                        type='button'
-                                                                        className='btn bg-transparent text-danger'
-                                                                        style={{
-                                                                            marginLeft: '-40px',
-                                                                            zIndex: '100'
-                                                                        }}
-                                                                        onClick={() => {
-                                                                            header.column.setFilterValue(
-                                                                                ''
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <FontAwesomeIcon
-                                                                            icon={faTimes}
-                                                                        />
-                                                                    </button>
-                                                                )}
-                                                            </>
-                                                        </InputGroup>
-                                                    )}
-                                                </>
-                                            )}
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))}
-                        </thead>
-                        <tbody>
-                            {table.getRowModel().rows.map((row) => (
-                                <tr key={row.id}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            key={cell.id}
-                                            className={`pt-1 pb-1 col-${
-                                                cell.column.columnDef.meta?.colWidth || '1'
-                                            }`}
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </div>
-                <div className='mt-3 d-flex justify-content-between'>
-                    <div>
-                        {[10, 25, 50].map((pageSize) => (
-                            <Button
-                                className='me-1'
-                                variant={
-                                    pageSize === table.getState().pagination.pageSize
-                                        ? 'primary'
-                                        : 'dark'
-                                }
-                                key={pageSize}
-                                onClick={() => table.setPageSize(pageSize)}
-                            >
-                                {pageSize}
-                            </Button>
-                        ))}
-                    </div>
-                    <div className='d-flex align-items-center'>
-                        <span className='me-1'>
-                            <Trans>
-                                Page {table.getState().pagination.pageIndex + 1} of{' '}
-                                {table.getPageCount()}
-                            </Trans>
-                        </span>
-                        <TablePagination
-                            currentPage={table.getState().pagination.pageIndex + 1}
-                            pageCount={table.getPageCount()}
-                            disablePrevious={!table.getCanPreviousPage()}
-                            disableNext={!table.getCanNextPage()}
-                            setCurrentPage={(page) => table.setPageIndex(page - 1)}
-                        />
-                    </div>
-                </div>
+                <ReactTable
+                    dataLoadFn={() => ({
+                        data: cards,
+                        isLoading: false,
+                        isError: false
+                    })}
+                    defaultColumnFilters={{ type: typeFilter, faction: factionFilter }}
+                    defaultSort={{
+                        id: 'type',
+                        desc: true
+                    }}
+                    columns={columns}
+                />
             </Col>
             <Col sm={6}>
                 <Row className='mt-3'>
