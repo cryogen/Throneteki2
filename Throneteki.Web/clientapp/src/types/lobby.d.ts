@@ -4,3 +4,7 @@ export interface UserSummary {
     role: string;
     avatar: string;
 }
+
+export interface LobbyUser {
+    name: string;
+}
