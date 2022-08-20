@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Throneteki.Web.ViewModels.Authorisation;
+namespace Throneteki.Auth.ViewModels.Authorisation;
 
 public class AuthoriseViewModel
 {

@@ -71,7 +71,7 @@ public class UserController : ControllerBase
 
             await image.SaveAsPngAsync(resizedStream);
 
-            var profileImage = user.ProfileImage ?? new ThronetekiUserProfileImage();
+            var profileImage = user.ProfileImage ?? new ProfileImage();
 
             profileImage.Image = resizedStream.ToArray();
 
@@ -203,7 +203,7 @@ public class UserController : ControllerBase
             });
         }
 
-        user.BlockListEntries.Add(new BlockListEntry
+        user.BlockListEntries.Add(new BlocklistEntry
         {
             ThronetekiUserId = user.Id,
             BlockedUserId = blockedUser.Id

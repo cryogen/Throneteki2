@@ -1,0 +1,73 @@
+﻿$body-bg: #0e0b10;
+$body-color: #eeeeee;
+
+$primary: #41658A;
+$info: #0dcaf0;
+$secondary: #009648;
+$dark: rgba(0, 0, 0, 0.8);
+$emphasis: #dc4787;
+
+$navbar-height: 45px;
+$scrollbar-width: 20px;
+
+@import "../lib/bootstrap/scss/bootstrap";
+
+html,
+body {
+    height: 100%;
+}
+
+.body,
+.container,
+#component {
+    height: 100%;
+}
+
+body {
+    font-size: 0.9rem;
+}
+
+.wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.content {
+    padding-top: $navbar-height + 5px;
+}
+
+.card {
+    font-family: Helvetica, sans-serif;
+    box-shadow: 3px 3px 5px $primary !important;
+
+    .card-header {
+        font-weight: normal;
+        background-size: cover;
+        color: $light;
+    }
+
+    &.border-primary {
+        .card-header {
+            border-color: $primary;
+            background-position: center;
+        }
+    }
+}
+
+.navbar {
+    color: $navbar-dark-color;
+}
+
+.navbar-sm {
+    min-height: $navbar-height;
+    height: $navbar-height;
+}
+
+.navbar-sm .navbar-nav > li > span {
+    padding: 0 15px;
+    line-height: $navbar-height;
+}

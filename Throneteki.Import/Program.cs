@@ -5,14 +5,11 @@ using Microsoft.Extensions.Hosting;
 using Throneteki.Data;
 using Throneteki.Import;
 
-using IHost host = Host.CreateDefaultBuilder(args)
+using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         services.AddHostedService<ThronetekiDataImporter>();
-        services.AddDbContext<ThronetekiDbContext>(options =>
-        {
-            options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"));
-        });
+        services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")); });
     })
     .Build();
 

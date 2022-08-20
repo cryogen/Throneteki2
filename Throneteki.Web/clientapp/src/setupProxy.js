@@ -7,7 +7,7 @@ const target = env.ASPNETCORE_HTTPS_PORT
     ? env.ASPNETCORE_URLS.split(';')[0]
     : 'http://localhost:51264';
 
-const lobbyTarget = 'https://localhost:7182';
+const lobbyTarget = 'https://throneteki.lobby:7010';
 
 const context = [
     '/api',

@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using OpenIddict.Abstractions;
-using Quartz;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web;
@@ -17,38 +15,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+var authServerUrl = builder.Configuration.GetSection("Settings")["AuthServerUrl"];
 
 builder.Services.AddHttpClient();
 builder.Services.AddTransient<IClaimsTransformation, ThronetekiUserClaimsTransformation>();
 
 builder.Services.AddDbContext<ThronetekiDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.UseOpenIddict();
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .UseSnakeCaseNamingConvention();
 });
-
-// Register the Identity services.
-builder.Services.AddIdentity<ThronetekiUser, IdentityRole>()
-    .AddEntityFrameworkStores<ThronetekiDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.ClaimsIdentity.UserNameClaimType = OpenIddictConstants.Claims.Name;
-    options.ClaimsIdentity.UserIdClaimType = OpenIddictConstants.Claims.Subject;
-    options.ClaimsIdentity.RoleClaimType = OpenIddictConstants.Claims.Role;
-});
-
-builder.Services.AddQuartz(options =>
-{
-    options.UseMicrosoftDependencyInjectionJobFactory();
-    options.UseSimpleTypeLoader();
-    options.UseInMemoryStore();
-});
-
-builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
 
 var thronesDbOptions = new ThronesDbOptions();
 builder.Configuration.GetSection("ThronesDb").Bind(thronesDbOptions);
@@ -94,35 +70,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
+builder.Services.AddIdentity<ThronetekiUser, IdentityRole>()
+    .AddEntityFrameworkStores<ThronetekiDbContext>()
+    .AddDefaultTokenProviders();
+
 builder.Services.AddOpenIddict()
-    .AddCore(options =>
-    {
-        options.UseEntityFrameworkCore().UseDbContext<ThronetekiDbContext>();
-    })
-    .AddServer(options =>
-    {
-        options.SetTokenEndpointUris("/connect/token");
-        options.SetAuthorizationEndpointUris("/connect/authorize");
-        options.SetLogoutEndpointUris("/connect/logout");
-        options.SetUserinfoEndpointUris("/connect/userinfo");
-        options.SetIntrospectionEndpointUris("/introspect");
-
-        options.AllowClientCredentialsFlow().AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
-
-        options.AddEncryptionKey(new SymmetricSecurityKey(Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
-
-        options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
-        options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
-
-        options.UseAspNetCore()
-            .EnableTokenEndpointPassthrough()
-            .EnableAuthorizationEndpointPassthrough()
-            .EnableUserinfoEndpointPassthrough()
-            .EnableLogoutEndpointPassthrough();
-    })
     .AddValidation(options =>
     {
-        options.UseLocalServer();
+        options.SetIssuer(authServerUrl);
+        options.AddAudiences("api");
+
+        options.AddEncryptionKey(new SymmetricSecurityKey(
+            Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
+
+        options.UseSystemNetHttp();
         options.UseAspNetCore();
     });
 
@@ -133,8 +94,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

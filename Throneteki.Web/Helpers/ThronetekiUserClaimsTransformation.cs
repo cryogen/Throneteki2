@@ -1,11 +1,8 @@
 ﻿using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using Throneteki.Data;
-using Throneteki.Data.Models;
 
 namespace Throneteki.Web.Helpers;
 

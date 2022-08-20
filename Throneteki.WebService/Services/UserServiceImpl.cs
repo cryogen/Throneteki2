@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Throneteki.Data;
+using Throneteki.Data.Models;
 
 namespace Throneteki.WebService.Services;
 

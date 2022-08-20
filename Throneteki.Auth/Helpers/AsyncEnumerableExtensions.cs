@@ -1,4 +1,4 @@
-namespace Throneteki.Web.Helpers;
+namespace Throneteki.Auth.Helpers;
 
 public static class AsyncEnumerableExtensions
 {

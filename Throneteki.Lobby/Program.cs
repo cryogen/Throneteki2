@@ -8,15 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddSignalR();
 
+var authServerUrl = builder.Configuration.GetSection("Settings")["AuthServerUrl"];
+
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy("DontCare", policyBuilder => policyBuilder.WithOrigins("https://localhost:44460").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
-});
+    {
+        options.AddPolicy("DontCare", policyBuilder => policyBuilder.WithOrigins(authServerUrl).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+    });
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
-        options.SetIssuer("https://localhost:44460/");
+        options.SetIssuer(authServerUrl);
         options.AddAudiences("throneteki-lobby");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(

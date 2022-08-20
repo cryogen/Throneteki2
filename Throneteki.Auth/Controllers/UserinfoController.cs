@@ -7,7 +7,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using Throneteki.Data.Models;
 
-namespace Throneteki.Web.Controllers;
+namespace Throneteki.Auth.Controllers;
 
 public class UserinfoController : Controller
 {

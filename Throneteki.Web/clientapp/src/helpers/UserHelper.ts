@@ -1,7 +1,7 @@
 import { User } from 'oidc-client-ts';
 
 export const getUser = () => {
-    const oidcStorage = localStorage.getItem('oidc.user:https://localhost:44460/:throneteki');
+    const oidcStorage = localStorage.getItem('oidc.user:https://throneteki.auth:7000/:throneteki');
     if (!oidcStorage) {
         return null;
     }

@@ -10,9 +10,9 @@ namespace Throneteki.Web.Controllers.Api;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly SignInManager<ThronetekiUser> signInManager;
-    private readonly IHttpClientFactory httpClientFactory;
     private readonly ThronetekiDbContext context;
+    private readonly IHttpClientFactory httpClientFactory;
+    private readonly SignInManager<ThronetekiUser> signInManager;
 
     public AccountController(SignInManager<ThronetekiUser> signInManager, IHttpClientFactory httpClientFactory, ThronetekiDbContext context)
     {
@@ -93,7 +93,7 @@ public class AccountController : ControllerBase
 
         var stringToHash = StringUtilities.GetRandomString(32);
 
-        var profileImage = new ThronetekiUserProfileImage
+        var profileImage = new ProfileImage
         {
             Image = await httpClient.GetByteArrayAsync(new Uri($"https://www.gravatar.com/avatar/{stringToHash}?d=identicon&s=24"))
         };

@@ -1,4 +1,5 @@
-﻿using JorgeSerrano.Json;
+﻿using System.Globalization;
+using JorgeSerrano.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,7 +65,7 @@ namespace Throneteki.Import
                     continue;
                 }
 
-                if (!dbPacks.TryGetValue(pack.Code, out Pack? dbPack))
+                if (!dbPacks.TryGetValue(pack.Code, out var dbPack))
                 {
                     dbPack = new Pack();
                     context.Packs.Add(dbPack);
@@ -73,7 +74,7 @@ namespace Throneteki.Import
 
                 dbPack.Code = pack.Code;
                 dbPack.Name = pack.Name;
-                dbPack.ReleaseDate = string.IsNullOrEmpty(pack.Available) ? null : DateTime.Parse(pack.Available);
+                dbPack.ReleaseDate = string.IsNullOrEmpty(pack.Available) ? null : new DateTime(DateTime.Parse(pack.Available).Date.Ticks, DateTimeKind.Utc);
             }
 
             await context.SaveChangesAsync(cancellationToken);

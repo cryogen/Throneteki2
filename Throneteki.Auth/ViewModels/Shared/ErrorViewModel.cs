@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Throneteki.Web.ViewModels.Shared;
+namespace Throneteki.Auth.ViewModels.Shared;
 
 public class ErrorViewModel
 {

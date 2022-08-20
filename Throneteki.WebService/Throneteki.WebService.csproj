@@ -1,21 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileRunArguments>-p "7020:443" -p "7021:80"</DockerfileRunArguments>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
+    <UserSecretsId>ad657f19-f9a4-4cdd-85da-db3a0ad5ab5b</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.3" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.5" />
     <PackageReference Include="Grpc" Version="2.46.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.47.0" />
     <PackageReference Include="Grpc.Core.Api" Version="2.47.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.47.0">
+    <PackageReference Include="Grpc.Tools" Version="2.48.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="3.1.1">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
@@ -24,9 +29,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="**/*.proto" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Throneteki.Data\Throneteki.Data.csproj" />
+    <ProjectReference Include="..\Throneteki.Grpc\Throneteki.Grpc.csproj" />
   </ItemGroup>
 </Project>

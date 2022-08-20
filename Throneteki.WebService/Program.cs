@@ -10,10 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<ThronetekiDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+builder.Services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")); });
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
@@ -41,9 +38,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapGrpcService<UserServiceImpl>();
-});
+app.UseEndpoints(endpoints => { endpoints.MapGrpcService<UserServiceImpl>(); });
 
 app.Run();

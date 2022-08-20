@@ -6,13 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
-
+using Throneteki.Auth.Helpers;
+using Throneteki.Auth.ViewModels.Authorisation;
 using Throneteki.Data.Models;
-using Throneteki.Web.Helpers;
-using Throneteki.Web.ViewModels.Authorisation;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Throneteki.Web.Controllers;
+namespace Throneteki.Auth.Controllers;
 
 public class AuthorisationController : Controller
 {
