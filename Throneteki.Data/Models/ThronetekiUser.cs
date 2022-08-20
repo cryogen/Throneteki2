@@ -7,13 +7,14 @@ public class ThronetekiUser : IdentityUser
 {
     public ThronetekiUser()
     {
-        BlockListEntries = new List<BlockListEntry>();
+        BlockListEntries = new List<BlocklistEntry>();
     }
 
     [ForeignKey(nameof(ProfileImage))]
     public Guid? ProfileImageId { get; set; }
-    public ThronetekiUserProfileImage? ProfileImage { get; set; }
+
+    public ProfileImage? ProfileImage { get; set; }
     public string? Settings { get; set; }
-    public ICollection<BlockListEntry> BlockListEntries { get; init; }
+    public ICollection<BlocklistEntry> BlockListEntries { get; init; }
     public ICollection<ExternalToken> ExternalTokens { get; set; } = new List<ExternalToken>();
 }

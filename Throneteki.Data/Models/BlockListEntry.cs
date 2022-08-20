@@ -2,7 +2,7 @@
 
 namespace Throneteki.Data.Models;
 
-public class BlockListEntry
+public class BlocklistEntry
 {
     public Guid Id { get; set; }
     [ForeignKey(nameof(ThronetekiUser))]

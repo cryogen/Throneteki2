@@ -1,7 +1,7 @@
 ﻿namespace Throneteki.Data.Models;
 
-public class ThronetekiUserProfileImage
+public class ProfileImage
 {
-    public Guid ThronetekiUserProfileImageId { get; set; }
+    public Guid Id { get; set; }
     public byte[] Image { get; set; } = Enumerable.Empty<byte>().ToArray();
 }

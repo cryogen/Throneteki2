@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.EntityFrameworkCore.Models;
 using Throneteki.Data.Models;
 
 namespace Throneteki.Data;
@@ -24,6 +26,19 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<ThronetekiUser>().ToTable("users");
+        builder.Entity<IdentityUserToken<string>>().ToTable("user_tokens");
+        builder.Entity<IdentityUserLogin<string>>().ToTable("user_logins");
+        builder.Entity<IdentityUserClaim<string>>().ToTable("user_claims");
+        builder.Entity<IdentityRole>().ToTable("roles");
+        builder.Entity<IdentityUserRole<string>>().ToTable("user_roles");
+        builder.Entity<IdentityRoleClaim<string>>().ToTable("role_claims");
+
+        builder.Entity<OpenIddictEntityFrameworkCoreScope>().ToTable("open_iddict_scopes");
+        builder.Entity<OpenIddictEntityFrameworkCoreToken>().ToTable("open_iddict_tokens");
+        builder.Entity<OpenIddictEntityFrameworkCoreAuthorization>().ToTable("open_iddict_authorizations");
+        builder.Entity<OpenIddictEntityFrameworkCoreApplication>().ToTable("open_iddict_applications");
+
         builder
             .Entity<ThronetekiUser>()
             .HasMany(user => user.BlockListEntries)
@@ -33,6 +48,7 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
 
         builder.Entity<Deck>().HasOne(d => d.Faction).WithMany().OnDelete(DeleteBehavior.NoAction);
 
+        builder.Entity<DeckCard>().ToTable("deck_cards");
         builder.Entity<DeckCard>().HasKey(dc => new { dc.DeckId, dc.CardId });
         builder
             .Entity<DeckCard>()
@@ -40,5 +56,9 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
             .WithMany(d => d.DeckCards)
             .HasForeignKey(dc => dc.DeckId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<BlocklistEntry>().ToTable("blocklist_entries");
+        builder.Entity<ExternalToken>().ToTable("external_tokens");
+        builder.Entity<ProfileImage>().ToTable("profile_images");
     }
 }
