@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using Throneteki.Data;
 
-namespace Throneteki.Web.Helpers;
+namespace Throneteki.Auth.Helpers;
 
 public class ThronetekiUserClaimsTransformation : IClaimsTransformation
 {
@@ -24,10 +24,9 @@ public class ThronetekiUserClaimsTransformation : IClaimsTransformation
 
         var user = await dbContext.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.UserName == principal.Identity.Name);
         var claimsIdentity = new ClaimsIdentity();
-        var claimType = OpenIddictConstants.Claims.Picture;
-        if (!principal.HasClaim(claim => claim.Type == claimType) && user.ProfileImage != null)
+        if (!principal.HasClaim(claim => claim.Type == OpenIddictConstants.Claims.Picture) && user?.ProfileImage != null)
         {
-            claimsIdentity.AddClaim(new Claim(claimType, Convert.ToBase64String(user.ProfileImage.Image)));
+            claimsIdentity.AddClaim(new Claim(OpenIddictConstants.Claims.Picture, Convert.ToBase64String(user.ProfileImage.Image)));
         }
 
         principal.AddIdentity(claimsIdentity);

@@ -18,7 +18,7 @@ interface BackgroundProps {
     onBackgroundSelected(backgroundName: string, customBgFile: File | null): void;
 }
 
-const ProfileBackground = ({
+const SettingsBackground = ({
     backgrounds,
     selectedBackground,
     customBackground,
@@ -95,4 +95,4 @@ const ProfileBackground = ({
     );
 };
 
-export default ProfileBackground;
+export default SettingsBackground;

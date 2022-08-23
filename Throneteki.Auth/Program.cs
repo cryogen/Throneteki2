@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using Quartz;
 using Throneteki.Auth;
+using Throneteki.Auth.Helpers;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 
@@ -19,6 +21,9 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddHttpClient();
+
+builder.Services.AddTransient<IClaimsTransformation, ThronetekiUserClaimsTransformation>();
 
 builder.Services.AddDbContext<ThronetekiDbContext>(options =>
 {

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace Throneteki.Web.Controllers.Api;
 
 [ApiController]
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+[Route("/api/user/")]
 public class UserController : ControllerBase
 {
     private readonly UserManager<ThronetekiUser> userManager;
@@ -31,7 +33,7 @@ public class UserController : ControllerBase
         serializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     }
 
-    [HttpPatch("api/user/{userId}")]
+    [HttpPatch("{userId}")]
     public async Task<IActionResult> SaveUser(string userId, SaveUserRequest request)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -43,39 +45,6 @@ public class UserController : ControllerBase
         if (User.Identity?.Name != user.UserName)
         {
             return Forbid();
-        }
-
-        user = await userManager.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.Id == user.Id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        if (user.UserName != request.Username)
-        {
-            await userManager.SetUserNameAsync(user, request.Username);
-        }
-
-        if (user.Email != request.Email)
-        {
-            await userManager.SetEmailAsync(user, request.Email);
-        }
-
-        if (request.Avatar != null)
-        {
-            await using var imageStream = new MemoryStream(Convert.FromBase64String(request.Avatar));
-            var resizedStream = new MemoryStream();
-            using var image = await Image.LoadAsync(imageStream);
-
-            image.Mutate(img => img.Resize(new Size(32, 32), KnownResamplers.Bicubic, true));
-
-            await image.SaveAsPngAsync(resizedStream);
-
-            var profileImage = user.ProfileImage ?? new ProfileImage();
-
-            profileImage.Image = resizedStream.ToArray();
-
-            user.ProfileImage = profileImage;
         }
 
         var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", serializerOptions) ?? new ThronetekiUserSettings();
@@ -121,7 +90,7 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpGet("api/user/{userId}/blocklist")]
+    [HttpGet("{userId}/blocklist")]
     public async Task<IActionResult> GetBlockList(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -155,7 +124,7 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpPost("api/user/{userId}/blocklist")]
+    [HttpPost("{userId}/blocklist")]
     public async Task<IActionResult> AddToBlockList(string userId, AddBlockListEntryRequest request)
     {
         var user = await userManager.FindByIdAsync(userId);
@@ -216,5 +185,18 @@ public class UserController : ControllerBase
         {
             Success = true
         });
+    }
+
+    [HttpPost("link-tdb")]
+    public IActionResult LinkThronesDb()
+    {
+        var authProperties = new AuthenticationProperties
+        {
+            RedirectUri = "/decks/thronesdb"
+        };
+
+        authProperties.Items.Add("UserId", User.Identity!.Name);
+
+        return Challenge(authProperties, "ThronesDB");
     }
 }

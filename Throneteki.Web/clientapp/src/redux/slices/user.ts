@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { saveProfile } from '../../api/userApi';
-import { NewProfileDetails } from '../../components/Account/Profile';
+import { NewProfileDetails } from '../../components/Account/Settings';
 import { ApiState, ApiStateStatus } from './account';
 
 export type UserState = ApiState;

@@ -92,9 +92,8 @@ export const Login = (props: LoginProps) => {
     } else {
         switch (action) {
             case LoginActions.Login:
-                return <LoadingSpinner text='Processing login' />;
             case LoginActions.LoginCallback:
-                return <LoadingSpinner text='Processing login callback' />;
+                return <LoadingSpinner text='Processing login' />;
             case LoginActions.Profile:
             case LoginActions.Register:
                 return <div></div>;

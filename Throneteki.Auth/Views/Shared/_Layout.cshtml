@@ -1,3 +1,4 @@
+@using OpenIddict.Abstractions
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,23 +17,39 @@
             <div class="navbar-nav">
             </div>
             <div class="justify-content-end navbar-collapse collapse" id="navbar">
-                <div class="ml-auto pr-md-5 navbar-nav">
-                    <a class="nav-link" asp-action="Login">Login</a>
-                    <a class="nav-link" href="/account/register">Register</a>
-                </div>
+                @if (User.Identity is { IsAuthenticated: true })
+                {
+                    <div class="nav-item dropdown">
+                        <a id="nav-dropdown" aria-expanded="true" role="button" class="dropdown-toggle nav-link" tabindex="0" href="#" data-bs-toggle="dropdown">
+                            <img alt="Profile picture" src="data:image/png;base64,@User.FindFirst(OpenIddictConstants.Claims.Picture)?.Value" />
+                            <span>@User.Identity.Name</span>
+                        </a>
+                        <div aria-labelledby="nav-dropdown" data-bs-popper="static" class="dropdown-menu">
+                            <a data-rr-ui-dropdown-item="" class="dropdown-item" asp-action="Profile">Profile</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="me-auto pe-md-5 navbar-nav">
+                        <a class="nav-link" asp-action="Login">Login</a>
+                        <a class="nav-link" asp-action="Register">Register</a>
+                    </div>
+                }
             </div>
         </div>
     </nav>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <main role="main">
         <div class="content container">
-            <div class="flex-container">
+            <div class="container-fluid">
                 <div>
                     @RenderBody()
                 </div>
             </div>
         </div>
     </main>
+    <script src="~/js/vendor.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

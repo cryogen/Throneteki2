@@ -5,17 +5,17 @@ import { useTranslation } from 'react-i18next';
 import Panel from '../Site/Panel';
 import CardSizeOption from './CardSizeOption';
 
-export interface ProfileCardSizeOption {
+export interface SettingsCardSizeOption {
     name: string;
     label: string;
 }
 
 interface CardSizeProps {
-    cardSizes: ProfileCardSizeOption[];
+    cardSizes: SettingsCardSizeOption[];
     selectedCardSize: string;
     onCardSizeSelected(cardSize: string): void;
 }
-const ProfileCardSize = ({ cardSizes, selectedCardSize, onCardSizeSelected }: CardSizeProps) => {
+const SettingsCardSize = ({ cardSizes, selectedCardSize, onCardSizeSelected }: CardSizeProps) => {
     const { t } = useTranslation();
 
     return (
@@ -37,4 +37,4 @@ const ProfileCardSize = ({ cardSizes, selectedCardSize, onCardSizeSelected }: Ca
     );
 };
 
-export default ProfileCardSize;
+export default SettingsCardSize;

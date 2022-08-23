@@ -80,7 +80,8 @@ export const RightMenu: MenuItem[] = [
  */
 export const ProfileMenu: MenuItem[] = [
     { title: 'Profile', path: '/account/profile' },
-    { title: 'Security', path: '/security' },
+    { title: 'Settings', path: '/account/settings' },
+    { title: 'Security', path: '/account/security' },
     { title: 'Block List', path: '/account/blocklist' },
     { title: 'Logout', path: '/authentication/logout', state: { local: true } }
 ];

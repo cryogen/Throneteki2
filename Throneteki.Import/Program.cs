@@ -9,7 +9,10 @@ using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         services.AddHostedService<ThronetekiDataImporter>();
-        services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")); });
+        services.AddDbContext<ThronetekiDbContext>(options =>
+        {
+            options.UseNpgsql(context.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention();
+        });
     })
     .Build();
 

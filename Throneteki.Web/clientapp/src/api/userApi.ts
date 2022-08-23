@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NewProfileDetails } from '../components/Account/Profile';
+import { NewProfileDetails } from '../components/Account/Settings';
 import { getUser } from '../helpers/UserHelper';
 
 export const saveProfile = async (profile: NewProfileDetails) => {

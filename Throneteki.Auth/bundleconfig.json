@@ -1,0 +1,9 @@
+[
+  {
+    "outputFileName": "wwwroot/js/vendor.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery/dist/jquery.js",
+      "wwwroot/lib/bootstrap/dist/js/bootstrap.js"
+    ]
+  }
+]

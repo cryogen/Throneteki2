@@ -89,14 +89,13 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet]
         public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var baseQuery = context.Decks
-                    .Where(d => d.UserId == user.Id);
+            var baseQuery = context.Decks.Where(d => d.UserId == user.Id);
 
             if (options.Filters != null && options.Filters.Any())
             {

@@ -3,7 +3,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import Panel from '../Site/Panel';
-import { ExistingProfileDetails } from './Profile';
+import { ExistingProfileDetails } from './Settings';
 import { CustomUserProfile } from '../Navigation/Navigation';
 
 type ThronetekiGameSettingsProps = {

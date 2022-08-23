@@ -1,0 +1,117 @@
+﻿@model Throneteki.Auth.ViewModels.Account.RegisterViewModel
+
+<div class="col-sm-10 offset-sm-1">
+    <div>
+        <div class="card bg-dark text-light border-primary">
+            <div class="text-center bg-primary card-header">Register</div>
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <form method="post">
+                    <div class="row">
+                        <div class="mt-2 col-md-6">
+                            <label class="form-label" asp-for="Username">Username</label>
+                            <input placeholder="Enter your username" asp-for="Username" type="text" class="form-control">
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="mt-2 col-md-6">
+                            <label class="form-label" asp-for="Email">Email</label>
+                            <input placeholder="Enter your username" asp-for="Email" type="text" class="form-control">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mt-2 col-md-6">
+                            <label class="form-label" asp-for="Password">Password</label>
+                            <input placeholder="Enter your password" asp-for="Password" class="form-control">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="mt-2 col-md-6">
+                            <label class="form-label" asp-for="ConfirmPassword">Password (again)</label>
+                            <input placeholder="Enter your password" asp-for="ConfirmPassword" class="form-control">
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="row">
+        <div class="col-md-4">
+            <section>
+                <form id="account" method="post">
+                    <h2>Use a local account to log in.</h2>
+                    <hr />
+
+                    <div class="form-floating">
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                        <label asp-for="Password" class="form-label"></label>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <div class="checkbox">
+                            <label asp-for="RememberMe" class="form-label">
+                                <input class="form-check-input" asp-for="RememberMe" />
+                                @Html.DisplayNameFor(m => m.RememberMe)
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                    </div>
+                    <div>
+                        <p>
+                            <a id="forgot-password" $1$asp-page="./ForgotPassword"#1#>Forgot your password?</a>
+                        </p>
+                        <p>
+                            <a $1$asp-page="./Register" #1#="@Model.ReturnUrl">Register as a new user</a>
+                        </p>
+                        <p>
+                            <a id="resend-confirmation" $1$asp-page="./ResendUsernameConfirmation"#1#>Resend email confirmation</a>
+                        </p>
+                    </div>
+                </form>
+            </section>
+        </div>
+        <div class="col-md-6 col-md-offset-2">
+            <section>
+                <h3>Use another service to log in.</h3>
+                <hr />
+                @{
+                    if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                    {
+                        <div>
+                            <p>
+                                There are no external authentication services configured. See this
+                                <a href="https://go.microsoft.com/fwlink/?LinkID=532715">
+                                    article
+                                    about setting up this ASP.NET application to support logging in via external services
+                                </a>.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        /*asp - page = "./ExternalLogin"*/
+                        <form id="external-account" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                            <div>
+                                <p>
+                                    @foreach (var provider in Model.ExternalLogins)
+                                    {
+                                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                    }
+                                </p>
+                            </div>
+                        </form>
+                    }
+                }
+            </section>
+        </div>
+    </div>*@
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

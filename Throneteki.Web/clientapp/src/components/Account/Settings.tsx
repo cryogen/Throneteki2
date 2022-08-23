@@ -1,14 +1,12 @@
 import React, { ReactElement, useState, useRef, useEffect } from 'react';
-import { Form, Button, Alert, Col, Row, Spinner } from 'react-bootstrap';
+import { Form, Button, Alert, Col, Row } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import { useTranslation } from 'react-i18next';
-import * as yup from 'yup';
 
 import { CustomUserProfile } from '../Navigation/Navigation';
-import ProfileBackground from './ProfileBackground';
-import ProfileMain from './ProfileMain';
-import ProfileActionWindows from './ProfileActionWindows';
-import ProfileCardSize from './ProfileCardSize';
+import SettingsBackground from './SettingsBackground';
+import SettingsActionWindows from './SettingsActionWindows';
+import SettingsCardSize from './SettingsCardSize';
 import ThronetekiGameSettings from './ThronetekiGameSettings';
 
 import BlankBg from '../../assets/img/bgs/blank.png';
@@ -33,10 +31,6 @@ interface SettingsDetails extends GameSettings {
 
 interface ProfileDetails {
     userId: string;
-    username: string;
-    password?: string;
-    passwordAgain?: string;
-    email?: string;
 }
 
 export interface ExistingProfileDetails extends ProfileDetails, GameSettings {
@@ -45,7 +39,6 @@ export interface ExistingProfileDetails extends ProfileDetails, GameSettings {
 }
 
 export interface NewProfileDetails extends ProfileDetails {
-    avatar?: string | null;
     customBackground?: string;
     settings: SettingsDetails;
 }
@@ -85,7 +78,7 @@ const defaultActionWindows = {
     taxation: false
 };
 
-const ProfileComponent = (props: ProfileProps) => {
+const Settings = (props: ProfileProps) => {
     const { user, onSubmit } = props;
     const { t } = useTranslation('profile');
 
@@ -119,11 +112,6 @@ const ProfileComponent = (props: ProfileProps) => {
 
     const initialValues: ExistingProfileDetails = {
         userId: user.sub,
-        avatar: undefined,
-        password: '',
-        passwordAgain: '',
-        username: user.name || '',
-        email: user.email,
         actionWindows: settings.actionWindows || defaultActionWindows,
         chooseOrder: !!settings.chooseOrder,
         chooseCards: !!settings.chooseCards,
@@ -133,36 +121,11 @@ const ProfileComponent = (props: ProfileProps) => {
         timerEvents: settings.timerEvents || true
     };
 
-    const schema = yup.object({
-        avatar: yup
-            .mixed()
-            .test(
-                'fileSize',
-                t('Image must be less than 100KB in size'),
-                (value) => !value || value.size <= 100 * 1024
-            )
-            .test(
-                'fileType',
-                t('Unsupported image format'),
-                (value) =>
-                    !value ||
-                    ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'].includes(value.type)
-            ),
-        email: yup
-            .string()
-            .email(t('Please enter a valid email address'))
-            .required(t('You must specify an email address'))
-    });
-
     return (
         <Formik
-            validationSchema={schema}
             onSubmit={async (values: ExistingProfileDetails): Promise<void> => {
                 const submitValues: NewProfileDetails = {
                     userId: user.sub,
-                    avatar: values.avatar ? await toBase64(values.avatar) : null,
-                    email: values.email,
-                    username: values.username,
                     settings: {
                         actionWindows: values.actionWindows,
                         chooseOrder: values.chooseOrder,
@@ -210,12 +173,7 @@ const ProfileComponent = (props: ProfileProps) => {
                 >
                     <Row ref={topRowRef}>
                         <Col sm='12'>
-                            <ProfileMain formProps={formProps} user={user} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm='12'>
-                            <ProfileBackground
+                            <SettingsBackground
                                 backgrounds={backgrounds}
                                 selectedBackground={localBackground}
                                 customBackground={settings?.customBackgroundUrl}
@@ -242,14 +200,14 @@ const ProfileComponent = (props: ProfileProps) => {
                     </Row>
                     <Row>
                         <Col sm='6'>
-                            <ProfileCardSize
+                            <SettingsCardSize
                                 cardSizes={cardSizes}
                                 selectedCardSize={localCardSize}
                                 onCardSizeSelected={(name): void => setCardSize(name)}
                             />
                         </Col>
                         <Col sm='6'>
-                            <ProfileActionWindows formProps={formProps} user={user} />
+                            <SettingsActionWindows formProps={formProps} user={user} />
                         </Col>
                     </Row>
                     <div className='text-center profile-submit'>
@@ -263,4 +221,4 @@ const ProfileComponent = (props: ProfileProps) => {
     );
 };
 
-export default ProfileComponent;
+export default Settings;

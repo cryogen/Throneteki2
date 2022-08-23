@@ -4,9 +4,9 @@ import { Col, Form, Row } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import { CustomUserProfile } from '../Navigation/Navigation';
-import { ExistingProfileDetails } from './Profile';
+import { ExistingProfileDetails } from './Settings';
 
-type ProfileActionWindowsProps = {
+type SettingsActionWindowsProps = {
     formProps: FormikProps<ExistingProfileDetails>;
     user: CustomUserProfile;
 };
@@ -22,7 +22,7 @@ const windows = [
     { name: 'taxation', label: 'Taxation phase' }
 ];
 
-const ProfileActionWindows = ({ formProps }: ProfileActionWindowsProps) => {
+const SettingsActionWindows = ({ formProps }: SettingsActionWindowsProps) => {
     const { t } = useTranslation();
 
     const renderedWindows = windows.map((window) => {
@@ -58,4 +58,4 @@ const ProfileActionWindows = ({ formProps }: ProfileActionWindowsProps) => {
     );
 };
 
-export default ProfileActionWindows;
+export default SettingsActionWindows;

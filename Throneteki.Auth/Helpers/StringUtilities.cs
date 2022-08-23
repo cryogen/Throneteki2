@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace Throneteki.Web.Helpers;
+namespace Throneteki.Auth.Helpers;
 
 public static class StringUtilities
 {

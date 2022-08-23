@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web;
-using Throneteki.Web.Helpers;
 using Throneteki.Web.Models.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +15,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 var authServerUrl = builder.Configuration.GetSection("Settings")["AuthServerUrl"];
-
-builder.Services.AddHttpClient();
-builder.Services.AddTransient<IClaimsTransformation, ThronetekiUserClaimsTransformation>();
 
 builder.Services.AddDbContext<ThronetekiDbContext>(options =>
 {
@@ -78,7 +74,7 @@ builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
         options.SetIssuer(authServerUrl);
-        options.AddAudiences("api");
+        options.AddAudiences("throneteki");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
             Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));

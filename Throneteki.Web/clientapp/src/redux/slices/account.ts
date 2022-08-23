@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginAccount, registerAccount } from '../../api/accountApi';
-import { LoginDetails } from '../../components/Account/Login';
+import { registerAccount } from '../../api/accountApi';
 import { RegisterDetails } from '../../components/Account/Register';
 
 export enum ApiStateStatus {
@@ -22,17 +21,6 @@ export interface AccountState extends ApiState {
 const initialState: AccountState = {
     status: ApiStateStatus.Idle
 };
-
-export const loginAsync = createAsyncThunk('account/login', async (loginDetails: LoginDetails) => {
-    const response = await loginAccount(loginDetails.username, loginDetails.password);
-
-    const ret = {
-        returnUrl: loginDetails.returnUrl,
-        response: response.data
-    };
-
-    return ret;
-});
 
 export const registerAsync = createAsyncThunk(
     'account/register',
@@ -61,21 +49,6 @@ export const accountSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(loginAsync.pending, (state) => {
-                state.status = ApiStateStatus.Loading;
-            })
-            .addCase(loginAsync.fulfilled, (state, action) => {
-                if (!action.payload.response.success) {
-                    state.message = action.payload.response.message;
-                    state.status = ApiStateStatus.Failed;
-                } else {
-                    state.status = ApiStateStatus.Success;
-                    state.returnUrl = action.payload.returnUrl;
-                }
-            })
-            .addCase(loginAsync.rejected, (state) => {
-                state.status = ApiStateStatus.Failed;
-            })
             .addCase(registerAsync.pending, (state) => {
                 state.status = ApiStateStatus.Loading;
             })
