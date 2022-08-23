@@ -439,8 +439,9 @@ namespace Throneteki.Web.Controllers.Api
 
                 dbDeck.ExternalId = deck.Uuid;
                 dbDeck.Name = deck.Name ?? string.Empty;
-                dbDeck.Created = deck.DateCreation;
-                dbDeck.Updated = deck.DateUpdate;
+
+                dbDeck.Created = DateTime.SpecifyKind(deck.DateCreation, DateTimeKind.Utc);
+                dbDeck.Updated = DateTime.SpecifyKind(deck.DateUpdate, DateTimeKind.Utc);
                 dbDeck.Faction = dbFactions[deck.FactionCode!];
                 dbDeck.UserId = user.Id;
 

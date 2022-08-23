@@ -3,14 +3,21 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Alert, Button, Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
-import { useGetThronesDbStatusQuery } from '../../redux/api/apiSlice';
+import {
+    ApiError,
+    useGetThronesDbStatusQuery,
+    useLinkThronesDbAccountMutation
+} from '../../redux/api/apiSlice';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ThronesDbDecks from '../../components/Decks/ThronesDbDecks';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 const ThronesDbDecksPage = () => {
     const { t } = useTranslation();
 
     const { data: response, isLoading, isError } = useGetThronesDbStatusQuery({});
+    const [linkAccount, { isLoading: isLinkLoading }] = useLinkThronesDbAccountMutation();
 
     let content;
 
@@ -33,8 +40,29 @@ const ThronesDbDecksPage = () => {
                         the button below to get started
                     </Trans>
                 </div>
-                <Button href='/connect/link-tdb'>
+                <Button
+                    onClick={async () => {
+                        try {
+                            const response = await linkAccount({}).unwrap();
+                            window.location.href = response.location;
+                            if (!response.success) {
+                                // setError(response.message);
+                            } else {
+                                // setSuccess(t('Settings saved successfully.'));
+                            }
+                        } catch (err) {
+                            const apiError = err as ApiError;
+                            // setError(
+                            //     t(
+                            //         apiError.data.message ||
+                            //             'An error occured linking your account. Please try again later.'
+                            //     )
+                            // );
+                        }
+                    }}
+                >
                     <Trans>Link Account</Trans>
+                    {isLinkLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
                 </Button>
             </>
         );

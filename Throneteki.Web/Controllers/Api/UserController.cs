@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using SixLabors.ImageSharp;
@@ -188,7 +189,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("link-tdb")]
-    public IActionResult LinkThronesDb()
+    public async Task<IActionResult> LinkThronesDb()
     {
         var authProperties = new AuthenticationProperties
         {
@@ -197,6 +198,11 @@ public class UserController : ControllerBase
 
         authProperties.Items.Add("UserId", User.Identity!.Name);
 
-        return Challenge(authProperties, "ThronesDB");
+        await HttpContext.ChallengeAsync("ThronesDB", authProperties);
+
+        return Ok(new
+        {
+            Location = HttpContext.Response.Headers["location"].First()
+        });
     }
 }

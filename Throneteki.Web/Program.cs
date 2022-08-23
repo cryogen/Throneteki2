@@ -58,7 +58,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
             tdbToken.AccessToken = ctx.AccessToken ?? string.Empty;
             tdbToken.RefreshToken = ctx.RefreshToken ?? string.Empty;
-            tdbToken.Expiry = DateTime.Now.AddSeconds(ctx.ExpiresIn.GetValueOrDefault(TimeSpan.Zero).TotalSeconds);
+            tdbToken.Expiry = DateTime.UtcNow.AddSeconds(ctx.ExpiresIn.GetValueOrDefault(TimeSpan.Zero).TotalSeconds);
             tdbToken.ExternalId = "ThronesDB";
             tdbToken.UserId = user.Id;
 

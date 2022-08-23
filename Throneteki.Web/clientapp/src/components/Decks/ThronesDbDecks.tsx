@@ -1,18 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Col } from 'react-bootstrap';
+import { Alert, Button, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faRefresh,
     faDownload,
     faCloudArrowUp,
-    faCircleCheck
+    faCircleCheck,
+    faCircleNotch
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
     ApiError,
     useGetThronesDbDecksQuery,
-    useImportThronesDbDecksMutation
+    useImportThronesDbDecksMutation,
+    useLinkThronesDbAccountMutation
 } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { ThronesDbDeck } from '../../types/decks';
@@ -35,6 +37,7 @@ const ThronesDbDecks = () => {
     const [selectedRows, setSelectedRows] = useState<Row<ThronesDbDeck>[]>([]);
     const { data: response, isLoading, isError } = useGetThronesDbDecksQuery({});
     const [importDecks, { isLoading: isImportLoading }] = useImportThronesDbDecksMutation();
+    const [linkAccount, { isLoading: isLinkLoading }] = useLinkThronesDbAccountMutation();
 
     const onImportClick = async (deckIds: number[]) => {
         setError('');
@@ -163,9 +166,31 @@ const ThronesDbDecks = () => {
                 <Alert variant='danger'>
                     {t('An error occured loading ThronesDB decks. Please try again later.')}
                 </Alert>
-                <a href='/connect/link-tdb' className='btn btn-primary'>
+                <Button
+                    variant='primary'
+                    onClick={async () => {
+                        try {
+                            const response = await linkAccount({}).unwrap();
+                            console.info(response);
+                            if (!response.success) {
+                                setError(response.message);
+                            } else {
+                                // setSuccess(t('Settings saved successfully.'));
+                            }
+                        } catch (err) {
+                            const apiError = err as ApiError;
+                            setError(
+                                t(
+                                    apiError.data.message ||
+                                        'An error occured linking your account. Please try again later.'
+                                )
+                            );
+                        }
+                    }}
+                >
                     <Trans>Link account</Trans>
-                </a>
+                    {isLinkLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
+                </Button>
             </div>
         );
     } else if (response.data.length === 0) {
@@ -196,7 +221,7 @@ const ThronesDbDecks = () => {
                             icon={faCloudArrowUp}
                             text='Import All'
                             onClick={async () => {
-                                await onImportClick(response.decks.map((d: ThronesDbDeck) => d.id));
+                                await onImportClick(response.data.map((d: ThronesDbDeck) => d.id));
                             }}
                         />
                     </div>
