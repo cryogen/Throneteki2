@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from 'react-oidc-context';
 import NotFound from './components/NotFound';
 import LoginPage from './pages/Account/LoginPage';
-import RegisterPage from './pages/Account/RegisterPage';
 import SettingsPage from './pages/Account/SettingsPage';
 import Lobby from './pages/Lobby';
 import BlockListPage from './pages/Account/BlockListPage';
@@ -33,7 +32,6 @@ const Routes = () => {
             element: auth.user && <BlockListPage />
         },
         { path: '/account/login', element: <LoginPage /> },
-        { path: '/account/register', element: <RegisterPage /> },
         { path: '/account/profile', element: auth.user && <ProfilePage /> },
         { path: '/account/settings', element: auth.user && <SettingsPage /> },
         { path: '/decks', element: auth.user && <DecksPage /> },

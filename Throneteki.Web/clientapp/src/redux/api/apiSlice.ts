@@ -114,6 +114,13 @@ export const apiSlice = createApi({
                 url: `/decks/${deckId}/toggleFavourite`,
                 method: 'POST'
             })
+        }),
+        saveUser: builder.mutation({
+            query: ({ userId, userDetails }) => ({
+                url: `/user/${userId}`,
+                method: 'PATCH',
+                body: userDetails
+            })
         })
     })
 });
@@ -131,5 +138,6 @@ export const {
     useGetThronesDbDecksQuery,
     useGetThronesDbStatusQuery,
     useImportThronesDbDecksMutation,
-    useToggleDeckFavouriteMutation
+    useToggleDeckFavouriteMutation,
+    useSaveUserMutation
 } = apiSlice;

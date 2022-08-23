@@ -37,7 +37,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -175,7 +175,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet("{deckId}")]
         public async Task<IActionResult> GetDeck(int deckId)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -237,7 +237,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet("groupFilter")]
         public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -265,7 +265,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet("thronesdb/status")]
         public async Task<IActionResult> GetThronesDbLinkStatus()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -285,7 +285,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpGet("thronesdb")]
         public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -362,7 +362,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpPost("thronesdb")]
         public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();
@@ -499,7 +499,7 @@ namespace Throneteki.Web.Controllers.Api
         [HttpPost("{deckId}/toggleFavourite")]
         public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await userManager.FindByNameAsync(User.Identity!.Name);
             if (user == null)
             {
                 return Unauthorized();

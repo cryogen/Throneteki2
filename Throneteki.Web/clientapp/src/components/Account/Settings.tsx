@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, useRef, useEffect } from 'react';
 import { Form, Button, Alert, Col, Row } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { CustomUserProfile } from '../Navigation/Navigation';
 import SettingsBackground from './SettingsBackground';
@@ -12,6 +12,9 @@ import ThronetekiGameSettings from './ThronetekiGameSettings';
 import BlankBg from '../../assets/img/bgs/blank.png';
 import Background1 from '../../assets/img/bgs/background.png';
 import Background2 from '../../assets/img/bgs/background2.png';
+import { ApiError, useSaveUserMutation } from '../../redux/api/apiSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 interface GameSettings {
     chooseOrder: boolean;
@@ -55,7 +58,6 @@ export interface ProfileCardSizeOption {
 }
 
 type ProfileProps = {
-    onSubmit: (values: NewProfileDetails) => void;
     user: CustomUserProfile | null | undefined;
 };
 
@@ -78,8 +80,7 @@ const defaultActionWindows = {
     taxation: false
 };
 
-const Settings = (props: ProfileProps) => {
-    const { user, onSubmit } = props;
+const Settings = ({ user }: ProfileProps) => {
     const { t } = useTranslation('profile');
 
     const cardSizes = [
@@ -100,11 +101,15 @@ const Settings = (props: ProfileProps) => {
     const [localCardSize, setCardSize] = useState(settings.cardSize || 'normal');
     const [customBg, setCustomBg] = useState<string | null | undefined>(null);
     const topRowRef = useRef<HTMLElement>(null);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         setBackground(settings.background || 'none');
         setCardSize(settings.cardSize || 'normal');
     }, [settings.background, settings.cardSize]);
+
+    const [saveUser, { isLoading }] = useSaveUserMutation();
 
     if (!user) {
         return <Alert variant='danger'>You need to be logged in to view your profile.</Alert>;
@@ -122,102 +127,128 @@ const Settings = (props: ProfileProps) => {
     };
 
     return (
-        <Formik
-            onSubmit={async (values: ExistingProfileDetails): Promise<void> => {
-                const submitValues: NewProfileDetails = {
-                    userId: user.sub,
-                    settings: {
-                        actionWindows: values.actionWindows,
-                        chooseOrder: values.chooseOrder,
-                        chooseCards: values.chooseCards,
-                        promptDupes: values.promptDupes,
-                        windowTimer: values.windowTimer,
-                        timerAbilities: values.timerAbilities,
-                        timerEvents: values.timerEvents
+        <>
+            {error && <Alert variant='danger'>{error}</Alert>}
+            {success && <Alert variant='success'>{success}</Alert>}
+            <Formik
+                onSubmit={async (values: ExistingProfileDetails): Promise<void> => {
+                    setError('');
+                    setSuccess('');
+
+                    const submitValues: NewProfileDetails = {
+                        userId: user.sub,
+                        settings: {
+                            actionWindows: values.actionWindows,
+                            chooseOrder: values.chooseOrder,
+                            chooseCards: values.chooseCards,
+                            promptDupes: values.promptDupes,
+                            windowTimer: values.windowTimer,
+                            timerAbilities: values.timerAbilities,
+                            timerEvents: values.timerEvents
+                        }
+                    };
+
+                    if (localBackground) {
+                        submitValues.settings.background = localBackground;
                     }
-                };
 
-                if (localBackground) {
-                    submitValues.settings.background = localBackground;
-                }
+                    if (localCardSize) {
+                        submitValues.settings.cardSize = localCardSize;
+                    }
 
-                if (localCardSize) {
-                    submitValues.settings.cardSize = localCardSize;
-                }
+                    if (customBg) {
+                        submitValues.customBackground = customBg;
+                    }
 
-                if (customBg) {
-                    submitValues.customBackground = customBg;
-                }
+                    if (submitValues.settings.windowTimer > 10) {
+                        submitValues.settings.windowTimer = 10;
+                    }
 
-                if (submitValues.settings.windowTimer > 10) {
-                    submitValues.settings.windowTimer = 10;
-                }
+                    try {
+                        const response = await saveUser({
+                            userId: user.sub,
+                            userDetails: submitValues
+                        }).unwrap();
+                        if (!response.success) {
+                            setError(response.message);
+                        } else {
+                            setSuccess(t('Settings saved successfully.'));
+                        }
+                    } catch (err) {
+                        const apiError = err as ApiError;
+                        setError(
+                            t(
+                                apiError.data.message ||
+                                    'An error occured saving the settings. Please try again later.'
+                            )
+                        );
+                    }
 
-                onSubmit(submitValues);
+                    if (!topRowRef || !topRowRef.current) {
+                        return;
+                    }
 
-                if (!topRowRef || !topRowRef.current) {
-                    return;
-                }
+                    topRowRef.current.scrollIntoView(false);
+                }}
+                initialValues={initialValues}
+            >
+                {(formProps: FormikProps<ExistingProfileDetails>): ReactElement => (
+                    <Form
+                        className='profile-form'
+                        onSubmit={(event: React.FormEvent<HTMLFormElement>): void => {
+                            event.preventDefault();
+                            formProps.handleSubmit(event);
+                        }}
+                    >
+                        <Row ref={topRowRef}>
+                            <Col sm='12'>
+                                <SettingsBackground
+                                    backgrounds={backgrounds}
+                                    selectedBackground={localBackground}
+                                    customBackground={settings?.customBackgroundUrl}
+                                    onBackgroundSelected={async (name, file) => {
+                                        if (name === 'custom') {
+                                            if (!file) {
+                                                return;
+                                            }
 
-                topRowRef.current.scrollIntoView(false);
-            }}
-            initialValues={initialValues}
-        >
-            {(formProps: FormikProps<ExistingProfileDetails>): ReactElement => (
-                <Form
-                    className='profile-form'
-                    onSubmit={(event: React.FormEvent<HTMLFormElement>): void => {
-                        event.preventDefault();
-                        formProps.handleSubmit(event);
-                    }}
-                >
-                    <Row ref={topRowRef}>
-                        <Col sm='12'>
-                            <SettingsBackground
-                                backgrounds={backgrounds}
-                                selectedBackground={localBackground}
-                                customBackground={settings?.customBackgroundUrl}
-                                onBackgroundSelected={async (name, file) => {
-                                    if (name === 'custom') {
-                                        if (!file) {
-                                            return;
+                                            const base64File = await toBase64(file);
+
+                                            setCustomBg(base64File);
                                         }
 
-                                        const base64File = await toBase64(file);
-
-                                        setCustomBg(base64File);
-                                    }
-
-                                    setBackground(name);
-                                }}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <ThronetekiGameSettings formProps={formProps} user={user} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col sm='6'>
-                            <SettingsCardSize
-                                cardSizes={cardSizes}
-                                selectedCardSize={localCardSize}
-                                onCardSizeSelected={(name): void => setCardSize(name)}
-                            />
-                        </Col>
-                        <Col sm='6'>
-                            <SettingsActionWindows formProps={formProps} user={user} />
-                        </Col>
-                    </Row>
-                    <div className='text-center profile-submit'>
-                        <Button variant='success' type='submit'>
-                            {t('Save')}
-                        </Button>
-                    </div>
-                </Form>
-            )}
-        </Formik>
+                                        setBackground(name);
+                                    }}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <ThronetekiGameSettings formProps={formProps} user={user} />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm='6'>
+                                <SettingsCardSize
+                                    cardSizes={cardSizes}
+                                    selectedCardSize={localCardSize}
+                                    onCardSizeSelected={(name): void => setCardSize(name)}
+                                />
+                            </Col>
+                            <Col sm='6'>
+                                <SettingsActionWindows formProps={formProps} user={user} />
+                            </Col>
+                        </Row>
+                        <div className='text-center profile-submit'>
+                            <Button variant='success' type='submit'>
+                                <Trans>Save</Trans>
+                                {isLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
+                            </Button>
+                        </div>
+                    </Form>
+                )}
+            </Formik>
+        </>
     );
 };
 

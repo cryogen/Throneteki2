@@ -8,7 +8,7 @@ namespace Throneteki.Web.Controllers
         [HttpGet("/connect/link-tdb")]
         public IActionResult LinkThronesDb()
         {
-            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            if (User.Identity is not { IsAuthenticated: true })
             {
                 return Unauthorized();
             }
