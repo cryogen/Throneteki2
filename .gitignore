@@ -346,3 +346,4 @@ Throneteki.Web/wwwroot/img
 
 **/wwwroot/lib
 **/wwwroot/css
+Throneteki.Auth/wwwroot/js/vendor.*js
