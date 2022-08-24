@@ -10,7 +10,9 @@ const ProfilePage = () => {
     const { t } = useTranslation();
 
     useEffect(() => {
-        window.location.href = `${auth.settings.authority}Account/Profile?redirectUrl=${window.location.origin}`;
+        window.location.replace(
+            `${auth.settings.authority}Account/Profile?redirectUrl=${window.location.origin}`
+        );
     }, [auth.settings.authority]);
 
     return (

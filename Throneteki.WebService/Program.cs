@@ -8,14 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var authServerUrl = builder.Configuration.GetSection("Settings")["AuthServerUrl"];
+
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")); });
+builder.Services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention(); });
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
-        options.SetIssuer("https://localhost:44460/");
+        options.SetIssuer(authServerUrl);
         options.AddAudiences("throneteki-webservices");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
@@ -31,7 +33,13 @@ builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.Authen
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 

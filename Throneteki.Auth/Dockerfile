@@ -3,10 +3,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
-COPY ["Throneteki.Auth/thronetekiauth.pfx", "."]
-COPY throneteki.crt /usr/local/share/ca-certificates/throneteki.crt
-RUN chmod 644 /usr/local/share/ca-certificates/throneteki.crt && update-ca-certificates
-
 EXPOSE 80
 EXPOSE 443
 

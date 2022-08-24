@@ -16,7 +16,7 @@ const string corsPolicy = "AllowLocal";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy,
-        policyBuilder => policyBuilder.WithOrigins("https://localhost:44460").SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+        policyBuilder => policyBuilder.WithOrigins("http://localhost:44460").SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 });
 
 // Add services to the container.
@@ -70,6 +70,7 @@ builder.Services.AddOpenIddict()
         options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
 
         options.UseAspNetCore()
+            .DisableTransportSecurityRequirement()
             .EnableTokenEndpointPassthrough()
             .EnableAuthorizationEndpointPassthrough()
             .EnableUserinfoEndpointPassthrough()
@@ -89,12 +90,12 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
+    app.UseHttpsRedirection();
     app.UseHsts();
 }
 
 app.UseCors(corsPolicy);
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

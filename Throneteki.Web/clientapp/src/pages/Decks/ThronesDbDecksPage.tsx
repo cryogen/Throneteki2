@@ -44,7 +44,7 @@ const ThronesDbDecksPage = () => {
                     onClick={async () => {
                         try {
                             const response = await linkAccount({}).unwrap();
-                            window.location.href = response.location;
+                            window.location.replace(response.location);
                             if (!response.success) {
                                 // setError(response.message);
                             } else {

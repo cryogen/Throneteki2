@@ -1,13 +1,8 @@
 const createProxyMiddleware = require('http-proxy-middleware');
-const { env } = require('process');
 
-const target = env.ASPNETCORE_HTTPS_PORT
-    ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`
-    : env.ASPNETCORE_URLS
-    ? env.ASPNETCORE_URLS.split(';')[0]
-    : 'http://localhost:51264';
+const target = 'http://localhost:5287';
 
-const lobbyTarget = 'https://throneteki.lobby:7010';
+const lobbyTarget = 'http://throneteki.lobby:7010';
 
 const context = [
     '/api',

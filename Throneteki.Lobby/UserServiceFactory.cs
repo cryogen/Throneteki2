@@ -8,18 +8,20 @@ namespace Throneteki.Lobby;
 public class UserServiceFactory
 {
     private readonly HttpClient httpClient;
+    private readonly IConfiguration configuration;
     private UserService.UserServiceClient? userServiceClient;
 
-    public UserServiceFactory(HttpClient httpClient)
+    public UserServiceFactory(HttpClient httpClient, IConfiguration configuration)
     {
-        httpClient.BaseAddress = new Uri("https://localhost:44460");
+        httpClient.BaseAddress = new Uri(configuration.GetSection("Settings")["AuthServerUrl"]);
 
         this.httpClient = httpClient;
+        this.configuration = configuration;
     }
 
     public Task<UserService.UserServiceClient> GetUserServiceClient()
     {
-        const string address = "https://localhost:7125/UserService";
+        var address = configuration.GetSection("Settings")["UserServiceUrl"];
 
         if (userServiceClient != null)
         {
@@ -48,7 +50,13 @@ public class UserServiceFactory
 
     private async Task<string> GetAccessToken()
     {
-        var discoveryDocument = await httpClient.GetDiscoveryDocumentAsync();
+        var discoveryDocument = await httpClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+        {
+            Policy =
+            {
+                RequireHttps = false
+            }
+        });
 
         if (discoveryDocument.IsError)
         {

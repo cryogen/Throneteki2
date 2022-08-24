@@ -5,7 +5,6 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-COPY ["Throneteki.Lobby/thronetekilobby.pfx", "."]
 COPY throneteki.crt /usr/local/share/ca-certificates/throneteki.crt
 RUN chmod 644 /usr/local/share/ca-certificates/throneteki.crt && update-ca-certificates
 
