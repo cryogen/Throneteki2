@@ -115,7 +115,7 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                 }
 
                 return (
-                    <div key={message.user.username + i++} className='lobby-message'>
+                    <div key={message.user.username + i++} className='lobby-message text-white-50'>
                         {messageText}
                         {isModerator && (
                             <a
@@ -137,12 +137,18 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
             return (
                 <div
                     key={timestamp + firstMessage.user.username + (index++).toString()}
-                    className='message-container'
+                    className='message-container d-flex mb-2'
                 >
-                    <Avatar avatar={firstMessage.user.avatar} float />
-                    <span className={userClass}>{firstMessage.user.username}</span>
-                    <span>{timestamp}</span>
-                    {renderedMessages}
+                    <div>
+                        <Avatar avatar={firstMessage.user.avatar} float />
+                    </div>
+                    <div>
+                        <div className='d-flex'>
+                            <span className={userClass}>{firstMessage.user.username}</span>
+                            <span className='text-white-50'>{timestamp}</span>
+                        </div>
+                        <div>{renderedMessages}</div>
+                    </div>
                 </div>
             );
         });

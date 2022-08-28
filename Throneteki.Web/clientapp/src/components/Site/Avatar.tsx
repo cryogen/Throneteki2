@@ -7,7 +7,7 @@ export interface AvatarProps {
 }
 
 const Avatar = (props: AvatarProps) => {
-    const className = classNames('gravatar', {
+    const className = classNames('gravatar me-1', {
         'pull-left': props.float
     });
 
