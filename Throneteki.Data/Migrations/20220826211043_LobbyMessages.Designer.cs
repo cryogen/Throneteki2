@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Throneteki.Data;
@@ -11,9 +12,10 @@ using Throneteki.Data;
 namespace Throneteki.Data.Migrations
 {
     [DbContext(typeof(ThronetekiDbContext))]
-    partial class ThronetekiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220826211043_LobbyMessages")]
+    partial class LobbyMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -721,6 +723,7 @@ namespace Throneteki.Data.Migrations
                         .HasColumnName("deleted");
 
                     b.Property<string>("DeletedById")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("deleted_by_id");
 
@@ -1084,6 +1087,8 @@ namespace Throneteki.Data.Migrations
                     b.HasOne("Throneteki.Data.Models.ThronetekiUser", "DeletedBy")
                         .WithMany()
                         .HasForeignKey("DeletedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fk_lobby_messages_users_deleted_by_id");
 
                     b.HasOne("Throneteki.Data.Models.ThronetekiUser", "Poster")

@@ -8,3 +8,12 @@ export interface UserSummary {
 export interface LobbyUser {
     name: string;
 }
+
+export interface LobbyMessage {
+    id: number;
+    message: string;
+    user: UserSummary;
+    time: Date;
+    deleted: boolean;
+    deletedBy: string;
+}

@@ -67,11 +67,13 @@ function App() {
             <Navigation appName='The Iron Throne' />
 
             <main role='main'>
-                <Container className='content'>
-                    <Breadcrumbs breadcrumbs={breadcrumbs} />
+                <div className='wrapper'>
+                    <Container className='content'>
+                        <Breadcrumbs breadcrumbs={breadcrumbs} />
 
-                    <RouteElement />
-                </Container>
+                        <RouteElement />
+                    </Container>
+                </div>
             </main>
         </>
     );

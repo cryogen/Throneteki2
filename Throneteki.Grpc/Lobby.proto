@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package Throneteki.WebService;
+
+service LobbyService {
+	rpc AddLobbyMessage(AddLobbyMessageRequest) returns (AddLobbyMessageResponse);
+	rpc GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest) returns (GetLobbyMessagesForUserResponse);
+	rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+}
+
+message AddLobbyMessageRequest {
+	string Message = 1;
+	string UserId = 2;
+}
+
+message AddLobbyMessageResponse {
+	LobbyMessage Message = 1;
+}
+
+message BlockListEntry {
+	string UserId = 1;
+	string Username = 2;
+}
+
+message GetLobbyMessagesForUserRequest {
+	string UserId = 1;
+}
+
+message GetLobbyMessagesForUserResponse {
+	repeated LobbyMessage Messages = 1;
+}
+
+message GetUserByUsernameRequest {
+	string Username = 1;
+}
+
+message GetUserByUsernameResponse {
+	ThronetekiUser User = 1;
+}
+
+message LobbyMessage {
+	int32 Id = 1;
+    string Message = 2;
+	ThronetekiUser User = 3;
+	google.protobuf.Timestamp Time = 4;
+    bool Deleted = 5;
+	ThronetekiUser Deletedby = 6;
+}
+
+message ThronetekiUser {
+	string Id = 1;
+	string Username = 2;
+	string Avatar = 3;
+	repeated BlockListEntry BlockList = 4;
+	google.protobuf.Timestamp Registered = 5;
+}

@@ -46,6 +46,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints => { endpoints.MapGrpcService<UserServiceImpl>(); });
+app.UseEndpoints(endpoints => { endpoints.MapGrpcService<ThronetekiServiceImpl>(); });
 
 app.Run();

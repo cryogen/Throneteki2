@@ -171,7 +171,6 @@ const ThronesDbDecks = () => {
                     onClick={async () => {
                         try {
                             const response = await linkAccount({}).unwrap();
-                            console.info(response);
                             if (!response.success) {
                                 setError(response.message);
                             } else {

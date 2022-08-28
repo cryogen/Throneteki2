@@ -47,7 +47,8 @@ public class DataInitialisationWorker : IHostedService
             var adminUser = new ThronetekiUser
             {
                 UserName = "admin",
-                Email = "admin@throneteki.net"
+                Email = "admin@throneteki.net",
+                RegisteredDateTime = DateTime.UtcNow
             };
 
             await userManager.CreateAsync(adminUser, "Passw0rd!");

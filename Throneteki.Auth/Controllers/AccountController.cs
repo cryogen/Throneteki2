@@ -105,7 +105,7 @@ namespace Throneteki.Auth.Controllers
                 return View(model);
             }
 
-            var user = new ThronetekiUser { UserName = model.Username, Email = model.Email };
+            var user = new ThronetekiUser { UserName = model.Username, Email = model.Email, RegisteredDateTime = DateTime.UtcNow };
             var result = await userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {

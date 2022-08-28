@@ -30,7 +30,7 @@ builder.Services.AddOpenIddict()
 
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
-builder.Services.AddSingleton<UserServiceFactory>();
+builder.Services.AddSingleton<LobbyServiceFactory>();
 
 var app = builder.Build();
 

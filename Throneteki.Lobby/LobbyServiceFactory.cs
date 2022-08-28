@@ -5,13 +5,13 @@ using Throneteki.WebService;
 
 namespace Throneteki.Lobby;
 
-public class UserServiceFactory
+public class LobbyServiceFactory
 {
     private readonly HttpClient httpClient;
     private readonly IConfiguration configuration;
-    private UserService.UserServiceClient? userServiceClient;
+    private LobbyService.LobbyServiceClient? lobbyServiceClient;
 
-    public UserServiceFactory(HttpClient httpClient, IConfiguration configuration)
+    public LobbyServiceFactory(HttpClient httpClient, IConfiguration configuration)
     {
         httpClient.BaseAddress = new Uri(configuration.GetSection("Settings")["AuthServerUrl"]);
 
@@ -19,13 +19,13 @@ public class UserServiceFactory
         this.configuration = configuration;
     }
 
-    public Task<UserService.UserServiceClient> GetUserServiceClient()
+    public Task<LobbyService.LobbyServiceClient> GetUserServiceClient()
     {
         var address = configuration.GetSection("Settings")["UserServiceUrl"];
 
-        if (userServiceClient != null)
+        if (lobbyServiceClient != null)
         {
-            return Task.FromResult(userServiceClient);
+            return Task.FromResult(lobbyServiceClient);
         }
 
         var credentials = CallCredentials.FromInterceptor(async (_, metadata) =>
@@ -43,9 +43,9 @@ public class UserServiceFactory
             Credentials = ChannelCredentials.Create(new SslCredentials(), credentials)
         });
 
-        userServiceClient = new UserService.UserServiceClient(channel);
+        lobbyServiceClient = new LobbyService.LobbyServiceClient(channel);
 
-        return Task.FromResult(userServiceClient);
+        return Task.FromResult(lobbyServiceClient);
     }
 
     private async Task<string> GetAccessToken()

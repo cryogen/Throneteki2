@@ -11,6 +11,7 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser>
     public DbSet<Card> Cards => Set<Card>();
     public DbSet<Deck> Decks => Set<Deck>();
     public DbSet<Faction> Factions => Set<Faction>();
+    public DbSet<LobbyMessage> LobbyMessages => Set<LobbyMessage>();
     public DbSet<Pack> Packs => Set<Pack>();
 
     public ThronetekiDbContext()

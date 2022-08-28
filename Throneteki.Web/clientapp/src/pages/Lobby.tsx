@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 // import { toastr } from 'react-redux-toastr';
-import { Trans, useTranslation } from 'react-i18next';
-import { Col } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
+import { Col, Form } from 'react-bootstrap';
 // import { Carousel } from 'react-responsive-carousel';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
@@ -11,6 +11,11 @@ import Panel from '../components/Site/Panel';
 // import Typeahead from '../Components/Form/Typeahead';
 import SideBar from '../components/Lobby/SideBar';
 import UserList from '../components/Lobby/UserList';
+import { lobbyActions } from '../redux/slices/lobby';
+import { useAuth } from 'react-oidc-context';
+import LobbyChat from '../components/Lobby/LobbyChat';
+import { Permission } from '../components/Navigation/menus';
+import { CustomUserProfile } from '../components/Navigation/Navigation';
 // import UserList from '../Components/Lobby/UserList';
 // import LobbyChat from '../Components/Lobby/LobbyChat';
 // import { clearChatStatus, loadNews, removeLobbyMessage, sendSocketMessage } from '../redux/actions';
@@ -20,7 +25,7 @@ import UserList from '../components/Lobby/UserList';
 
 const Lobby = () => {
     const dispatch = useAppDispatch();
-    const { users } = useAppSelector((state) => state.lobby);
+    const { users, lobbyMessages } = useAppSelector((state) => state.lobby);
 
     // const { bannerNotice, lobbyError, messages, motd, users } = useSelector((state) => ({
     //     bannerNotice: state.lobby.bannerNotice,
@@ -37,9 +42,9 @@ const Lobby = () => {
     //     return retState;
     // });
     // const [popupError, setPopupError] = useState(false);
-    // const [message, setMessage] = useState('');
+    const [message, setMessage] = useState<string>('');
     const { t } = useTranslation();
-    const messageRef = useRef(null);
+    const auth = useAuth();
 
     //     // useEffect(() => {
     //     //     dispatch(loadNews({ limit: 3 }));
@@ -56,30 +61,30 @@ const Lobby = () => {
     //     //     }, 5000);
     //     // }
 
-    //     // const sendMessage = () => {
-    //     //     if (message === '') {
-    //     //         return;
-    //     //     }
+    const sendMessage = () => {
+        if (message === '') {
+            return;
+        }
 
-    //     //     dispatch(sendSocketMessage('lobbychat', message));
+        dispatch(lobbyActions.sendLobbyChat(message));
 
-    //     //     setMessage('');
-    //     // };
+        setMessage('');
+    };
 
-    //     // const onKeyPress = (event) => {
-    //     //     if (event.key === 'Enter') {
-    //     //         event.preventDefault();
+    const onKeyPress = (event: React.KeyboardEvent<HTMLElement>) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
 
-    //     //         sendMessage();
+            sendMessage();
+        }
+    };
 
-    //     //         messageRef.current?.clear();
-    //     //     }
-    //     // };
+    const user = auth.user?.profile as CustomUserProfile;
 
-    //     const isLoggedIn = !!user;
-    //     const placeholder = isLoggedIn
-    //         ? 'Enter a message...'
-    //         : 'You must be logged in to send lobby chat messages';
+    const isLoggedIn = !!user;
+    const placeholder = isLoggedIn
+        ? 'Enter a message...'
+        : 'You must be logged in to send lobby chat messages';
 
     //     // const banners = [
     //     //     {
@@ -155,45 +160,38 @@ const Lobby = () => {
                         users: users.length
                     })}
                 >
-                    {/* <div>
-                            <LobbyChat
-                                messages={messages}
-                                isModerator={user?.permissions?.canModerateChat}
-                                onRemoveMessageClick={(messageId) =>
-                                    dispatch(removeLobbyMessage(messageId))
-                                }
-                            /> 
-                        </div>
-                        */}
+                    <LobbyChat
+                        messages={lobbyMessages}
+                        isModerator={user?.role?.includes(Permission.CanModerateChat)}
+                        onRemoveMessageClick={(messageId) => {
+                            //   dispatch(removeLobbyMessage(messageId))
+                        }}
+                    />
                 </Panel>
-                <form
-                    className='form form-hozitontal chat-box-container'
+                <Form
+                    className='chat-box-container'
                     onSubmit={(event) => {
                         event.preventDefault();
-                        //                        sendMessage();
+                        sendMessage();
                     }}
                 >
-                    <div className='form-group'>
-                        <div className='chat-box'>
-                            {/* <Typeahead
-                                    disabled={!isLoggedIn}
-                                    ref={messageRef}
-                                    value={message}
-                                    placeholder={t(placeholder)}
-                                    labelKey={'name'}
-                                    onKeyDown={onKeyPress}
-                                    options={users}
-                                    onInputChange={(value) =>
-                                        setMessage(value.substring(0, Math.min(512, value.length)))
-                                    }
-                                    autoFocus
-                                    dropup
-                                    emptyLabel={''}
-                                    minLength={2}
-                                /> */}
-                        </div>
-                    </div>
-                </form>
+                    <Form.Group>
+                        <Form.Control
+                            className='bg-light text-dark'
+                            onKeyDown={onKeyPress}
+                            onChange={(event) =>
+                                setMessage(
+                                    event.target.value.substring(
+                                        0,
+                                        Math.min(512, event.target.value.length)
+                                    )
+                                )
+                            }
+                            placeholder={t(placeholder)}
+                            value={message}
+                        ></Form.Control>
+                    </Form.Group>
+                </Form>
             </Col>
         </div>
     );

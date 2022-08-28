@@ -1,10 +1,12 @@
 import { Middleware } from 'redux';
 import * as signalR from '@microsoft/signalr';
 import { lobbyActions } from '../slices/lobby';
-import { UserSummary } from '../../types/lobby';
+import { LobbyMessage, UserSummary } from '../../types/lobby';
 import { getUser } from '../../helpers/UserHelper';
 
 enum LobbyEvent {
+    LobbyChat = 'lobbychat',
+    LobbyMessages = 'lobbymessages',
     NewUserMessage = 'newuser',
     PongMessage = 'pong',
     UserLeftMessage = 'userleft',
@@ -37,6 +39,14 @@ const chatMiddleware: Middleware = (store) => {
             });
             // .catch((err) => lobbyActions.connectionFailed(err));
 
+            connection.on(LobbyEvent.LobbyChat, (message: LobbyMessage) => {
+                store.dispatch(lobbyActions.receiveLobbyChat(message));
+            });
+
+            connection.on(LobbyEvent.LobbyMessages, (messages: LobbyMessage[]) => {
+                store.dispatch(lobbyActions.receiveLobbyMessages(messages));
+            });
+
             connection.on(LobbyEvent.NewUserMessage, (user: UserSummary) => {
                 store.dispatch(lobbyActions.receiveUser({ user }));
             });
@@ -63,12 +73,22 @@ const chatMiddleware: Middleware = (store) => {
             });
         }
 
-        if (lobbyActions.disconnect.match(action) && isConnectionEstablished) {
-            connection?.stop().then(() => {
+        if (!isConnectionEstablished || !connection) {
+            next(action);
+
+            return;
+        }
+
+        if (lobbyActions.disconnect.match(action)) {
+            connection.stop().then(() => {
                 store.dispatch(lobbyActions.disconnect());
 
                 connection = null;
             });
+        }
+
+        if (lobbyActions.sendLobbyChat.match(action)) {
+            connection.send(LobbyEvent.LobbyChat, action.payload);
         }
 
         next(action);
