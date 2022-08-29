@@ -11,6 +11,7 @@ import ThronesDbDecksPage from './pages/Decks/ThronesDbDecksPage';
 import DeckPage from './pages/Decks/DeckPage';
 import NewDeckPage from './pages/Decks/NewDeckPage';
 import ProfilePage from './pages/Account/ProfilePage';
+import UserAdminPage from './pages/Admin/UserAdminPage';
 
 const Routes = () => {
     // const location = useLocation();
@@ -34,6 +35,7 @@ const Routes = () => {
         { path: '/account/login', element: <LoginPage /> },
         { path: '/account/profile', element: auth.user && <ProfilePage /> },
         { path: '/account/settings', element: auth.user && <SettingsPage /> },
+        { path: '/admin/users', element: auth.user && <UserAdminPage /> },
         { path: '/decks', element: auth.user && <DecksPage /> },
         { path: '/decks/new', element: auth.user && <NewDeckPage /> },
         { path: '/decks/:deckId', element: auth.user && <DeckPage /> },

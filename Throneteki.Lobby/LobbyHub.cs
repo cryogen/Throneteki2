@@ -63,7 +63,8 @@ public class LobbyHub : Hub
             {
                 message.User.Id,
                 message.User.Avatar,
-                message.User.Username
+                message.User.Username,
+                message.User.Role
             }
         }));
 
@@ -165,7 +166,8 @@ public class LobbyHub : Hub
             {
                 user.Id,
                 user.Avatar,
-                user.Username
+                user.Username,
+                user.Role
             }
         };
 

@@ -55,4 +55,5 @@ message ThronetekiUser {
 	string Avatar = 3;
 	repeated BlockListEntry BlockList = 4;
 	google.protobuf.Timestamp Registered = 5;
+	string Role = 6;
 }

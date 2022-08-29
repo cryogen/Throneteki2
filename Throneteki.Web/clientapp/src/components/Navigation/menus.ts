@@ -57,7 +57,7 @@ export const LeftMenu: MenuItem[] = [
         showOnlyWhenLoggedIn: true,
         childItems: [
             { path: '/news', title: 'News', permission: Permission.CanEditNews },
-            { path: '/users', title: 'Users', permission: Permission.CanManageUsers },
+            { path: '/admin/users', title: 'Users', permission: Permission.CanManageUsers },
             { path: '/nodes', title: 'Nodes', permission: Permission.CanManageNodes },
             { path: '/banlist', title: 'Ban List', permission: Permission.CanManageBanlist },
             { path: '/admin/motd', title: 'Motd', permission: Permission.CanManageMotd }

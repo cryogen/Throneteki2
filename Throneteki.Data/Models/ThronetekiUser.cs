@@ -18,4 +18,5 @@ public class ThronetekiUser : IdentityUser
     public DateTime RegisteredDateTime { get; set; }
     public ICollection<BlocklistEntry> BlockListEntries { get; init; }
     public ICollection<ExternalToken> ExternalTokens { get; set; } = new List<ExternalToken>();
+    public virtual ICollection<ThronetekiUserRole> UserRoles { get; set; } = null!;
 }

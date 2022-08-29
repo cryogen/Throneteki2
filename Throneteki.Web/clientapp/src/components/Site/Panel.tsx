@@ -17,9 +17,15 @@ interface PanelProps {
     type?: string;
 }
 
-const Panel = ({ type = PanelType.Primary, title, titleClass, children }: PanelProps) => {
+const Panel = ({
+    className,
+    type = PanelType.Primary,
+    title,
+    titleClass,
+    children
+}: PanelProps) => {
     return (
-        <Card border={type} bg='dark' text='light'>
+        <Card border={type} bg='dark' text='light' className={className}>
             {title && (
                 <Card.Header className={`${titleClass || ' '}text-center bg-primary`}>
                     {title}

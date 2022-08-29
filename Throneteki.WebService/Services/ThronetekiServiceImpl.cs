@@ -3,7 +3,9 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Throneteki.Data;
+using Throneteki.Data.Models;
 using DbLobbyMessage = Throneteki.Data.Models.LobbyMessage;
+using DbThronetekiUser = Throneteki.Data.Models.ThronetekiUser;
 
 namespace Throneteki.WebService.Services;
 
@@ -19,7 +21,10 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
 
     public override async Task<AddLobbyMessageResponse> AddLobbyMessage(AddLobbyMessageRequest request, ServerCallContext context)
     {
-        var poster = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == request.UserId);
+        var poster = await dbContext.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(user => user.Id == request.UserId);
 
         if (poster == null)
         {
@@ -49,25 +54,9 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
                     Avatar = (poster.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(poster.ProfileImage.Image)}" : null) ?? string.Empty,
                     Id = poster.Id,
                     Username = poster.UserName,
-                    Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(poster.RegisteredDateTime, DateTimeKind.Utc))
+                    Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(poster.RegisteredDateTime, DateTimeKind.Utc)),
+                    Role = GetRoleForUser(poster)
                 }
-            }
-        };
-    }
-
-    private static LobbyMessage MapMessage(DbLobbyMessage message)
-    {
-        return new LobbyMessage
-        {
-            Id = message.Id,
-            Message = message.Message,
-            Time = DateTime.SpecifyKind(message.PostedDateTime, DateTimeKind.Utc).ToTimestamp(),
-            User = new ThronetekiUser
-            {
-                Avatar = (message.Poster.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(message.Poster.ProfileImage.Image)}" : null) ?? string.Empty,
-                Id = message.Poster.Id,
-                Username = message.Poster.UserName,
-                Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(message.Poster.RegisteredDateTime, DateTimeKind.Utc))
             }
         };
     }
@@ -83,6 +72,9 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         var messages = await dbContext.LobbyMessages
             .Include(m => m.Poster)
             .ThenInclude(p => p.ProfileImage)
+            .Include(m => m.Poster)
+            .ThenInclude(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
             .OrderByDescending(m => m.PostedDateTime)
             .Take(50)
             .Select(message => MapMessage(message)).ToListAsync();
@@ -120,5 +112,56 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         }));
 
         return ret;
+    }
+
+    private static LobbyMessage MapMessage(DbLobbyMessage message)
+    {
+        return new LobbyMessage
+        {
+            Id = message.Id,
+            Message = message.Message,
+            Time = DateTime.SpecifyKind(message.PostedDateTime, DateTimeKind.Utc).ToTimestamp(),
+            User = new ThronetekiUser
+            {
+                Avatar = (message.Poster.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(message.Poster.ProfileImage.Image)}" : null) ?? string.Empty,
+                Id = message.Poster.Id,
+                Username = message.Poster.UserName,
+                Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(message.Poster.RegisteredDateTime, DateTimeKind.Utc)),
+                Role = GetRoleForUser(message.Poster)
+            }
+        };
+    }
+
+    private static string GetRoleForUser(DbThronetekiUser user)
+    {
+        foreach (var userRole in user.UserRoles)
+        {
+            if (userRole.Role.Name == Roles.Admin)
+            {
+                return Roles.Admin;
+            }
+
+            if (userRole.Role.Name == Roles.Winner)
+            {
+                return Roles.Winner;
+            }
+
+            if (userRole.Role.Name == Roles.PreviousWinner)
+            {
+                return Roles.PreviousWinner;
+            }
+
+            if (userRole.Role.Name == Roles.Contributor)
+            {
+                return Roles.Contributor;
+            }
+
+            if (userRole.Role.Name == Roles.Supporter)
+            {
+                return Roles.Supporter;
+            }
+        }
+
+        return "user";
     }
 }

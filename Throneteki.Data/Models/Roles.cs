@@ -11,6 +11,12 @@ public static class Roles
     public const string BanListManager = "BanListManager";
     public const string MotdManager = "MotdManager";
     public const string TournamentManager = "TournamentManager";
+    public const string Admin = "Admin";
+    public const string Supporter = "Supporter";
+    public const string Contributor = "Contributor";
+    public const string Winner = "Winner";
+    public const string PreviousWinner = "PreviousWinner";
+    public const string SupporterWithNoPatreon = "SupporterWithNoPatreon";
 
     public static List<string> AvailableRoles = new()
     {
@@ -22,6 +28,12 @@ public static class Roles
         NodeManager,
         BanListManager,
         MotdManager,
-        TournamentManager
+        TournamentManager,
+        Admin,
+        Supporter,
+        Contributor,
+        Winner,
+        PreviousWinner,
+        SupporterWithNoPatreon
     };
 }

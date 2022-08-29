@@ -102,6 +102,9 @@ export const apiSlice = createApi({
         getThronesDbStatus: builder.query({
             query: () => '/decks/thronesdb/status'
         }),
+        getUserDetails: builder.query({
+            query: (username) => `/admin/user/${username}`
+        }),
         importThronesDbDecks: builder.mutation({
             query: (deckIds) => ({
                 url: '/decks/thronesdb',
@@ -124,6 +127,13 @@ export const apiSlice = createApi({
                 method: 'PATCH',
                 body: userDetails
             })
+        }),
+        saveUserAdmin: builder.mutation({
+            query: ({ userId, userDetails }) => ({
+                url: `/admin/user/${userId}`,
+                method: 'PATCH',
+                body: userDetails
+            })
         })
     })
 });
@@ -140,8 +150,11 @@ export const {
     useGetPacksQuery,
     useGetThronesDbDecksQuery,
     useGetThronesDbStatusQuery,
+    useGetUserDetailsQuery,
     useImportThronesDbDecksMutation,
+    useLazyGetUserDetailsQuery,
     useLinkThronesDbAccountMutation,
     useToggleDeckFavouriteMutation,
+    useSaveUserAdminMutation,
     useSaveUserMutation
 } = apiSlice;
