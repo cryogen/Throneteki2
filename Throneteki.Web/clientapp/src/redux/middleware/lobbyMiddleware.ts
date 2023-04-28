@@ -1,19 +1,26 @@
 import { Middleware } from 'redux';
 import * as signalR from '@microsoft/signalr';
-import { lobbyActions } from '../slices/lobby';
-import { LobbyMessage, UserSummary } from '../../types/lobby';
+import { lobbyActions } from '../slices/lobbySlice';
+import { HandOff, LobbyGame, LobbyMessage, UserSummary } from '../../types/lobby';
 import { getUser } from '../../helpers/UserHelper';
+import { gameNodeActions } from '../slices/gameNodeSlice';
 
 enum LobbyEvent {
+    GameError = 'gameerror',
+    GameState = 'gamestate',
+    HandOff = 'handoff',
     LobbyChat = 'lobbychat',
     LobbyMessages = 'lobbymessages',
+    NewGame = 'newgame',
     NewUserMessage = 'newuser',
     PongMessage = 'pong',
     UserLeftMessage = 'userleft',
-    UsersMessage = 'users'
+    UsersMessage = 'users',
+    SelectDeck = 'selectdeck',
+    StartGame = 'startgame'
 }
 
-const chatMiddleware: Middleware = (store) => {
+const lobbyMiddleware: Middleware = (store) => {
     let connection: signalR.HubConnection | null = null;
     let pingSentTime: Date;
 
@@ -47,6 +54,10 @@ const chatMiddleware: Middleware = (store) => {
                 store.dispatch(lobbyActions.receiveLobbyMessages(messages));
             });
 
+            connection.on(LobbyEvent.HandOff, (handOffDetails: HandOff) => {
+                store.dispatch(gameNodeActions.startConnecting(handOffDetails));
+            });
+
             connection.on(LobbyEvent.NewUserMessage, (user: UserSummary) => {
                 store.dispatch(lobbyActions.receiveUser({ user }));
             });
@@ -57,6 +68,18 @@ const chatMiddleware: Middleware = (store) => {
 
             connection.on(LobbyEvent.UsersMessage, (users: UserSummary[]) => {
                 store.dispatch(lobbyActions.receiveUsers({ users }));
+            });
+
+            connection.on(LobbyEvent.NewGame, (game: LobbyGame) => {
+                store.dispatch(lobbyActions.receiveNewGame(game));
+            });
+
+            connection.on(LobbyEvent.GameState, (game: LobbyGame) => {
+                store.dispatch(lobbyActions.receiveGameState(game));
+            });
+
+            connection.on(LobbyEvent.GameError, (error: string) => {
+                store.dispatch(lobbyActions.receiveGameError(error));
             });
 
             connection.on(LobbyEvent.PongMessage, () => {
@@ -91,8 +114,20 @@ const chatMiddleware: Middleware = (store) => {
             connection.send(LobbyEvent.LobbyChat, action.payload);
         }
 
+        if (lobbyActions.sendNewGame.match(action)) {
+            connection.send(LobbyEvent.NewGame, action.payload);
+        }
+
+        if (lobbyActions.sendSelectDeck.match(action)) {
+            connection.send(LobbyEvent.SelectDeck, action.payload);
+        }
+
+        if (lobbyActions.sendStartGame.match(action)) {
+            connection.send(LobbyEvent.StartGame, '');
+        }
+
         next(action);
     };
 };
 
-export default chatMiddleware;
+export default lobbyMiddleware;

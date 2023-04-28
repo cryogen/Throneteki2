@@ -137,7 +137,7 @@ public class AuthorisationController : Controller
                 // but you may want to allow the user to uncheck specific scopes.
                 // For that, simply restrict the list of scopes before calling SetScopes.
                 principal.SetScopes(request.GetScopes());
-                principal.SetResources(await scopeManager.ListResourcesAsync(principal.GetScopes()).ToListAsync());
+                principal.SetResources(new[] { "throneteki-nodes" }.Concat(await scopeManager.ListResourcesAsync(principal.GetScopes()).ToListAsync()));
 
                 // Automatically create a permanent authorization to avoid requiring explicit consent
                 // for future authorization or token requests containing the same scopes.

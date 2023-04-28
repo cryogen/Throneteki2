@@ -8,7 +8,7 @@ import { useAppDispatch } from './redux/hooks';
 import Navigation from './components/Navigation/Navigation';
 import AuthorisationRoutes from './authorisation/AuthorisationRoutes';
 import routes from './routes';
-import { lobbyActions } from './redux/slices/lobby';
+import { lobbyActions } from './redux/slices/lobbySlice';
 import Breadcrumbs from './components/Site/Breadcrumbs';
 
 function RouteElement() {

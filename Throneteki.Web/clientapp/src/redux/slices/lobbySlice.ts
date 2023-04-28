@@ -1,8 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LobbyMessage, UserSummary } from '../../types/lobby';
+import { HandOff, LobbyGame, LobbyMessage, UserSummary } from '../../types/lobby';
 
 export interface LobbyState {
     connection?: signalR.HubConnection | null;
+    currentGame?: LobbyGame;
+    gameError?: string;
+    games: LobbyGame[];
+    handOff?: HandOff;
     isConnected: boolean;
     isEstablishingConnection: boolean;
     isMessagePending: boolean;
@@ -15,6 +19,7 @@ const initialState: LobbyState = {
     isConnected: false,
     isEstablishingConnection: false,
     isMessagePending: false,
+    games: [],
     lobbyMessages: [],
     responseTime: -1,
     users: []
@@ -34,12 +39,24 @@ const lobbySlice = createSlice({
         disconnect: (state) => {
             state.isConnected = false;
         },
+        receiveGameError: (state, action: PayloadAction<string>) => {
+            state.gameError = action.payload;
+        },
+        receiveGameState: (state, action: PayloadAction<LobbyGame>) => {
+            state.currentGame = action.payload;
+        },
+        receiveHandOff: (state, action: PayloadAction<HandOff>) => {
+            state.handOff = action.payload;
+        },
         receiveLobbyChat: (state, action: PayloadAction<LobbyMessage>) => {
             state.lobbyMessages.push(action.payload);
             state.isMessagePending = false;
         },
         receiveLobbyMessages(state, action: PayloadAction<LobbyMessage[]>) {
             state.lobbyMessages = action.payload;
+        },
+        receiveNewGame(state, action: PayloadAction<LobbyGame>) {
+            state.games.push(action.payload);
         },
         receivePing: (
             state,
@@ -75,8 +92,17 @@ const lobbySlice = createSlice({
         ) => {
             state.users = action.payload.users;
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        sendLobbyChat: (state, _: PayloadAction<string>) => {
+        sendLobbyChat: (state, _) => {
+            state.isMessagePending = true;
+        },
+        sendNewGame: (state, _) => {
+            state.isMessagePending = true;
+        },
+        sendSelectDeck: (state, _) => {
+            state.isMessagePending = true;
+        },
+        sendStartGame: (state) => {
+            state.gameError = undefined;
             state.isMessagePending = true;
         }
         // connectionFailed: (state) => {

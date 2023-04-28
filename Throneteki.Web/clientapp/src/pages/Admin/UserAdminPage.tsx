@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Form, Table, Button, Row, Alert } from 'react-bootstrap';
 import moment from 'moment';
-import * as yup from 'yup';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from 'react-oidc-context';
 import { Formik } from 'formik';
 import { Trans, useTranslation } from 'react-i18next';
+
+import * as yup from 'yup';
+
 import {
     ApiError,
     useLazyGetUserDetailsQuery,
     useSaveUserAdminMutation
 } from '../../redux/api/apiSlice';
 import Panel from '../../components/Site/Panel';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from 'react-oidc-context';
-import { CustomUserProfile } from '../../components/Navigation/Navigation';
 import { Permission } from '../../components/Navigation/menus';
+import { CustomUserProfile } from '../../types/user';
 
 const defaultPermissions = {
     canEditNews: false,

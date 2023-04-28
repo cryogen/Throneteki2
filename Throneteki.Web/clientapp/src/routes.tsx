@@ -12,6 +12,7 @@ import DeckPage from './pages/Decks/DeckPage';
 import NewDeckPage from './pages/Decks/NewDeckPage';
 import ProfilePage from './pages/Account/ProfilePage';
 import UserAdminPage from './pages/Admin/UserAdminPage';
+import PlayPage from './pages/PlayPage';
 
 const Routes = () => {
     // const location = useLocation();
@@ -41,6 +42,7 @@ const Routes = () => {
         { path: '/decks/:deckId', element: auth.user && <DeckPage /> },
         { path: '/decks/import', element: auth.user && <ImportDeckPage /> },
         { path: '/decks/thronesdb', element: auth.user && <ThronesDbDecksPage /> },
+        { path: '/play', element: <PlayPage /> },
         { path: '*', element: <NotFound /> }
     ];
 };

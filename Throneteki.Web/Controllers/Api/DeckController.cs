@@ -14,213 +14,149 @@ using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
 
-namespace Throneteki.Web.Controllers.Api
-{
-    [ApiController]
-    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
-    [Route("/api/decks/")]
-    public class DeckController : ControllerBase
-    {
-        private readonly ThronetekiDbContext context;
-        private readonly UserManager<ThronetekiUser> userManager;
-        private readonly ThronesDbOptions thronesDbOptions;
-        private readonly JsonSerializerOptions jsonOptions;
+namespace Throneteki.Web.Controllers.Api;
 
-        public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, IOptions<ThronesDbOptions> thronesDbOptions)
+[ApiController]
+[Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+[Route("/api/decks/")]
+public class DeckController : ControllerBase
+{
+    private readonly ThronetekiDbContext context;
+    private readonly UserManager<ThronetekiUser> userManager;
+    private readonly ThronesDbOptions thronesDbOptions;
+    private readonly JsonSerializerOptions jsonOptions;
+
+    public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, IOptions<ThronesDbOptions> thronesDbOptions)
+    {
+        this.context = context;
+        this.userManager = userManager;
+        this.thronesDbOptions = thronesDbOptions.Value;
+        jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
         {
-            this.context = context;
-            this.userManager = userManager;
-            this.thronesDbOptions = thronesDbOptions.Value;
-            jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
+            return Unauthorized();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
+        if (!ModelState.IsValid)
         {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
+            return BadRequest(new
             {
-                return Unauthorized();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ModelState.Select(e => $"{e.Key} - {e.Value}")
-                });
-            }
-
-            var deck = new Deck
-            {
-                UserId = user.Id,
-                Name = request.Name, // Name is validated by required attribute
-                FactionId = request.Faction,
-                AgendaId = request.Agenda,
-                Created = DateTime.UtcNow,
-                Updated = DateTime.UtcNow
-            };
-
-            var deckCards = new List<DeckCard>();
-
-            deckCards.AddRange(request.BannerCards.Select(id => new DeckCard
-            {
-                Deck = deck,
-                CardId = id,
-                CardType = DeckCardType.Banner,
-                Count = 1
-            }));
-            deckCards.AddRange(GetDeckCardsFromRequest(request.DrawCards, deck, DeckCardType.Draw));
-            deckCards.AddRange(GetDeckCardsFromRequest(request.PlotCards, deck, DeckCardType.Plot));
-
-            deck.DeckCards = deckCards;
-
-            context.Decks.Add(deck);
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return Ok(new
-            {
-                Success = true
+                Success = false,
+                Message = ModelState.Select(e => $"{e.Key} - {e.Value}")
             });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
+        var deck = new Deck
         {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            UserId = user.Id,
+            Name = request.Name, // Name is validated by required attribute
+            FactionId = request.Faction,
+            AgendaId = request.Agenda,
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
 
-            var baseQuery = context.Decks.Where(d => d.UserId == user.Id);
+        var deckCards = new List<DeckCard>();
 
-            if (options.Filters != null && options.Filters.Any())
+        deckCards.AddRange(request.BannerCards.Select(id => new DeckCard
+        {
+            Deck = deck,
+            CardId = id,
+            CardType = DeckCardType.Banner,
+            Count = 1
+        }));
+        deckCards.AddRange(GetDeckCardsFromRequest(request.DrawCards, deck, DeckCardType.Draw));
+        deckCards.AddRange(GetDeckCardsFromRequest(request.PlotCards, deck, DeckCardType.Plot));
+
+        deck.DeckCards = deckCards;
+
+        context.Decks.Add(deck);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Ok(new
+        {
+            Success = true
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var baseQuery = context.Decks.Where(d => d.UserId == user.Id);
+
+        if (options.Filters != null && options.Filters.Any())
+        {
+            foreach (var filter in options.Filters)
             {
-                foreach (var filter in options.Filters)
+                if (filter.Id == null)
                 {
-                    if (filter.Id == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (filter.Value != null && filter.Value.Contains(','))
-                    {
-                        var filterList = filter.Value.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-                        baseQuery = baseQuery.Where("(@0).Contains(faction.name)", filterList);
-                    }
-                    else
-                    {
-                        baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
-                    }
+                if (filter.Value != null && filter.Value.Contains(','))
+                {
+                    var filterList = filter.Value.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                    baseQuery = baseQuery.Where("(@0).Contains(faction.name)", filterList);
+                }
+                else
+                {
+                    baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
                 }
             }
-
-            var rowCount = await baseQuery.CountAsync();
-
-            baseQuery = baseQuery.Include(d => d.Faction)
-                    .Include(d => d.Agenda)
-                    .Include(d => d.DeckCards)
-                    .ThenInclude(dc => dc.Card);
-
-            if (options.Sorting != null && options.Sorting.Any())
-            {
-                baseQuery = baseQuery.OrderBy(string.Join(", ", options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
-            }
-
-            return Ok(new
-            {
-                Success = true,
-                TotalCount = rowCount,
-                Data = await baseQuery
-                    .Skip(options.PageNumber * options.PageSize)
-                    .Take(options.PageSize)
-                    .Select(d => new
-                    {
-                        d.Id,
-                        d.Name,
-                        d.ExternalId,
-                        d.Created,
-                        d.Updated,
-                        Agenda = d.Agenda != null
-                            ? new
-                            {
-                                d.Agenda.Code,
-                                d.Agenda.Label
-                            }
-                            : null,
-                        Faction = new
-                        {
-                            d.Faction.Code,
-                            d.Faction.Name
-                        },
-                        DeckCards = d.DeckCards.Select(dc => new
-                        {
-                            dc.Count,
-                            Card = new
-                            {
-                                dc.Card.Code,
-                                dc.Card.Label
-                            },
-                            Type = dc.CardType.ToString()
-                        }),
-                        d.IsFavourite
-                    })
-                    .ToListAsync()
-            });
         }
 
-        [HttpGet("{deckId}")]
-        public async Task<IActionResult> GetDeck(int deckId)
+        var rowCount = await baseQuery.CountAsync();
+
+        baseQuery = baseQuery.Include(d => d.Faction)
+            .Include(d => d.Agenda)
+            .Include(d => d.DeckCards)
+            .ThenInclude(dc => dc.Card);
+
+        if (options.Sorting != null && options.Sorting.Any())
         {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            baseQuery = baseQuery.OrderBy(string.Join(", ", options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
+        }
 
-            var deck = await context.Decks
-                .Include(d => d.Faction)
-                .Include(d => d.Agenda)
-                .Include(d => d.DeckCards)
-                .ThenInclude(dc => dc.Card)
-                .FirstOrDefaultAsync(d => d.Id == deckId);
-
-            if (deck == null)
-            {
-                return NotFound();
-            }
-
-            if (deck.UserId != user.Id)
-            {
-                return Forbid();
-            }
-
-            return Ok(new
-            {
-                Success = true,
-                Deck = new
+        return Ok(new
+        {
+            Success = true,
+            TotalCount = rowCount,
+            Data = await baseQuery
+                .Skip(options.PageNumber * options.PageSize)
+                .Take(options.PageSize)
+                .Select(d => new
                 {
-                    deck.Id,
-                    deck.Name,
-                    deck.ExternalId,
-                    deck.Created,
-                    deck.Updated,
-                    Agenda = deck.Agenda != null
+                    d.Id,
+                    d.Name,
+                    d.ExternalId,
+                    d.Created,
+                    d.Updated,
+                    Agenda = d.Agenda != null
                         ? new
                         {
-                            deck.Agenda.Code,
-                            deck.Agenda.Label
+                            d.Agenda.Code,
+                            d.Agenda.Label
                         }
                         : null,
                     Faction = new
                     {
-                        deck.Faction.Code,
-                        deck.Faction.Name
+                        d.Faction.Code,
+                        d.Faction.Name
                     },
-                    DeckCards = deck.DeckCards.Select(dc => new
+                    DeckCards = d.DeckCards.Select(dc => new
                     {
                         dc.Count,
                         Card = new
@@ -229,361 +165,423 @@ namespace Throneteki.Web.Controllers.Api
                             dc.Card.Label
                         },
                         Type = dc.CardType.ToString()
-                    })
-                }
-            });
+                    }),
+                    d.IsFavourite
+                })
+                .ToListAsync()
+        });
+    }
+
+    [HttpGet("{deckId}")]
+    public async Task<IActionResult> GetDeck(int deckId)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
         }
 
-        [HttpGet("groupFilter")]
-        public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
+        var deck = await context.Decks
+            .Include(d => d.Faction)
+            .Include(d => d.Agenda)
+            .Include(d => d.DeckCards)
+            .ThenInclude(dc => dc.Card)
+            .FirstOrDefaultAsync(d => d.Id == deckId);
+
+        if (deck == null)
         {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            return NotFound();
+        }
 
-            var query = context.Decks
-                .Where(d => d.UserId == user.Id);
+        if (deck.UserId != user.Id)
+        {
+            return Forbid();
+        }
 
-            if (options.Filters != null && options.Filters.Any())
+        return Ok(new
+        {
+            Success = true,
+            Deck = new
             {
-                foreach (var filter in options.Filters)
-                {
-                    if (filter.Value == null || filter.Value.Contains(','))
+                deck.Id,
+                deck.Name,
+                deck.ExternalId,
+                deck.Created,
+                deck.Updated,
+                Agenda = deck.Agenda != null
+                    ? new
                     {
-                        continue;
+                        deck.Agenda.Code,
+                        deck.Agenda.Label
                     }
-
-                    query = query.Where($"{filter.Id}.Contains(@0)", filter.Value);
-                }
-            }
-
-            return Ok(query.Select(column).Distinct());
-        }
-
-        [HttpGet("thronesdb/status")]
-        public async Task<IActionResult> GetThronesDbLinkStatus()
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var anyThronesDbToken = await userManager.Users
-                .Include(u => u.ExternalTokens)
-                .AnyAsync(u => u.Id == user.Id && u.ExternalTokens.Any(t => t.ExternalId == "ThronesDB"));
-
-            return Ok(new
-            {
-                Success = true,
-                Linked = anyThronesDbToken
-            });
-        }
-
-        [HttpGet("thronesdb")]
-        public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var token = user.ExternalTokens.FirstOrDefault(t => t.ExternalId == "ThronesDB");
-
-            if (token == null)
-            {
-                return Ok(new
+                    : null,
+                Faction = new
                 {
-                    Success = false,
-                    Message = "You need to link your ThronesDB account"
-                });
-            }
-
-            var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri("https://thronesdb.com/api/")
-            };
-
-            if (token.Expiry < DateTime.UtcNow)
-            {
-                if (!await RefreshToken(httpClient, token, cancellationToken))
+                    deck.Faction.Code,
+                    deck.Faction.Name
+                },
+                DeckCards = deck.DeckCards.Select(dc => new
                 {
-                    return Ok(new
+                    dc.Count,
+                    Card = new
                     {
-                        Success = false,
-                        Message = "An error occurred loading decks, your account needs to be re-linked to ThronesDB"
-                    });
-                }
+                        dc.Card.Code,
+                        dc.Card.Label
+                    },
+                    Type = dc.CardType.ToString()
+                })
             }
+        });
+    }
 
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-
-            var dbDecks = await context.Decks
-                .Include(d => d.DeckCards)
-                .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
-
-            var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
-            if (decks == null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "An error occurred fetching decks from ThronesDB"
-                });
-            }
-
-            decks = decks.ToList();
-
-            foreach (var deck in decks)
-            {
-                if (deck.Uuid != null && dbDecks.ContainsKey(deck.Uuid))
-                {
-                    deck.IsSynced = true;
-                }
-            }
-
-            return Ok(new
-            {
-                Success = true,
-                Data = decks
-            });
+    [HttpGet("groupFilter")]
+    public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
         }
 
-        [HttpPost("thronesdb")]
-        public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
+        var query = context.Decks
+            .Where(d => d.UserId == user.Id);
+
+        if (options.Filters != null && options.Filters.Any())
         {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
+            foreach (var filter in options.Filters)
             {
-                return Unauthorized();
-            }
-
-            user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var token = user.ExternalTokens.FirstOrDefault(t => t.ExternalId == "ThronesDB");
-            if (token == null)
-            {
-                return Ok(new
-                {
-                    Success = false,
-                    Message = "You need to link your ThronesDB account"
-                });
-            }
-
-            var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri("https://thronesdb.com/api/")
-            };
-
-            if (token.Expiry < DateTime.UtcNow)
-            {
-                if (!await RefreshToken(httpClient, token, cancellationToken))
-                {
-                    return Ok(new
-                    {
-                        Success = false,
-                        Message = "An error occurred importing decks, your account needs to be re-linked to ThronesDB"
-                    });
-                }
-            }
-
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-
-            var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
-            if (thronesDbDecks == null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "An error occurred importing decks, please try again later"
-                });
-            }
-
-            var decks = thronesDbDecks.Where(d => deckIds.Contains(d.Id));
-            var dbDecks = await context.Decks
-                .Include(d => d.DeckCards)
-                .Where(d => d.UserId == user.Id && d.ExternalId != null)
-                .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
-            var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
-            var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
-
-            const string bannerAgendaCode = "06018";
-
-            foreach (var deck in decks)
-            {
-                var deckId = deck.Uuid;
-                if (deckId == null)
+                if (filter.Value == null || filter.Value.Contains(','))
                 {
                     continue;
                 }
 
-                if (!dbDecks.TryGetValue(deckId, out var dbDeck))
+                query = query.Where($"{filter.Id}.Contains(@0)", filter.Value);
+            }
+        }
+
+        return Ok(query.Select(column).Distinct());
+    }
+
+    [HttpGet("thronesdb/status")]
+    public async Task<IActionResult> GetThronesDbLinkStatus()
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var anyThronesDbToken = await userManager.Users
+            .Include(u => u.ExternalTokens)
+            .AnyAsync(u => u.Id == user.Id && u.ExternalTokens.Any(t => t.ExternalId == "ThronesDB"));
+
+        return Ok(new
+        {
+            Success = true,
+            Linked = anyThronesDbToken
+        });
+    }
+
+    [HttpGet("thronesdb")]
+    public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var token = user.ExternalTokens.FirstOrDefault(t => t.ExternalId == "ThronesDB");
+
+        if (token == null)
+        {
+            return Ok(new
+            {
+                Success = false,
+                Message = "You need to link your ThronesDB account"
+            });
+        }
+
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://thronesdb.com/api/")
+        };
+
+        if (token.Expiry < DateTime.UtcNow)
+        {
+            if (!await RefreshToken(httpClient, token, cancellationToken))
+            {
+                return Ok(new
                 {
-                    dbDeck = new Deck();
-                    context.Decks.Add(dbDeck);
-                }
+                    Success = false,
+                    Message = "An error occurred loading decks, your account needs to be re-linked to ThronesDB"
+                });
+            }
+        }
 
-                dbDeck.ExternalId = deck.Uuid;
-                dbDeck.Name = deck.Name ?? string.Empty;
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-                dbDeck.Created = DateTime.SpecifyKind(deck.DateCreation, DateTimeKind.Utc);
-                dbDeck.Updated = DateTime.SpecifyKind(deck.DateUpdate, DateTimeKind.Utc);
-                dbDeck.Faction = dbFactions[deck.FactionCode!];
-                dbDeck.UserId = user.Id;
+        var dbDecks = await context.Decks
+            .Include(d => d.DeckCards)
+            .Where(d => d.UserId == user.Id && d.ExternalId != null)
+            .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
 
-                if (deck.Agendas != null && deck.Agendas.Any(a => a == bannerAgendaCode))
+        var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
+        if (decks == null)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "An error occurred fetching decks from ThronesDB"
+            });
+        }
+
+        decks = decks.ToList();
+
+        foreach (var deck in decks)
+        {
+            if (deck.Uuid != null && dbDecks.ContainsKey(deck.Uuid))
+            {
+                deck.IsSynced = true;
+            }
+        }
+
+        return Ok(new
+        {
+            Success = true,
+            Data = decks
+        });
+    }
+
+    [HttpPost("thronesdb")]
+    public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var token = user.ExternalTokens.FirstOrDefault(t => t.ExternalId == "ThronesDB");
+        if (token == null)
+        {
+            return Ok(new
+            {
+                Success = false,
+                Message = "You need to link your ThronesDB account"
+            });
+        }
+
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://thronesdb.com/api/")
+        };
+
+        if (token.Expiry < DateTime.UtcNow)
+        {
+            if (!await RefreshToken(httpClient, token, cancellationToken))
+            {
+                return Ok(new
                 {
-                    dbDeck.Agenda = dbCards[bannerAgendaCode];
+                    Success = false,
+                    Message = "An error occurred importing decks, your account needs to be re-linked to ThronesDB"
+                });
+            }
+        }
 
-                    foreach (var agenda in deck.Agendas.Where(a => a != bannerAgendaCode))
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+
+        var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
+        if (thronesDbDecks == null)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "An error occurred importing decks, please try again later"
+            });
+        }
+
+        var decks = thronesDbDecks.Where(d => deckIds.Contains(d.Id));
+        var dbDecks = await context.Decks
+            .Include(d => d.DeckCards)
+            .Where(d => d.UserId == user.Id && d.ExternalId != null)
+            .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
+        var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
+        var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
+
+        const string bannerAgendaCode = "06018";
+
+        foreach (var deck in decks)
+        {
+            var deckId = deck.Uuid;
+            if (deckId == null)
+            {
+                continue;
+            }
+
+            if (!dbDecks.TryGetValue(deckId, out var dbDeck))
+            {
+                dbDeck = new Deck();
+                context.Decks.Add(dbDeck);
+            }
+
+            dbDeck.ExternalId = deck.Uuid;
+            dbDeck.Name = deck.Name ?? string.Empty;
+
+            dbDeck.Created = deck.DateCreation;
+            dbDeck.Updated = deck.DateUpdate;
+            dbDeck.Faction = dbFactions[deck.FactionCode!];
+            dbDeck.UserId = user.Id;
+
+            if (deck.Agendas != null && deck.Agendas.Any(a => a == bannerAgendaCode))
+            {
+                dbDeck.Agenda = dbCards[bannerAgendaCode];
+
+                foreach (var agenda in deck.Agendas.Where(a => a != bannerAgendaCode))
+                {
+                    if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[agenda].Id))
                     {
-                        if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[agenda].Id))
-                        {
-                            dbDeck.DeckCards.Add(new DeckCard
-                            {
-                                Card = dbCards[agenda],
-                                CardType = DeckCardType.Banner,
-                                DeckId = dbDeck.Id,
-                                Count = 1
-                            });
-                        }
-                    }
-                }
-                else if (deck.Agendas != null && deck.Agendas.Any())
-                {
-                    dbDeck.Agenda = dbCards[deck.Agendas.First()];
-                }
-
-
-                foreach (var (code, count) in deck.Slots!)
-                {
-                    if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[code].Id))
-                    {
-                        if (dbCards[code].Type == "agenda")
-                        {
-                            continue;
-                        }
-
                         dbDeck.DeckCards.Add(new DeckCard
                         {
-                            Card = dbCards[code],
-                            CardType = dbCards[code].Type == "plot" ? DeckCardType.Plot : DeckCardType.Draw,
-                            Deck = dbDeck,
-                            Count = count
+                            Card = dbCards[agenda],
+                            CardType = DeckCardType.Banner,
+                            DeckId = dbDeck.Id,
+                            Count = 1
                         });
                     }
                 }
             }
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return Ok(new
+            else if (deck.Agendas != null && deck.Agendas.Any())
             {
-                Success = true
-            });
-        }
-
-        [HttpPost("{deckId}/toggleFavourite")]
-        public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name);
-            if (user == null)
-            {
-                return Unauthorized();
+                dbDeck.Agenda = dbCards[deck.Agendas.First()];
             }
 
-            var deck = await context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
-            if (deck == null)
+
+            foreach (var (code, count) in deck.Slots!)
             {
-                return NotFound();
-            }
-
-            if (deck.UserId != user.Id)
-            {
-                return Forbid();
-            }
-
-            deck.IsFavourite = !deck.IsFavourite;
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return Ok(new
-            {
-                Success = true
-            });
-        }
-
-        private async Task<bool> RefreshToken(HttpClient httpClient, ExternalToken token, CancellationToken cancellationToken)
-        {
-            if (thronesDbOptions.ClientId == null || thronesDbOptions.ClientSecret == null)
-            {
-                return false;
-            }
-
-            var request = new List<KeyValuePair<string, string>>
-            {
-                new("client_id", thronesDbOptions.ClientId),
-                new("client_secret", thronesDbOptions.ClientSecret),
-                new("grant_type", "refresh_token"),
-                new("refresh_token", token.RefreshToken)
-            };
-
-            using var content = new FormUrlEncodedContent(request);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-            var response = await httpClient.PostAsync("https://thronesdb.com/oauth/v2/token", content, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-
-            }
-
-            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
-
-            if (tokenResponse == null || tokenResponse.AccessToken == null || tokenResponse.RefreshToken == null)
-            {
-                return false;
-            }
-
-            token.AccessToken = tokenResponse.AccessToken;
-            token.RefreshToken = tokenResponse.RefreshToken;
-            token.Expiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-
-            await context.SaveChangesAsync(cancellationToken);
-
-            return true;
-        }
-
-        private static IEnumerable<DeckCard> GetDeckCardsFromRequest(Dictionary<string, int> cardList, Deck deck, DeckCardType deckCardType)
-        {
-            var deckCards = new List<DeckCard>();
-
-            foreach (var (cardId, count) in cardList)
-            {
-                deckCards.Add(new DeckCard
+                if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[code].Id))
                 {
-                    Deck = deck,
-                    CardId = int.Parse(cardId),
-                    CardType = deckCardType,
-                    Count = count
-                });
-            }
+                    if (dbCards[code].Type == "agenda")
+                    {
+                        continue;
+                    }
 
-            return deckCards;
+                    dbDeck.DeckCards.Add(new DeckCard
+                    {
+                        Card = dbCards[code],
+                        CardType = dbCards[code].Type == "plot" ? DeckCardType.Plot : DeckCardType.Draw,
+                        Deck = dbDeck,
+                        Count = count
+                    });
+                }
+            }
         }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Ok(new
+        {
+            Success = true
+        });
+    }
+
+    [HttpPost("{deckId}/toggleFavourite")]
+    public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var deck = await context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
+        if (deck == null)
+        {
+            return NotFound();
+        }
+
+        if (deck.UserId != user.Id)
+        {
+            return Forbid();
+        }
+
+        deck.IsFavourite = !deck.IsFavourite;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Ok(new
+        {
+            Success = true
+        });
+    }
+
+    private async Task<bool> RefreshToken(HttpClient httpClient, ExternalToken token, CancellationToken cancellationToken)
+    {
+        if (thronesDbOptions.ClientId == null || thronesDbOptions.ClientSecret == null)
+        {
+            return false;
+        }
+
+        var request = new List<KeyValuePair<string, string>>
+        {
+            new("client_id", thronesDbOptions.ClientId),
+            new("client_secret", thronesDbOptions.ClientSecret),
+            new("grant_type", "refresh_token"),
+            new("refresh_token", token.RefreshToken)
+        };
+
+        using var content = new FormUrlEncodedContent(request);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+        var response = await httpClient.PostAsync("https://thronesdb.com/oauth/v2/token", content, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+        }
+
+        var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
+
+        if (tokenResponse == null || tokenResponse.AccessToken == null || tokenResponse.RefreshToken == null)
+        {
+            return false;
+        }
+
+        token.AccessToken = tokenResponse.AccessToken;
+        token.RefreshToken = tokenResponse.RefreshToken;
+        token.Expiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    private static IEnumerable<DeckCard> GetDeckCardsFromRequest(Dictionary<string, int> cardList, Deck deck, DeckCardType deckCardType)
+    {
+        var deckCards = new List<DeckCard>();
+
+        foreach (var (cardId, count) in cardList)
+        {
+            deckCards.Add(new DeckCard
+            {
+                Deck = deck,
+                CardId = int.Parse(cardId),
+                CardType = deckCardType,
+                Count = count
+            });
+        }
+
+        return deckCards;
     }
 }

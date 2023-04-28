@@ -1,9 +1,8 @@
-﻿namespace Throneteki.Data.Models
+﻿namespace Throneteki.Data.Models;
+
+public enum DeckCardType
 {
-    public enum DeckCardType
-    {
-        Draw,
-        Plot,
-        Banner
-    }
+    Draw,
+    Plot,
+    Banner
 }

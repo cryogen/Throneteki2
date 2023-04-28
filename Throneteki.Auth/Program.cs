@@ -32,7 +32,7 @@ builder.Services.AddDbContext<ThronetekiDbContext>(options =>
     options.UseOpenIddict();
 });
 
-builder.Services.AddIdentity<ThronetekiUser, IdentityRole>()
+builder.Services.AddIdentity<ThronetekiUser, ThronetekiRole>()
     .AddEntityFrameworkStores<ThronetekiDbContext>()
     .AddDefaultTokenProviders();
 

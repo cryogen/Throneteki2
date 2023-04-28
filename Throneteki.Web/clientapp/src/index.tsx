@@ -12,7 +12,7 @@ import reportWebVitals from './reportWebVitals';
 import './custom.scss';
 
 const oidcConfig = {
-    authority: 'http://throneteki.auth:7000/',
+    authority: 'https://localhost:7000/',
     redirect_uri: 'http://localhost:44460/authentication/login-callback',
     silent_redirect_uri: 'http://localhost:44460/authentication/login-callback',
     client_id: 'throneteki',

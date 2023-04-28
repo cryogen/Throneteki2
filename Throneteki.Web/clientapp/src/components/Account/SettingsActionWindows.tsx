@@ -3,8 +3,8 @@ import Panel from '../Site/Panel';
 import { Col, Form, Row } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
-import { CustomUserProfile } from '../Navigation/Navigation';
 import { ExistingProfileDetails } from './Settings';
+import { CustomUserProfile } from '../../types/user';
 
 type SettingsActionWindowsProps = {
     formProps: FormikProps<ExistingProfileDetails>;

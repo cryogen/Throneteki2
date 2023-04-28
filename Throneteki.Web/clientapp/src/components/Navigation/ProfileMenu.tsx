@@ -1,12 +1,11 @@
-import { User } from 'oidc-client-ts';
 import React from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { CustomUserProfile } from '../../types/user';
 
 import Avatar from '../Site/Avatar';
 import { MenuItem } from './menus';
-import { CustomUserProfile } from './Navigation';
 
 type ProfileMenuProps = {
     menu: MenuItem[];

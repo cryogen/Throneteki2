@@ -1,8 +1,7 @@
 const createProxyMiddleware = require('http-proxy-middleware');
 
 const target = 'http://localhost:5287';
-
-const lobbyTarget = 'http://throneteki.lobby:7010';
+const lobbyTarget = 'http://localhost:7010';
 
 const context = [
     '/api',

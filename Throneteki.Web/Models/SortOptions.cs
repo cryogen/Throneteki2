@@ -1,8 +1,7 @@
-﻿namespace Throneteki.Web.Models
+﻿namespace Throneteki.Web.Models;
+
+public class SortOptions
 {
-    public class SortOptions
-    {
-        public string? Id { get; set; }
-        public bool Desc { get; set; }
-    }
+    public string? Id { get; set; }
+    public bool Desc { get; set; }
 }

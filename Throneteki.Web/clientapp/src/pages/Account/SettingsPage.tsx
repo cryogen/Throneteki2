@@ -3,7 +3,7 @@ import { Col } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
 
 import Settings from '../../components/Account/Settings';
-import { CustomUserProfile } from '../../components/Navigation/Navigation';
+import { CustomUserProfile } from '../../types/user';
 
 const SettingsPage: React.FC = () => {
     const auth = useAuth();

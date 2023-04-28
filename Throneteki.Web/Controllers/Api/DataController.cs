@@ -2,78 +2,77 @@
 using Microsoft.EntityFrameworkCore;
 using Throneteki.Data;
 
-namespace Throneteki.Web.Controllers.Api
+namespace Throneteki.Web.Controllers.Api;
+
+[ApiController]
+public class DataController : ControllerBase
 {
-    [ApiController]
-    public class DataController : ControllerBase
+    private readonly ThronetekiDbContext context;
+
+    public DataController(ThronetekiDbContext context)
     {
-        private readonly ThronetekiDbContext context;
+        this.context = context;
+    }
 
-        public DataController(ThronetekiDbContext context)
-        {
-            this.context = context;
-        }
+    [HttpGet("/api/data/factions")]
+    public async Task<IActionResult> GetFactions(CancellationToken cancellationToken)
+    {
+        return Ok(await context.Factions.ToListAsync(cancellationToken));
+    }
 
-        [HttpGet("/api/data/factions")]
-        public async Task<IActionResult> GetFactions(CancellationToken cancellationToken)
-        {
-            return Ok(await context.Factions.ToListAsync(cancellationToken));
-        }
+    [HttpGet("/api/data/packs")]
+    public async Task<IActionResult> GetPacks(CancellationToken cancellationToken)
+    {
+        return Ok(await context.Packs.ToListAsync(cancellationToken));
+    }
 
-        [HttpGet("/api/data/packs")]
-        public async Task<IActionResult> GetPacks(CancellationToken cancellationToken)
+    [HttpGet("/api/data/cards")]
+    public async Task<IActionResult> GetCards(CancellationToken cancellationToken)
+    {
+        var excludedPackCodes = new List<string>
         {
-            return Ok(await context.Packs.ToListAsync(cancellationToken));
-        }
+            "VDS",
+            "VHotK",
+            "VKm"
+        };
 
-        [HttpGet("/api/data/cards")]
-        public async Task<IActionResult> GetCards(CancellationToken cancellationToken)
-        {
-            var excludedPackCodes = new List<string>
+        return Ok(await context.Cards
+            .Include(c => c.Faction)
+            .Include(c => c.Pack)
+            .Where(card => !excludedPackCodes.Contains(card.Pack.Code))
+            .Select(card => new
             {
-                "VDS",
-                "VHotK",
-                "VKm"
-            };
-
-            return Ok(await context.Cards
-                .Include(c => c.Faction)
-                .Include(c => c.Pack)
-                .Where(card => !excludedPackCodes.Contains(card.Pack.Code))
-                .Select(card => new
+                card.Id,
+                card.Code,
+                card.Type,
+                card.Name,
+                card.Unique,
+                Faction = new
                 {
-                    card.Id,
-                    card.Code,
-                    card.Type,
-                    card.Name,
-                    card.Unique,
-                    Faction = new
-                    {
-                        card.Faction.Code,
-                        card.Faction.Name
-                    },
-                    card.Loyal,
-                    card.Cost,
-                    card.Strength,
-                    card.Text,
-                    card.Flavor,
-                    card.DeckLimit,
-                    card.Illustrator,
-                    PackCode = card.Pack.Code,
-                    card.Label,
-                    Icons = new
-                    {
-                        card.Military,
-                        card.Intrigue,
-                        card.Power
-                    },
-                    Traits = card.Traits != null ? card.Traits.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) : Array.Empty<string>(),
-                    card.Income,
-                    card.Claim,
-                    card.Reserve,
-                    card.Initiative
-                })
-                .ToListAsync(cancellationToken));
-        }
+                    card.Faction.Code,
+                    card.Faction.Name
+                },
+                card.Loyal,
+                card.Cost,
+                card.Strength,
+                card.Text,
+                card.Flavor,
+                card.DeckLimit,
+                card.Illustrator,
+                PackCode = card.Pack.Code,
+                card.Label,
+                Icons = new
+                {
+                    card.Military,
+                    card.Intrigue,
+                    card.Power
+                },
+                Traits = card.Traits != null ? card.Traits.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) : Array.Empty<string>(),
+                card.Income,
+                card.Claim,
+                card.Reserve,
+                card.Initiative
+            })
+            .ToListAsync(cancellationToken));
     }
 }

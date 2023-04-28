@@ -1,8 +1,7 @@
-﻿namespace Throneteki.Web.Models.Options
+﻿namespace Throneteki.Web.Models.Options;
+
+public class ThronesDbOptions
 {
-    public class ThronesDbOptions
-    {
-        public string? ClientId { get; set; }
-        public string? ClientSecret { get; set; }
-    }
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
 }

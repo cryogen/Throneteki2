@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using Throneteki.Data;
+using Throneteki.WebService.MappingProfiles;
 using Throneteki.WebService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,9 @@ builder.Services.AddOpenIddict()
     });
 
 builder.Services.AddGrpc();
+
+builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly);
+
 
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 

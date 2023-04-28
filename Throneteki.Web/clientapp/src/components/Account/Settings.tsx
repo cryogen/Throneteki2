@@ -3,7 +3,6 @@ import { Form, Button, Alert, Col, Row } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { CustomUserProfile } from '../Navigation/Navigation';
 import SettingsBackground from './SettingsBackground';
 import SettingsActionWindows from './SettingsActionWindows';
 import SettingsCardSize from './SettingsCardSize';
@@ -15,6 +14,7 @@ import Background2 from '../../assets/img/bgs/background2.png';
 import { ApiError, useSaveUserMutation } from '../../redux/api/apiSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { CustomUserProfile } from '../../types/user';
 
 interface GameSettings {
     chooseOrder: boolean;

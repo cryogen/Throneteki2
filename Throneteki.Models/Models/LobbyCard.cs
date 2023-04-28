@@ -1,0 +1,29 @@
+﻿namespace Throneteki.Models.Models;
+
+public class LobbyCard
+{
+    public string? Code { get; set; }
+    public string? Type { get; set; }
+    public string? Name { get; set; }
+    public bool Unique { get; set; }
+    public string? Faction { get; set; }
+    public bool Loyal { get; set; }
+    public int Cost { get; set; }
+    public int? Strength { get; set; }
+    public string? Text { get; set; }
+    public string? Flavor { get; set; }
+    public int DeckLimit { get; set; }
+    public string? Illustrator { get; set; }
+    public string? PackCode { get; set; }
+    public string? Label { get; set; }
+    public string? Icons { get; set; }
+    public string? Traits { get; set; }
+    public int? Income { get; set; }
+    public int? Claim { get; set; }
+    public int? Reserve { get; set; }
+    public int? Initiative { get; set; }
+    public bool Military { get; set; }
+    public bool Intrigue { get; set; }
+    public bool Power { get; set; }
+    public string? ImageUrl { get; set; }
+}

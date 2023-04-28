@@ -14,7 +14,4 @@
     <PackageReference Include="OpenIddict.Quartz" Version="3.1.1" />
     <PackageReference Include="Quartz.AspNetCore" Version="3.4.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
 </Project>

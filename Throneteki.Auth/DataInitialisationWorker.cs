@@ -33,12 +33,12 @@ public class DataInitialisationWorker : IHostedService
     private static async Task SetupUsersAndRoles(IServiceScope scope)
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ThronetekiUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ThronetekiRole>>();
         foreach (var role in Roles.AvailableRoles)
         {
             if (await roleManager.FindByNameAsync(role) is null)
             {
-                await roleManager.CreateAsync(new IdentityRole(role));
+                await roleManager.CreateAsync(new ThronetekiRole(role));
             }
         }
 
@@ -141,6 +141,23 @@ public class DataInitialisationWorker : IHostedService
                     OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
                     OpenIddictConstants.Permissions.Endpoints.Introspection,
                     OpenIddictConstants.Permissions.Prefixes.Scope + "webservices"
+                }
+            }, cancellationToken);
+        }
+
+        if (await manager.FindByClientIdAsync("throneteki-nodes", cancellationToken) is null)
+        {
+            await manager.CreateAsync(new OpenIddictApplicationDescriptor
+            {
+                ClientId = "throneteki-nodes",
+                ClientSecret = "8062B430-6733-415F-B142-DA022C1162EF",
+                DisplayName = "Throneteki Game Nodes",
+                Permissions =
+                {
+                    OpenIddictConstants.Permissions.Endpoints.Token,
+                    OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                    OpenIddictConstants.Permissions.Endpoints.Introspection,
+                    OpenIddictConstants.Permissions.Prefixes.Scope + "node"
                 }
             }, cancellationToken);
         }

@@ -1,6 +1,8 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using IdentityModel.Client;
+using Microsoft.Extensions.Options;
+using Throneteki.Lobby.Models;
 using Throneteki.WebService;
 
 namespace Throneteki.Lobby;
@@ -8,24 +10,24 @@ namespace Throneteki.Lobby;
 public class LobbyServiceFactory
 {
     private readonly HttpClient httpClient;
-    private readonly IConfiguration configuration;
+    private readonly LobbyOptions lobbyOptions;
     private LobbyService.LobbyServiceClient? lobbyServiceClient;
 
-    public LobbyServiceFactory(HttpClient httpClient, IConfiguration configuration)
+    public LobbyServiceFactory(HttpClient httpClient, IOptions<LobbyOptions> lobbyOptions)
     {
-        httpClient.BaseAddress = new Uri(configuration.GetSection("Settings")["AuthServerUrl"]);
-
         this.httpClient = httpClient;
-        this.configuration = configuration;
+        this.lobbyOptions = lobbyOptions.Value;
+
+        httpClient.BaseAddress = new Uri(this.lobbyOptions.AuthServerUrl);
     }
 
-    public Task<LobbyService.LobbyServiceClient> GetUserServiceClient()
+    public LobbyService.LobbyServiceClient GetLobbyServiceClient()
     {
-        var address = configuration.GetSection("Settings")["UserServiceUrl"];
+        var address = lobbyOptions.LobbyServiceUrl;
 
         if (lobbyServiceClient != null)
         {
-            return Task.FromResult(lobbyServiceClient);
+            return lobbyServiceClient;
         }
 
         var credentials = CallCredentials.FromInterceptor(async (_, metadata) =>
@@ -45,7 +47,7 @@ public class LobbyServiceFactory
 
         lobbyServiceClient = new LobbyService.LobbyServiceClient(channel);
 
-        return Task.FromResult(lobbyServiceClient);
+        return lobbyServiceClient;
     }
 
     private async Task<string> GetAccessToken()

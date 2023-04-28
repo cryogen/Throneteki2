@@ -20,7 +20,18 @@ module.exports = {
         'plugin:react/recommended',
         'plugin:prettier/recommended'
     ],
-    rules: { 'react/prop-types': 'off' },
+    rules: {
+        'react/prop-types': 'off',
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'warn', // or "error"
+            {
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_'
+            }
+        ]
+    },
     settings: {
         react: {
             version: 'detect'

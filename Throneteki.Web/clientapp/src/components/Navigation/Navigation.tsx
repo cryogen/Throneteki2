@@ -3,23 +3,18 @@ import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
-import { IdTokenClaims } from 'oidc-client-ts';
 
 import { useAppSelector } from '../../redux/hooks';
 import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
 import ProfileDropdown from './ProfileMenu';
 import ServerStatus from './ServerStatus';
+import { CustomUserProfile } from '../../types/user';
 // import GameContextMenu from './GameContextMenu';
 
 export interface UserSettings {
     customBackground: string | undefined;
     background: string;
-}
-
-export interface CustomUserProfile extends IdTokenClaims {
-    role: [string];
-    throneteki_settings?: string;
 }
 
 interface NavigationProps {

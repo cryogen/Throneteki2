@@ -1,4 +1,6 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using System.Text.Json;
+using AutoMapper;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,12 @@ namespace Throneteki.WebService.Services;
 public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
 {
     private readonly ThronetekiDbContext dbContext;
+    private readonly IMapper mapper;
 
-    public ThronetekiServiceImpl(ThronetekiDbContext dbContext)
+    public ThronetekiServiceImpl(ThronetekiDbContext dbContext, IMapper mapper)
     {
         this.dbContext = dbContext;
+        this.mapper = mapper;
     }
 
     public override async Task<AddLobbyMessageResponse> AddLobbyMessage(AddLobbyMessageRequest request, ServerCallContext context)
@@ -54,10 +58,38 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
                     Avatar = (poster.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(poster.ProfileImage.Image)}" : null) ?? string.Empty,
                     Id = poster.Id,
                     Username = poster.UserName,
-                    Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(poster.RegisteredDateTime, DateTimeKind.Utc)),
+                    Registered = Timestamp.FromDateTime(poster.RegisteredDateTime),
                     Role = GetRoleForUser(poster)
                 }
             }
+        };
+    }
+
+    public override async Task<GetDeckByIdResponse> GetDeckById(GetDeckByIdRequest request, ServerCallContext context)
+    {
+        var deck = await dbContext.Decks
+            .Include(d => d.Faction)
+            .Include(d => d.Agenda)
+            .Include(d => d.DeckCards)
+            .ThenInclude(dc => dc.Card)
+            .ThenInclude(c => c.Faction)
+            .Include(d => d.DeckCards)
+            .ThenInclude(dc => dc.Card)
+            .ThenInclude(c => c.Pack)
+            .FirstOrDefaultAsync(d => d.Id == request.DeckId);
+        if (deck == null)
+        {
+            return new GetDeckByIdResponse();
+        }
+
+        var retDeck = mapper.Map<LobbyDeck>(deck);
+        retDeck.DrawCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
+        retDeck.PlotCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
+        retDeck.BannerCards.AddRange(mapper.Map<IEnumerable<LobbyCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
+
+        return new GetDeckByIdResponse
+        {
+            Deck = retDeck
         };
     }
 
@@ -87,6 +119,8 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         var ret = new GetUserByUsernameResponse();
 
         var user = await dbContext.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
             .Include(u => u.ProfileImage)
             .Include(u => u.BlockListEntries)
             .ThenInclude(bl => bl.BlockedUser)
@@ -102,7 +136,8 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             Avatar = (user.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(user.ProfileImage.Image)}" : null) ?? string.Empty,
             Id = user.Id,
             Username = user.UserName,
-            Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(user.RegisteredDateTime, DateTimeKind.Utc))
+            Registered = Timestamp.FromDateTime(user.RegisteredDateTime),
+            Role = GetRoleForUser(user)
         };
 
         ret.User.BlockList.AddRange(user.BlockListEntries.Select(bl => new BlockListEntry
@@ -110,6 +145,10 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             UserId = bl.BlockedUserId,
             Username = bl.BlockedUser?.UserName
         }));
+
+        var settings = JsonSerializer.Deserialize<Data.Models.ThronetekiUserSettings>(user.Settings);
+
+        ret.User.Settings = mapper.Map<ThronetekiUserSettings>(settings);
 
         return ret;
     }
@@ -120,13 +159,13 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         {
             Id = message.Id,
             Message = message.Message,
-            Time = DateTime.SpecifyKind(message.PostedDateTime, DateTimeKind.Utc).ToTimestamp(),
+            Time = message.PostedDateTime.ToTimestamp(),
             User = new ThronetekiUser
             {
                 Avatar = (message.Poster.ProfileImage != null ? $"data:image/png;base64,{Convert.ToBase64String(message.Poster.ProfileImage.Image)}" : null) ?? string.Empty,
                 Id = message.Poster.Id,
                 Username = message.Poster.UserName,
-                Registered = Timestamp.FromDateTime(DateTime.SpecifyKind(message.Poster.RegisteredDateTime, DateTimeKind.Utc)),
+                Registered = Timestamp.FromDateTime(message.Poster.RegisteredDateTime),
                 Role = GetRoleForUser(message.Poster)
             }
         };

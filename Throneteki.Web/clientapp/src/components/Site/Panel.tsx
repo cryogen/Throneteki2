@@ -12,7 +12,7 @@ enum PanelType {
 interface PanelProps {
     children: ReactNode | ReactNode[];
     className?: string;
-    title: string;
+    title?: string;
     titleClass?: string;
     type?: string;
 }

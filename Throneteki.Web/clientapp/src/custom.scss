@@ -51,6 +51,7 @@ $utilities: map-merge(
 @import "~bootstrap/scss/card";
 @import "~bootstrap/scss/dropdown";
 @import "~bootstrap/scss/forms";
+@import "~bootstrap/scss/modal";
 @import "~bootstrap/scss/nav";
 @import "~bootstrap/scss/pagination";
 @import "~bootstrap/scss/popover";
@@ -65,7 +66,9 @@ $utilities: map-merge(
 @import 'components/Account/Settings';
 @import 'components/Account/SettingsBackground';
 
-@import 'components/GameBoard/Card';
+@import 'components/Game/Card';
+@import 'components/Game/GameList';
+@import 'components/Game/SelectDeckModal';
 
 @import 'components/Navigation/Navigation';
 
