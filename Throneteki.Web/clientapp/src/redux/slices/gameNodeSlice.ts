@@ -6,6 +6,7 @@ export interface GameNodeState {
     isConnected: boolean;
     isEstablishingConnection: boolean;
     responseTime: number;
+    gameHost?: string;
 }
 
 const initialState: GameNodeState = {
@@ -20,6 +21,7 @@ const gameNodeSlice = createSlice({
     reducers: {
         startConnecting: (state, action: PayloadAction<HandOff>) => {
             state.isEstablishingConnection = true;
+            state.gameHost = action.payload.url;
         },
         connectionEstablished: (state) => {
             state.isConnected = true;

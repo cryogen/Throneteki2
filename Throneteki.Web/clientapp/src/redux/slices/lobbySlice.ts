@@ -39,6 +39,11 @@ const lobbySlice = createSlice({
         disconnect: (state) => {
             state.isConnected = false;
         },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        leaveGame: () => {},
+        receiveClearGameState: (state) => {
+            state.currentGame = undefined;
+        },
         receiveGameError: (state, action: PayloadAction<string>) => {
             state.gameError = action.payload;
         },
@@ -57,6 +62,11 @@ const lobbySlice = createSlice({
         },
         receiveNewGame(state, action: PayloadAction<LobbyGame>) {
             state.games.push(action.payload);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        receiveUpdateGame(state, action: PayloadAction<LobbyGame>) {},
+        receiveRemoveGame(state, action: PayloadAction<LobbyGame>) {
+            state.games = state.games.filter((g) => g.id !== action.payload.id);
         },
         receivePing: (
             state,
@@ -91,6 +101,9 @@ const lobbySlice = createSlice({
             }>
         ) => {
             state.users = action.payload.users;
+        },
+        sendLeaveGame: (state) => {
+            state.isMessagePending = true;
         },
         sendLobbyChat: (state, _) => {
             state.isMessagePending = true;

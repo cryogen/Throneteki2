@@ -4,6 +4,7 @@ namespace Throneteki.Lobby.Models;
 
 public static class LobbyMethods
 {
+    public const string ClearGameState = "cleargamestate";
     public const string GameError = "gameerror";
     public const string GameState = "gamestate";
     public const string HandOff = "handoff";
@@ -12,6 +13,7 @@ public static class LobbyMethods
     public const string NewGame = "newgame";
     public const string NewUser = "newuser";
     public const string NoChat = "nochat";
+    public const string RemoveGame = "removegame";
     public const string UpdateGame = "updategame";
     public const string UserLeft = "userleft";
     public const string Users = "users";

@@ -32,6 +32,9 @@ const PendingGame = () => {
     const dispatch = useAppDispatch();
 
     const { currentGame, gameError } = useAppSelector((state) => state.lobby);
+    const { isEstablishingConnection: connecting, gameHost } = useAppSelector(
+        (state) => state.gameNode
+    );
     const auth = useAuth();
     const user = auth.user?.profile as CustomUserProfile;
     const notificationRef = useRef<HTMLAudioElement | null>(null);
@@ -87,17 +90,17 @@ const PendingGame = () => {
             messageRef.current.scrollTop = 999999;
         }
 
-        // if (connecting) {
-        //     setWaiting(false);
-        // }
+        if (connecting) {
+            setWaiting(false);
+        }
     }, [
         currentGame?.owner,
         currentGame?.players,
         user,
         playerCount,
         currentGame,
-        canScroll
-        // connecting
+        canScroll,
+        connecting
     ]);
 
     if (!currentGame || !user) {
@@ -129,9 +132,9 @@ const PendingGame = () => {
             return t(gameError);
         }
 
-        // if (connecting) {
-        //     return t('Connecting to game server {{host}}', { host: gameHost });
-        // }
+        if (connecting) {
+            return t('Connecting to game server {{host}}', { host: gameHost });
+        }
 
         if (waiting) {
             return t('Waiting for lobby server...');
@@ -189,7 +192,7 @@ const PendingGame = () => {
                         <Button
                             variant='primary'
                             onClick={() => {
-                                // dispatch(leaveGame(currentGame.id));
+                                dispatch(lobbyActions.leaveGame());
                             }}
                         >
                             <Trans>Leave</Trans>

@@ -35,6 +35,7 @@ public class LobbyGame
     public string Owner { get; set; }
     public string? Password { get; set; }
     public bool ShowHand { get; set; }
+    public bool IsEmpty => !Players.Any();
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)
     {
@@ -198,7 +199,49 @@ public class LobbyGame
         gameUsers.Remove(username, out _);
     }
 
-    private void AddMessage(string message)
+    private void AddMessage(string format, params object[] args)
     {
+    }
+
+    public void PlayerLeave(string username)
+    {
+        var player = gameUsers[username];
+
+        if (!IsStarted)
+        {
+            AddMessage($"{0} has left the game", player);
+        }
+
+        if (player.GameUserType == GameUserType.Player)
+        {
+            if (IsStarted)
+            {
+                player.HasLeft = true;
+            }
+            else
+            {
+                RemoveAndResetOwner(player);
+
+                gameUsers.Remove(username, out _);
+            }
+        }
+        else
+        {
+            gameUsers.Remove(username, out _);
+        }
+    }
+
+    private void RemoveAndResetOwner(GameUser player)
+    {
+        if (player.Name == Owner)
+        {
+            var otherPlayer = Players.FirstOrDefault(gu => gu.Name != player.Name);
+
+            if (otherPlayer != null)
+            {
+                Owner = otherPlayer.Name;
+//                otherPlayer.Owner = true;
+            }
+        }
     }
 }

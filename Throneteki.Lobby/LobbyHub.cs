@@ -272,6 +272,38 @@ public class LobbyHub : Hub
         });
     }
 
+    [Authorize]
+    public async Task LeaveGame(string _)
+    {
+        var user = (await lobbyService.GetUserByUsernameAsync(
+            new GetUserByUsernameRequest
+            {
+                Username = Context.User!.Identity!.Name
+            })).User;
+
+        if (!GamesByUsername.ContainsKey(user.Username))
+        {
+            return;
+        }
+
+        var game = GamesByUsername[user.Username];
+
+        game.PlayerLeave(user.Username);
+
+        await Clients.Caller.SendAsync(LobbyMethods.ClearGameState);
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, game.Id.ToString());
+
+        if (game.IsEmpty)
+        {
+            await BroadcastGameMessage(LobbyMethods.RemoveGame, game);
+        }
+        else
+        {
+            await BroadcastGameMessage(LobbyMethods.UpdateGame, game);
+        }
+    }
+
     private static IEnumerable<ThronetekiUser> FilterUserListForUserByBlockList(ThronetekiUser sourceUser, IEnumerable<ThronetekiUser> userList)
     {
         return userList.Where(u =>

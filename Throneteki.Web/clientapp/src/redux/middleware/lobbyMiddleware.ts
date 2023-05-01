@@ -6,16 +6,20 @@ import { getUser } from '../../helpers/UserHelper';
 import { gameNodeActions } from '../slices/gameNodeSlice';
 
 enum LobbyEvent {
+    ClearGameState = 'cleargamestate',
     GameError = 'gameerror',
     GameState = 'gamestate',
     HandOff = 'handoff',
+    LeaveGame = 'leavegame',
     LobbyChat = 'lobbychat',
     LobbyMessages = 'lobbymessages',
     NewGame = 'newgame',
     NewUserMessage = 'newuser',
     PongMessage = 'pong',
+    UpdateGame = 'updategame',
     UserLeftMessage = 'userleft',
     UsersMessage = 'users',
+    RemoveGame = 'removegame',
     SelectDeck = 'selectdeck',
     StartGame = 'startgame'
 }
@@ -46,6 +50,10 @@ const lobbyMiddleware: Middleware = (store) => {
             });
             // .catch((err) => lobbyActions.connectionFailed(err));
 
+            connection.on(LobbyEvent.ClearGameState, () => {
+                store.dispatch(lobbyActions.receiveClearGameState());
+            });
+
             connection.on(LobbyEvent.LobbyChat, (message: LobbyMessage) => {
                 store.dispatch(lobbyActions.receiveLobbyChat(message));
             });
@@ -72,6 +80,14 @@ const lobbyMiddleware: Middleware = (store) => {
 
             connection.on(LobbyEvent.NewGame, (game: LobbyGame) => {
                 store.dispatch(lobbyActions.receiveNewGame(game));
+            });
+
+            connection.on(LobbyEvent.UpdateGame, (game: LobbyGame) => {
+                store.dispatch(lobbyActions.receiveUpdateGame(game));
+            });
+
+            connection.on(LobbyEvent.RemoveGame, (game: LobbyGame) => {
+                store.dispatch(lobbyActions.receiveRemoveGame(game));
             });
 
             connection.on(LobbyEvent.GameState, (game: LobbyGame) => {
@@ -108,21 +124,18 @@ const lobbyMiddleware: Middleware = (store) => {
 
                 connection = null;
             });
-        }
-
-        if (lobbyActions.sendLobbyChat.match(action)) {
+        } else if (lobbyActions.leaveGame.match(action)) {
+            store.dispatch(lobbyActions.sendLeaveGame());
+            store.dispatch(gameNodeActions.disconnect());
+        } else if (lobbyActions.sendLeaveGame.match(action)) {
+            connection.send(LobbyEvent.LeaveGame, '');
+        } else if (lobbyActions.sendLobbyChat.match(action)) {
             connection.send(LobbyEvent.LobbyChat, action.payload);
-        }
-
-        if (lobbyActions.sendNewGame.match(action)) {
+        } else if (lobbyActions.sendNewGame.match(action)) {
             connection.send(LobbyEvent.NewGame, action.payload);
-        }
-
-        if (lobbyActions.sendSelectDeck.match(action)) {
+        } else if (lobbyActions.sendSelectDeck.match(action)) {
             connection.send(LobbyEvent.SelectDeck, action.payload);
-        }
-
-        if (lobbyActions.sendStartGame.match(action)) {
+        } else if (lobbyActions.sendStartGame.match(action)) {
             connection.send(LobbyEvent.StartGame, '');
         }
 
