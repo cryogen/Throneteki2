@@ -3,10 +3,12 @@ import { HandOff } from '../../types/lobby';
 
 export interface GameNodeState {
     connection?: signalR.HubConnection | null;
+    gameHost?: string;
+    currentGame?: string;
     isConnected: boolean;
     isEstablishingConnection: boolean;
     responseTime: number;
-    gameHost?: string;
+    rootGameState?: string;
 }
 
 const initialState: GameNodeState = {
@@ -29,6 +31,15 @@ const gameNodeSlice = createSlice({
         },
         disconnect: (state) => {
             state.isConnected = false;
+        },
+        receieveGameState: (state, action: PayloadAction<string>) => {
+            state.currentGame = action.payload;
+        },
+        responseTimeReceived: (state, action: PayloadAction<number>) => {
+            state.responseTime = action.payload;
+        },
+        setRootState: (state, action: PayloadAction<string>) => {
+            state.rootGameState = action.payload;
         }
     }
 });

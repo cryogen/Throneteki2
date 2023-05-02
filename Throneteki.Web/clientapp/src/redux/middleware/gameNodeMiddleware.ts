@@ -7,10 +7,9 @@ import { getUser } from '../../helpers/UserHelper';
 
 const gameNodeMiddleware: Middleware = (store) => {
     let connection: Socket | null = null;
-    let pingSentTime: Date;
 
     return (next) => (action) => {
-        const isConnectionEstablished = connection && store.getState().lobby.isConnected;
+        const isConnectionEstablished = connection && store.getState().gameNode.isConnected;
         const user = getUser();
         if (gameNodeActions.startConnecting.match(action)) {
             const handOff = action.payload as unknown as HandOff;
@@ -27,26 +26,37 @@ const gameNodeMiddleware: Middleware = (store) => {
 
             connection.connect();
 
+            setInterval(() => {
+                const start = Date.now();
+
+                connection?.volatile.emit('ping', () => {
+                    const latency = Date.now() - start;
+                    store.dispatch(gameNodeActions.responseTimeReceived(latency));
+                });
+            }, 2 * 1000 * 60);
+
             connection.on('connect', () => {
                 store.dispatch(gameNodeActions.connectionEstablished());
 
                 connection?.emit('ping');
-                pingSentTime = new Date();
             });
-            // .catch((err) => lobbyActions.connectionFailed(err));
 
-            // connection.on(LobbyEvent.PongMessage, () => {
-            //     store.dispatch(
-            //         lobbyActions.receivePing({
-            //             responseTime: new Date().getTime() - pingSentTime.getTime()
-            //         })
-            //     );
+            connection.on('pong', (responseTime) => {
+                store.dispatch(gameNodeActions.responseTimeReceived(responseTime));
+            });
 
-            //     setTimeout(() => {
-            //         connection?.invoke('ping');
-            //         pingSentTime = new Date();
-            //     }, 2 * 1000 * 60);
-            // });
+            connection.on('gamestate', (game) => {
+                let gameState;
+
+                if (store.getState().gameNode.rootGameState) {
+                    // patch
+                } else {
+                    gameState = game;
+                    store.dispatch(gameNodeActions.setRootState(game));
+                }
+
+                store.dispatch(gameNodeActions.receieveGameState(gameState));
+            });
         }
 
         if (!isConnectionEstablished || !connection) {

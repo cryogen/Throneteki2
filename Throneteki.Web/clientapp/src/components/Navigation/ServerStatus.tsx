@@ -28,7 +28,11 @@ const ServerStatus = (props: ServerStatusProps) => {
         let pingClass;
 
         if (responseTime === undefined || responseTime < 0) {
-            pingText = <span>{t('Waiting for ping')}</span>;
+            pingText = (
+                <span>
+                    {serverType[0]}: {t('Waiting for ping')}
+                </span>
+            );
         } else {
             if (responseTime < 150) {
                 pingClass = 'text-success';
@@ -40,7 +44,7 @@ const ServerStatus = (props: ServerStatusProps) => {
 
             pingText = (
                 <>
-                    <span>{serverType}: </span>
+                    <span>{serverType[0]}: </span>
                     <span className={pingClass}>{responseTime}ms</span>
                 </>
             );

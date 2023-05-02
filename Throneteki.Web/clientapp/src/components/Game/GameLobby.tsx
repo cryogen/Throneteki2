@@ -27,6 +27,7 @@ const GameLobby = () => {
     const [newGame, setNewGame] = useState(false);
     const [currentFilter, setCurrentFilter] = useState(filterDefaults);
     const { currentGame, games } = useAppSelector((state) => state.lobby);
+    const { currentGame: activeGame } = useAppSelector((state) => state.gameNode);
 
     const topRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,7 +48,7 @@ const GameLobby = () => {
         <Col md={{ offset: 2, span: 8 }}>
             <div ref={topRef}>
                 {newGame && <NewGame quickJoin={quickJoin} onClosed={() => setNewGame(false)} />}
-                {currentGame?.started === false && <PendingGame />}
+                {currentGame?.started === false && !activeGame && <PendingGame />}
                 {/*passwordGame && <PasswordGame />} */}
             </div>
             <Panel title={t('Current Games')} className='mt-3'>

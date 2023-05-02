@@ -30,24 +30,15 @@ const Navigation = (props: NavigationProps) => {
     const {
         isConnected: lobbyConnected,
         isEstablishingConnection: lobbyConnecting,
-        responseTime: lobbyResponseTime
+        responseTime: lobbyResponseTime,
+        games
     } = useAppSelector((state) => state.lobby);
-
-    const currentGame = undefined;
-
-    // const { games, currentGame, lobbyResponse, lobbySocketConnected, lobbySocketConnecting } =
-    //     useSelector((state) => ({
-    //         games: state.lobby.games,
-    //         currentGame: state.lobby.currentGame,
-    //         lobbyResponse: state.lobby.responseTime,
-    //         lobbySocketConnected: state.lobby.connected,
-    //         lobbySocketConnecting: state.lobby.connecting
-    //     }));
-    // const { gameConnected, gameConnecting, gameResponse } = useSelector((state) => ({
-    //     gameConnected: state.games.connected,
-    //     gameConnecting: state.games.connecting,
-    //     gameResponse: state.games.responseTime
-    // }));
+    const {
+        isConnected: gameConnected,
+        isEstablishingConnection: gameConnecting,
+        responseTime: gameResponseTime,
+        currentGame: activeGame
+    } = useAppSelector((state) => state.gameNode);
 
     const user = auth.user?.profile as CustomUserProfile;
 
@@ -119,11 +110,11 @@ const Navigation = (props: NavigationProps) => {
         });
     };
 
-    // const numGames = (
-    //     <li>
-    //         <span>{t('{{gameLength}} Games', { gameLength: games?.length })}</span>
-    //     </li>
-    // );
+    const numGames = (
+        <li>
+            <span>{t('{{gameLength}} Games', { gameLength: games?.length })}</span>
+        </li>
+    );
 
     return (
         <Navbar bg='dark' variant='dark' className='navbar-sm' fixed='top'>
@@ -136,25 +127,24 @@ const Navigation = (props: NavigationProps) => {
                 <Navbar.Collapse id='navbar' className='justify-content-end'>
                     <Nav className='ml-auto pr-md-5'>
                         {
-                            /* <GameContextMenu />
-                    {numGames}*/
-                            !currentGame && (
-                                <ServerStatus
-                                    connected={lobbyConnected}
-                                    connecting={lobbyConnecting}
-                                    serverType='Lobby'
-                                    responseTime={lobbyResponseTime}
-                                />
-                            )
+                            /* <GameContextMenu />*/
+                            numGames
                         }
-                        {/* /*currentGame?.started && (
+
+                        <ServerStatus
+                            connected={lobbyConnected}
+                            connecting={lobbyConnecting}
+                            serverType='Lobby'
+                            responseTime={lobbyResponseTime}
+                        />
+                        {activeGame && (
                             <ServerStatus
                                 connected={gameConnected}
                                 connecting={gameConnecting}
                                 serverType='Game server'
-                                responseTime={gameResponse}
+                                responseTime={gameResponseTime}
                             />
-                        ) */}
+                        )}
                         {renderMenuItems(RightMenu)}
                         <ProfileDropdown menu={ProfileMenu} user={user} />
                         {/* <LanguageSelector /> */}
