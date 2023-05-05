@@ -197,12 +197,6 @@ const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
 
     return (
         <div>
-            <div className='d-flex justify-content-between mb-3'>
-                <div></div>
-                <div>
-                    <FaIconButton variant='light' icon={faRefresh}></FaIconButton>
-                </div>
-            </div>
             <ReactTable
                 dataLoadFn={useGetDecksQuery}
                 defaultSort={{

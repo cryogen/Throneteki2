@@ -23,13 +23,16 @@ public class DeckController : ControllerBase
 {
     private readonly ThronetekiDbContext context;
     private readonly UserManager<ThronetekiUser> userManager;
+    private readonly ILogger<DeckController> logger;
     private readonly ThronesDbOptions thronesDbOptions;
     private readonly JsonSerializerOptions jsonOptions;
 
-    public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, IOptions<ThronesDbOptions> thronesDbOptions)
+    public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, 
+        IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger)
     {
         this.context = context;
         this.userManager = userManager;
+        this.logger = logger;
         this.thronesDbOptions = thronesDbOptions.Value;
         jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
     }
@@ -549,11 +552,15 @@ public class DeckController : ControllerBase
 
         if (!response.IsSuccessStatusCode)
         {
+            var responseStr = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogWarning($"Error refreshing thronesdb token: {responseStr}");
+
+            return false;
         }
 
         var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
 
-        if (tokenResponse == null || tokenResponse.AccessToken == null || tokenResponse.RefreshToken == null)
+        if (tokenResponse?.AccessToken == null || tokenResponse.RefreshToken == null)
         {
             return false;
         }

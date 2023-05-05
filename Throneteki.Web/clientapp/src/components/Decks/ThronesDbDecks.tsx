@@ -171,6 +171,8 @@ const ThronesDbDecks = () => {
                     onClick={async () => {
                         try {
                             const response = await linkAccount({}).unwrap();
+                            window.location.replace(response.location);
+
                             if (!response.success) {
                                 setError(response.message);
                             } else {
@@ -223,9 +225,6 @@ const ThronesDbDecks = () => {
                                 await onImportClick(response.data.map((d: ThronesDbDeck) => d.id));
                             }}
                         />
-                    </div>
-                    <div>
-                        <FaIconButton variant='light' icon={faRefresh}></FaIconButton>
                     </div>
                 </div>
                 <ReactTable

@@ -1,6 +1,6 @@
 const createProxyMiddleware = require('http-proxy-middleware');
 
-const target = 'http://localhost:5287';
+const target = 'https://localhost:5287';
 const lobbyTarget = 'http://localhost:7010';
 
 const context = [

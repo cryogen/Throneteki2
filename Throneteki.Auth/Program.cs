@@ -16,7 +16,7 @@ const string corsPolicy = "AllowLocal";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy,
-        policyBuilder => policyBuilder.WithOrigins("http://localhost:44460").SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+        policyBuilder => policyBuilder.WithOrigins("http://localhost:44460", "https://localhost:44460").SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 });
 
 // Add services to the container.

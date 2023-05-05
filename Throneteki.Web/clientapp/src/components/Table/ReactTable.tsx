@@ -21,6 +21,8 @@ import { Trans, useTranslation } from 'react-i18next';
 import TablePagination from './TablePagination';
 import TableHeader from './TableHeader';
 import LoadingSpinner from '../LoadingSpinner';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import FaIconButton from '../Site/FaIconButton';
 
 interface DataLoadOptions {
     columnFilters: ColumnFilter[];
@@ -33,7 +35,9 @@ interface ReactTableProps<T> {
     columns: ColumnDef<T>[];
     defaultColumnFilters?: Record<string, string[]>;
     defaultSort?: ColumnSort;
-    dataLoadFn: (options: DataLoadOptions) => any;
+    dataLoadFn: (options: DataLoadOptions | unknown) => any;
+    dataLoadArg?: unknown;
+    dataProperty?: string;
     onRowClick?: (row: Row<T>) => void;
     onRowSelectionChange?: (rows: Row<T>[]) => void;
     remote?: boolean;
@@ -42,6 +46,8 @@ interface ReactTableProps<T> {
 function ReactTable<T>({
     columns,
     dataLoadFn,
+    dataLoadArg = null,
+    dataProperty = 'data',
     defaultColumnFilters = {},
     defaultSort,
     onRowClick,
@@ -72,13 +78,18 @@ function ReactTable<T>({
         sorting
     };
 
-    const { data: response, isLoading, isError } = dataLoadFn(fetchDataOptions);
+    const {
+        data: response,
+        isLoading,
+        isError,
+        refetch
+    } = dataLoadFn(dataLoadArg || fetchDataOptions);
 
     let tableOptions: TableOptions<T>;
 
     if (remote) {
         tableOptions = {
-            data: response?.data || response,
+            data: response ? response[dataProperty] : null,
             columns,
             enableFilters: true,
             getCoreRowModel: getCoreRowModel(),
@@ -88,7 +99,7 @@ function ReactTable<T>({
             onPaginationChange: setPagination,
             onSortingChange: setSorting,
             onColumnFiltersChange: setColumnFilters,
-            pageCount: Math.ceil(response?.totalCount / pageSize) ?? -1,
+            pageCount: Math.ceil(response?.paginationInfo?.totalCount / pageSize) ?? -1,
             state: {
                 sorting,
                 pagination: pagination,
@@ -98,7 +109,7 @@ function ReactTable<T>({
     } else {
         tableOptions = {
             columns,
-            data: response?.data || response,
+            data: response ? response[dataProperty] : null,
             getCoreRowModel: getCoreRowModel(),
             getFilteredRowModel: getFilteredRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
@@ -116,7 +127,7 @@ function ReactTable<T>({
 
     useEffect(() => {
         for (const [columnId, filter] of Object.entries(defaultColumnFilters)) {
-            table.getColumn(columnId).setFilterValue(filter);
+            table.getColumn(columnId)?.setFilterValue(filter);
         }
     }, [defaultColumnFilters, table]);
 
@@ -130,12 +141,24 @@ function ReactTable<T>({
         return <LoadingSpinner text='Loading data, please wait...' />;
     } else if (isError) {
         return <Alert variant='danger'>{t('An error occurred loading data.')}</Alert>;
-    } else if (response.data?.length === 0) {
+    } else if (response[dataProperty] && response[dataProperty].length === 0) {
         return <Alert variant='info'>{t('No data.')}</Alert>;
     }
 
+    const currPage = table.getState().pagination.pageIndex + 1;
+    const pageCount = table.getPageCount();
+    const totalCount = remote
+        ? response?.paginationInfo.totalCount
+        : response[dataProperty]?.length || 0;
+
     return (
         <>
+            <div className='d-flex justify-content-between mb-3' onClick={() => refetch()}>
+                <div></div>
+                <div>
+                    <FaIconButton variant='light' icon={faRefresh}></FaIconButton>
+                </div>
+            </div>
             <div className='table-scroll'>
                 <Table striped variant='dark' bordered hover>
                     <thead>
@@ -186,8 +209,7 @@ function ReactTable<T>({
                 <div className='d-flex align-items-center'>
                     <span className='me-1'>
                         <Trans>
-                            Page {table.getState().pagination.pageIndex + 1} of{' '}
-                            {table.getPageCount()} ({response?.totalCount} items)
+                            Page {{ currPage }} of {{ pageCount }} ({{ totalCount } as any} items)
                         </Trans>
                     </span>
                     <TablePagination

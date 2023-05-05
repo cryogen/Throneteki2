@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
-    <SpaProxyServerUrl>http://localhost:44460</SpaProxyServerUrl>
+    <SpaProxyServerUrl>https://localhost:44460</SpaProxyServerUrl>
     <SpaRoot>clientapp\</SpaRoot>
     <TargetFramework>net6.0</TargetFramework>
     <TypeScriptToolsVersion>latest</TypeScriptToolsVersion>
