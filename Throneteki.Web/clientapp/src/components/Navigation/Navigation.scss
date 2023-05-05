@@ -11,3 +11,12 @@
     padding: 0 15px;
     line-height: $navbar-height;
 }
+
+.navbar-brand {
+    background-image: url('~assets/img/header_icon.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 32px;
+    height: 120%;
+}
