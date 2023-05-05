@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Throneteki.Data;
+using Throneteki.Models.Services;
 
 namespace Throneteki.Web.Controllers.Api;
 
@@ -8,10 +9,12 @@ namespace Throneteki.Web.Controllers.Api;
 public class DataController : ControllerBase
 {
     private readonly ThronetekiDbContext context;
+    private readonly CardService cardService;
 
-    public DataController(ThronetekiDbContext context)
+    public DataController(ThronetekiDbContext context, CardService cardService)
     {
         this.context = context;
+        this.cardService = cardService;
     }
 
     [HttpGet("/api/data/factions")]
@@ -24,6 +27,12 @@ public class DataController : ControllerBase
     public async Task<IActionResult> GetPacks(CancellationToken cancellationToken)
     {
         return Ok(await context.Packs.ToListAsync(cancellationToken));
+    }
+
+    [HttpGet("/api/data/restricted-list")]
+    public async Task<IActionResult> GetRestrictedList(CancellationToken cancellationToken)
+    {
+        return Ok(await cardService.GetRestrictedLists());
     }
 
     [HttpGet("/api/data/cards")]

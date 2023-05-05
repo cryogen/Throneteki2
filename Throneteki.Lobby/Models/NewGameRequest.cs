@@ -19,4 +19,5 @@ public class NewGameRequest
     public bool UseChessClocks { get; set; }
     public int GameChessClockLimit { get; set; }
     public bool ShowHands { get; set; }
+    public string? RestrictedListId { get; set; }
 }

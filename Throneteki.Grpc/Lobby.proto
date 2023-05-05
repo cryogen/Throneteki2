@@ -6,6 +6,7 @@ import "Messages.proto";
 
 service LobbyService {
 	rpc AddLobbyMessage(AddLobbyMessageRequest) returns (AddLobbyMessageResponse);
+	rpc GetAllPacks(GetAllPacksRequest) returns (GetAllPacksResponse);
 	rpc GetDeckById(GetDeckByIdRequest) returns (GetDeckByIdResponse);
 	rpc GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest) returns (GetLobbyMessagesForUserResponse);
 	rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
@@ -18,6 +19,13 @@ message AddLobbyMessageRequest {
 
 message AddLobbyMessageResponse {
 	LobbyMessage Message = 1;
+}
+
+message GetAllPacksRequest {
+}
+
+message GetAllPacksResponse {
+	repeated LobbyPack Packs = 1;
 }
 
 message GetDeckByIdRequest {

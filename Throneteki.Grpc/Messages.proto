@@ -36,7 +36,7 @@ message LobbyCard {
     string PackCode = 13;
     string Label = 14;
     string Icons = 15;
-    string Traits = 16;
+    repeated string Traits = 16;
     int32 Income = 17;
     int32 Claim = 18;
     int32 Reserve = 19;
@@ -52,15 +52,26 @@ message LobbyDeckCard {
 	LobbyCard Card = 2;
 }
 
+message DeckValidationStatus {
+	bool BasicRules = 1;
+    bool FaqJoustRules = 2;
+    string FaqVersion = 3;
+    bool NoUnreleasedCards = 4;
+	bool NoBannedCards = 5;
+    int32 PlotCount = 6;
+    int32 DrawCount = 7;
+    repeated string Errors = 8;
+}
+
 message LobbyDeck {
 	int32 Id = 1;
 	string Name = 2;
 	string Owner = 3;
 	LobbyFaction Faction = 4;
-	LobbyCard Agenda = 5;
+	repeated LobbyCard Agendas = 5;
     repeated LobbyDeckCard DrawCards = 6;
 	repeated LobbyDeckCard PlotCards = 7;
-	repeated LobbyCard BannerCards = 8;
+	DeckValidationStatus ValidationStatus = 8;
 }
 
 message LobbyMessage {
@@ -70,6 +81,13 @@ message LobbyMessage {
 	google.protobuf.Timestamp Time = 4;
     bool Deleted = 5;
 	ThronetekiUser Deletedby = 6;
+}
+
+message LobbyPack {
+    int32 Id = 1;
+    string Code = 2;
+    string Name = 3;
+    google.protobuf.Timestamp ReleaseDate = 4;
 }
 
 message ThronetekiUserSettings {

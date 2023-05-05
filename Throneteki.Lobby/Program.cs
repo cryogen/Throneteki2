@@ -3,11 +3,14 @@ using Throneteki.Lobby.Services;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using StackExchange.Redis;
+using Throneteki.DeckValidation;
 using Throneteki.Lobby;
 using Throneteki.Lobby.Models;
 using Throneteki.Lobby.Redis;
 using Throneteki.Lobby.Redis.Commands.Incoming;
 using Throneteki.Lobby.Redis.Handlers;
+using Throneteki.Models.Services;
+using Throneteki.WebService.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,9 @@ var lobbyOptions = new LobbyOptions();
 lobbySection.Bind(lobbyOptions);
 
 builder.Services.Configure<LobbyOptions>(lobbySection);
+
+builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly);
+builder.Services.AddDeckValidation();
 
 var authServerUrl = lobbyOptions.AuthServerUrl;
 
@@ -52,6 +58,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
 builder.Services.AddSingleton<RedisCommandHandlerFactory>();
 builder.Services.AddSingleton<GameNodeManager>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<HelloMessage>>, HelloMessageHandler>();
+builder.Services.AddTransient<CardService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,5 @@
 import { Card, Pack } from '../types/data';
+import { DeckValidationStatus } from '../types/lobby';
 
 export interface CardLookupArg {
     cardName: string;
@@ -53,4 +54,31 @@ function compareCardByReleaseDate(a: Card, b: Card, packs: Pack[]) {
     }
 
     return new Date(packA.releaseDate) < new Date(packB.releaseDate) ? -1 : 1;
+}
+
+export function deckStatusLabel(status: DeckValidationStatus) {
+    if (!status.basicRules) {
+        return 'Invalid';
+    }
+
+    if (!status.noBannedCards) {
+        return 'Banned';
+    }
+
+    if (!status.faqJoustRules || !status.noUnreleasedCards) {
+        return 'Casual';
+    }
+
+    return 'Legal';
+}
+
+export function cardSetLabel(cardSet: any) {
+    switch (cardSet) {
+        case 'redesign':
+            return 'Standard';
+        case 'original':
+            return 'Valyrian';
+    }
+
+    return 'Unknown';
 }

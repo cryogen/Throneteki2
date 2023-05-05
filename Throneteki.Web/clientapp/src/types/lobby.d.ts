@@ -39,6 +39,17 @@ export interface LobbyGame {
     useGameTimeLimit: boolean;
 }
 
+export interface DeckValidationStatus {
+    basicRules: boolean;
+    faqJoustRules: boolean;
+    faqVersion?: string;
+    noBannedCards: boolean;
+    noUnreleasedCards: boolean;
+    plotCount: number;
+    drawCount: number;
+    errors: string[];
+}
+
 export interface LobbyGamePlayer {
     avatar: string;
     deckName?: string;

@@ -96,6 +96,9 @@ export const apiSlice = createApi({
         getPacks: builder.query({
             query: () => '/data/packs'
         }),
+        getRestrictedList: builder.query({
+            query: () => '/data/restricted-list'
+        }),
         getThronesDbDecks: builder.query({
             query: () => '/decks/thronesdb'
         }),
@@ -148,6 +151,7 @@ export const {
     useGetFactionsQuery,
     useGetFilterOptionsForDecksQuery,
     useGetPacksQuery,
+    useGetRestrictedListQuery,
     useGetThronesDbDecksQuery,
     useGetThronesDbStatusQuery,
     useGetUserDetailsQuery,

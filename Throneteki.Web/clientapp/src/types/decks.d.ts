@@ -53,3 +53,21 @@ export interface DecksResponse extends ApiResponse {
     decks: Deck[];
     totalCount: number;
 }
+
+export interface RestrictedListPod {
+    cards: string[];
+    restricted: string;
+}
+
+export interface RestrictedList {
+    id: string;
+    name: string;
+    date: Date;
+    issuer: string;
+    cardSet: RestrictedListCardSet;
+    version: string;
+    restricted: string[];
+    banned: string[];
+    pods: RestrictedListPod[];
+    official: bool;
+}

@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Throneteki.Data\Throneteki.Data.csproj" />
+    <ProjectReference Include="..\Throneteki.Models\Throneteki.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
@@ -55,7 +56,7 @@
     <Exec Command="npm run build" WorkingDirectory="$(SpaRoot)" />
     <ItemGroup>
       <DistFiles Include="$(SpaRoot)build\**" />
-      <ResolvedFileToPublish Exclude="@(ResolvedFileToPublish)" Include="@(DistFiles-&gt;'%(FullPath)')">
+      <ResolvedFileToPublish Exclude="@(ResolvedFileToPublish)" Include="@(DistFiles->'%(FullPath)')">
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>

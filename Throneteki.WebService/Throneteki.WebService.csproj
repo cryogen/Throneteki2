@@ -33,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Throneteki.Data\Throneteki.Data.csproj" />
+    <ProjectReference Include="..\Throneteki.DeckValidation\Throneteki.DeckValidation.csproj" />
     <ProjectReference Include="..\Throneteki.Grpc\Throneteki.Grpc.csproj" />
   </ItemGroup>
 </Project>

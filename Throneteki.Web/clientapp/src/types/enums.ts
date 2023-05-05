@@ -9,3 +9,8 @@ export enum GameType {
     Beginner = 'beginner',
     Competitive = 'competitive'
 }
+
+export enum RestrictedListCardSet {
+    Original = 'original',
+    Redesign = 'redesign'
+}

@@ -24,7 +24,7 @@ body {
 }
 
 .content {
-  padding-top: $navbar-height + 5px;
+    padding-top: $navbar-height + 5px;
 }
 
 .table-hover tbody tr:hover td {
@@ -43,13 +43,15 @@ body {
     // Make checkboxes selectable by clicking anywhere in the cell
     td {
         padding: 0.5rem;
-      }
-      
-      td > label, th > label, th > div > label {
+    }
+
+    td > label,
+    th > label,
+    th > div > label {
         display: block;
         margin: -0.5rem;
         padding: 0.5rem;
-      }
+    }
 }
 
 .admin-role {
@@ -70,4 +72,9 @@ body {
 
 .previouswinner-role {
     color: #ff38c7;
+}
+
+.clickable {
+    cursor: pointer;
+    cursor: hand;
 }

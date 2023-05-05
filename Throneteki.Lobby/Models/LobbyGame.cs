@@ -9,8 +9,9 @@ public class LobbyGame
 {
     private readonly ConcurrentDictionary<string, GameUser> gameUsers = new();
 
-    public LobbyGame(NewGameRequest request, ThronetekiUser owner)
+    public LobbyGame(NewGameRequest request, ThronetekiUser owner, LobbyRestrictedList? restrictedList)
     {
+        RestrictedList = restrictedList;
         AllowSpectators = request.AllowSpectators;
         IsPrivate = request.GamePrivate;
         Name = request.Name;
@@ -36,6 +37,8 @@ public class LobbyGame
     public string? Password { get; set; }
     public bool ShowHand { get; set; }
     public bool IsEmpty => !Players.Any();
+    public LobbyRestrictedList? RestrictedList { get; }
+
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)
     {

@@ -1,11 +1,16 @@
 ﻿
 using System.Collections.Concurrent;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Throneteki.DeckValidation;
 using Throneteki.Lobby.Models;
 using Throneteki.Lobby.Services;
+using Throneteki.Models.Services;
 using Throneteki.WebService;
+using DeckValidationStatus = Throneteki.WebService.DeckValidationStatus;
 using LobbyMessage = Throneteki.Lobby.Models.LobbyMessage;
+using LobbyPack = Throneteki.Models.Models.LobbyPack;
 
 namespace Throneteki.Lobby;
 
@@ -15,6 +20,8 @@ public class LobbyHub : Hub
     private readonly LobbyService.LobbyServiceClient lobbyService;
     private readonly GameNodesService gameNodesService;
     private readonly GameNodeManager nodeManager;
+    private readonly IMapper mapper;
+    private readonly CardService cardService;
 
     private static readonly ConcurrentDictionary<string, ThronetekiUser> UsersByName = new();
     private static readonly ConcurrentDictionary<string, string> ConnectionsByUsername = new();
@@ -24,12 +31,14 @@ public class LobbyHub : Hub
     private readonly IConfigurationSection settings;
 
     public LobbyHub(ILogger<LobbyHub> logger, LobbyService.LobbyServiceClient lobbyServiceClient, IConfiguration configuration, GameNodesService gameNodesService,
-        GameNodeManager nodeManager)
+        GameNodeManager nodeManager, IMapper mapper, CardService cardService)
     {
         this.logger = logger;
         lobbyService = lobbyServiceClient;
         this.gameNodesService = gameNodesService;
         this.nodeManager = nodeManager;
+        this.mapper = mapper;
+        this.cardService = cardService;
         settings = configuration.GetSection("Settings");
     }
 
@@ -193,7 +202,11 @@ public class LobbyHub : Hub
         // Check for existing game
         // Check for quickjoin
 
-        var newGame = new LobbyGame(request, user);
+        var restrictedLists = await cardService.GetRestrictedLists();
+
+        var restrictedList = request.RestrictedListId == null ? restrictedLists.First() : restrictedLists.FirstOrDefault(r => r.Id == request.RestrictedListId);
+
+        var newGame = new LobbyGame(request, user, restrictedList);
 
         newGame.AddUser(new LobbyGamePlayer(user), GameUserType.Player);
 
@@ -227,6 +240,12 @@ public class LobbyHub : Hub
         }
 
         var game = GamesByUsername[user.Username];
+
+        var packs = mapper.Map<IEnumerable<LobbyPack>>((await lobbyService.GetAllPacksAsync(new GetAllPacksRequest())).Packs);
+
+        var deckValidator = new DeckValidator(packs, game.RestrictedList != null ? new[] { game.RestrictedList } : Array.Empty<LobbyRestrictedList>());
+
+        deck.ValidationStatus = mapper.Map<DeckValidationStatus>(deckValidator.ValidateDeck(deck));
         game.SelectDeck(user.Username, deck);
 
         await SendGameState(game);

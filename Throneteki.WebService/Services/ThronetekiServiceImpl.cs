@@ -70,6 +70,9 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         var deck = await dbContext.Decks
             .Include(d => d.Faction)
             .Include(d => d.Agenda)
+            .ThenInclude(a => a.Faction)
+            .Include(d => d.Agenda)
+            .ThenInclude(a => a.Pack)
             .Include(d => d.DeckCards)
             .ThenInclude(dc => dc.Card)
             .ThenInclude(c => c.Faction)
@@ -85,7 +88,12 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         var retDeck = mapper.Map<LobbyDeck>(deck);
         retDeck.DrawCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
         retDeck.PlotCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
-        retDeck.BannerCards.AddRange(mapper.Map<IEnumerable<LobbyCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
+        if (deck.Agenda != null)
+        {
+            retDeck.Agendas.Add(mapper.Map<LobbyCard>(deck.Agenda));
+        }
+
+        retDeck.Agendas.AddRange(mapper.Map<IEnumerable<LobbyCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
 
         return new GetDeckByIdResponse
         {
@@ -149,6 +157,17 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         var settings = JsonSerializer.Deserialize<Data.Models.ThronetekiUserSettings>(user.Settings);
 
         ret.User.Settings = mapper.Map<ThronetekiUserSettings>(settings);
+
+        return ret;
+    }
+
+    public override async Task<GetAllPacksResponse> GetAllPacks(GetAllPacksRequest request, ServerCallContext context)
+    {
+        var ret = new GetAllPacksResponse();
+
+        var packs = mapper.Map<IEnumerable<LobbyPack>>(await dbContext.Packs.ToListAsync());
+
+        ret.Packs.AddRange(packs);
 
         return ret;
     }

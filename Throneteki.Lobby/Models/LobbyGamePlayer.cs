@@ -23,6 +23,8 @@ public class LobbyGamePlayer
         {
             Avatar,
             DeckSelected,
+            DeckStatus = selectedDeck?.ValidationStatus,
+            DeckName = player != null && player.Name == user.Username ? selectedDeck?.Name : null,
             Name,
             Role
         };

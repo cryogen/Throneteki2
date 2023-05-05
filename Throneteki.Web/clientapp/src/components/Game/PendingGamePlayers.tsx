@@ -5,7 +5,7 @@ import { LobbyGame } from '../../types/lobby';
 import { CustomUserProfile } from '../../types/user';
 import Avatar from '../Site/Avatar';
 import Panel from '../Site/Panel';
-import DeckStatus from './DeckStatus';
+import DeckStatus from '../Decks/DeckStatus';
 
 interface PendingGamePlayersProps {
     currentGame: LobbyGame;
@@ -29,13 +29,13 @@ const PendingGamePlayers = ({ currentGame, user, onSelectDeck }: PendingGamePlay
                 if (player && player.deckSelected) {
                     if (playerIsMe) {
                         deck = (
-                            <span className='deck-selection clickable' onClick={onSelectDeck}>
+                            <span className='deck-selection clickable me-2' onClick={onSelectDeck}>
                                 {player.deckName}
                             </span>
                         );
                     } else {
                         deck = (
-                            <span className='deck-selection'>
+                            <span className='deck-selection me-2'>
                                 <Trans>Deck Selected</Trans>
                             </span>
                         );

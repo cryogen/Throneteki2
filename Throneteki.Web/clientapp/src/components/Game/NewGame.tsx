@@ -11,6 +11,8 @@ import Panel from '../Site/Panel';
 import GameOptions from './GameOptions';
 import GameTypes from './GameTypes';
 import { lobbyActions } from '../../redux/slices/lobbySlice';
+import { useGetRestrictedListQuery } from '../../redux/api/apiSlice';
+import { RestrictedList } from '../../types/decks';
 
 const GameNameMaxLength = 64;
 
@@ -32,6 +34,7 @@ const NewGame = ({
     const { t } = useTranslation();
     const auth = useAuth();
     const dispatch = useAppDispatch();
+    const { isLoading, data: restrictedLists } = useGetRestrictedListQuery({});
 
     const { isConnected } = useAppSelector((state) => state.lobby);
 
@@ -79,6 +82,8 @@ const NewGame = ({
         );
     }
 
+    console.info(restrictedLists);
+
     return (
         <Panel title={t(quickJoin ? 'Quick Join' : 'New game')}>
             <Formik
@@ -116,6 +121,8 @@ const NewGame = ({
                     //     values.quickJoin = quickJoin;
                     //     dispatch(sendSocketMessage('newgame', values));
                     // }
+
+                    console.info(values);
                     dispatch(lobbyActions.sendNewGame(values));
                 }}
                 initialValues={initialValues}
@@ -140,26 +147,46 @@ const NewGame = ({
                         {!quickJoin && (
                             <>
                                 {
-                                    /*!tournament &&*/ <Row className='mb-2'>
-                                        <Form.Group as={Col} lg='8' controlId='formGridGameName'>
-                                            <div className='d-flex justify-content-between'>
-                                                <Form.Label>{t('Name')}</Form.Label>
-                                                <Form.Label>
-                                                    {GameNameMaxLength -
-                                                        formProps.values.name.length}
-                                                </Form.Label>
-                                            </div>
-                                            <Form.Control
-                                                type='text'
-                                                placeholder={t('Game Name')}
-                                                maxLength={GameNameMaxLength}
-                                                {...formProps.getFieldProps('name')}
-                                            />
-                                            <Form.Control.Feedback type='invalid'>
-                                                {formProps.errors.name}
-                                            </Form.Control.Feedback>
-                                        </Form.Group>
-                                    </Row>
+                                    /*!tournament &&*/ <>
+                                        <Row className='mb-2'>
+                                            <Form.Group
+                                                as={Col}
+                                                lg='8'
+                                                controlId='formGridGameName'
+                                            >
+                                                <div className='d-flex justify-content-between'>
+                                                    <Form.Label>{t('Name')}</Form.Label>
+                                                    <Form.Label>
+                                                        {GameNameMaxLength -
+                                                            formProps.values.name.length}
+                                                    </Form.Label>
+                                                </div>
+                                                <Form.Control
+                                                    type='text'
+                                                    placeholder={t('Game Name')}
+                                                    maxLength={GameNameMaxLength}
+                                                    {...formProps.getFieldProps('name')}
+                                                />
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {formProps.errors.name}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+                                        </Row>
+                                        <Row className='mb-2'>
+                                            <Form.Group as={Col} lg='8'>
+                                                <Form.Label>{t('Mode')}</Form.Label>
+                                                <Form.Select
+                                                    {...formProps.getFieldProps('restrictedListId')}
+                                                >
+                                                    {restrictedLists?.map((rl: RestrictedList) => (
+                                                        <option key={rl.name} value={rl.id}>
+                                                            {rl.name}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Row>
+                                    </>
                                 }
                                 <GameOptions formProps={formProps} />
                             </>
