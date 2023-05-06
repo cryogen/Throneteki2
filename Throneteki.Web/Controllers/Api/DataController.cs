@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Throneteki.Data;
 using Throneteki.Models.Services;
+using Throneteki.Web.Models.Decks;
 
 namespace Throneteki.Web.Controllers.Api;
 
@@ -56,10 +57,10 @@ public class DataController : ControllerBase
                 card.Type,
                 card.Name,
                 card.Unique,
-                Faction = new
-                {
-                    card.Faction.Code,
-                    card.Faction.Name
+                Faction = new ApiFaction 
+                { 
+                    Code = card.Faction.Code, 
+                    Name = card.Faction.Name ?? string.Empty
                 },
                 card.Loyal,
                 card.Cost,

@@ -1,0 +1,2 @@
+wt.exe new-tab -p "Windows PowerShell" -d C:\dev\Throneteki2\Throneteki.Auth --title "Auth" dotnet run --project Throneteki.Auth.csproj ; new-tab -p "Windows PowerShell" --title "Lobby" -d C:\dev\Throneteki2\Throneteki.Lobby cmd /c dotnet run --project Throneteki.Lobby.csproj ; new-tab -p "Windows PowerShell" --title "WebService" -d C:\dev\Throneteki2\Throneteki.WebService dotnet run --project Throneteki.WebService.csproj 
+rem ; new-tab -p "Windows PowerShell" --title "Web" -d C:\dev\Throneteki2\Throneteki.Web dotnet run --project Throneteki.Web.csproj 

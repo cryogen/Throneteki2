@@ -133,45 +133,48 @@ public class DeckController : ControllerBase
             baseQuery = baseQuery.OrderBy(string.Join(", ", options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
         }
 
+        var decks = await baseQuery
+            .Skip(options.PageNumber * options.PageSize)
+            .Take(options.PageSize)
+            .ToListAsync();
+
+        var apiDecks = decks.Select(d => new ApiDeck
+        {
+            Id = d.Id,
+            Name = d.Name,
+            ExternalId = d.ExternalId,
+            Created = d.Created,
+            Updated = d.Updated,
+            Agenda = d.Agenda != null
+                ? new ApiCard
+                {
+                    Code = d.Agenda.Code,
+                    Label = d.Agenda.Label
+                }
+                : null,
+            Faction = new ApiFaction
+            {
+                Code = d.Faction.Code,
+                Name = d.Faction.Name ?? string.Empty
+            },
+            DeckCards = d.DeckCards.Select(dc => new ApiDeckCard
+            {
+                Count = dc.Count,
+                Card = new ApiCard
+                {
+                    Code = dc.Card.Code,
+                    Label = dc.Card.Label
+                },
+                Type = dc.CardType.ToString()
+            }),
+            IsFavourite = d.IsFavourite
+        });
+
         return Ok(new
         {
             Success = true,
             TotalCount = rowCount,
-            Data = await baseQuery
-                .Skip(options.PageNumber * options.PageSize)
-                .Take(options.PageSize)
-                .Select(d => new
-                {
-                    d.Id,
-                    d.Name,
-                    d.ExternalId,
-                    d.Created,
-                    d.Updated,
-                    Agenda = d.Agenda != null
-                        ? new
-                        {
-                            d.Agenda.Code,
-                            d.Agenda.Label
-                        }
-                        : null,
-                    Faction = new
-                    {
-                        d.Faction.Code,
-                        d.Faction.Name
-                    },
-                    DeckCards = d.DeckCards.Select(dc => new
-                    {
-                        dc.Count,
-                        Card = new
-                        {
-                            dc.Card.Code,
-                            dc.Card.Label
-                        },
-                        Type = dc.CardType.ToString()
-                    }),
-                    d.IsFavourite
-                })
-                .ToListAsync()
+            Data = apiDecks
         });
     }
 
@@ -212,27 +215,10 @@ public class DeckController : ControllerBase
                 deck.Created,
                 deck.Updated,
                 Agenda = deck.Agenda != null
-                    ? new
-                    {
-                        deck.Agenda.Code,
-                        deck.Agenda.Label
-                    }
+                    ? new ApiCard { Code = deck.Agenda.Code, Label = deck.Agenda.Label }
                     : null,
-                Faction = new
-                {
-                    deck.Faction.Code,
-                    deck.Faction.Name
-                },
-                DeckCards = deck.DeckCards.Select(dc => new
-                {
-                    dc.Count,
-                    Card = new
-                    {
-                        dc.Card.Code,
-                        dc.Card.Label
-                    },
-                    Type = dc.CardType.ToString()
-                })
+                Faction = new ApiFaction { Code = deck.Faction.Code, Name = deck.Faction.Name },
+                DeckCards = deck.DeckCards.Select(dc => new ApiDeckCard { Count = dc.Count, Card = new ApiCard { Code = dc.Card.Code, Label = dc.Card.Label }, Type = dc.CardType.ToString() })
             }
         });
     }

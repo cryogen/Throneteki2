@@ -25,7 +25,7 @@ public class Card
     public string? Illustrator { get; set; }
     public int PackId { get; set; }
     public Pack Pack { get; set; } = null!;
-    public string? Label { get; set; }
+    public string Label { get; set; } = null!;
     public string? Icons { get; set; }
     public string? Traits { get; set; }
     public int? Income { get; set; }
