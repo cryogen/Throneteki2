@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
@@ -101,13 +102,10 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         };
     }
 
+    [SuppressMessage("ReSharper", "SimplifyLinqExpressionUseAll")]
     public override async Task<GetLobbyMessagesForUserResponse> GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest request, ServerCallContext context)
     {
         var user = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == request.UserId);
-        if (user == null)
-        {
-            return new GetLobbyMessagesForUserResponse();
-        }
 
         var messages = await dbContext.LobbyMessages
             .Include(m => m.Poster)
@@ -118,6 +116,12 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             .OrderByDescending(m => m.PostedDateTime)
             .Take(50)
             .Select(message => MapMessage(message)).ToListAsync();
+
+        if (user != null)
+        {
+            messages = messages.Where(m => !user.BlockListEntries.Any(bl => bl.BlockedUserId == m.User.Id) &&
+                                           !m.User.BlockList.Any(bl => bl.UserId == user.Id)).ToList();
+        }
 
         return new GetLobbyMessagesForUserResponse { Messages = { messages } };
     }

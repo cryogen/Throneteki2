@@ -14,8 +14,8 @@ import './custom.scss';
 
 const oidcConfig = {
     authority: 'https://localhost:7000/',
-    redirect_uri: 'http://localhost:44460/authentication/login-callback',
-    silent_redirect_uri: 'http://localhost:44460/authentication/login-callback',
+    redirect_uri: 'https://localhost:44460/authentication/login-callback',
+    silent_redirect_uri: 'https://localhost:44460/authentication/login-callback',
     client_id: 'throneteki',
     scope: 'openid api email profile roles offline_access lobby',
     loadUserInfo: true,
