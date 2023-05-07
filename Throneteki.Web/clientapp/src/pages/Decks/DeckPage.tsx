@@ -12,6 +12,7 @@ import { DeckCard } from '../../types/decks';
 import { DrawCardType } from '../../types/enums';
 import { Card } from '../../types/data';
 import DeckSummary from '../../components/Decks/DeckSummary';
+import DeckStatus from '../../components/Decks/DeckStatus';
 
 const DeckPage = () => {
     const { t } = useTranslation();
@@ -107,6 +108,14 @@ const DeckPage = () => {
                         </Col>
                     </Row>
                 )}
+                <Row className='mb-0' as='dl'>
+                    <Col sm={3} as='dt'>
+                        <Trans>Validity</Trans>
+                    </Col>
+                    <Col sm={3} className='mb-0' as='dd'>
+                        <DeckStatus status={deck.status} />
+                    </Col>
+                </Row>
                 <DeckSummary deck={deck} />
             </>
         );

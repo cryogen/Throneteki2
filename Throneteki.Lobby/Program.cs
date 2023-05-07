@@ -4,13 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using StackExchange.Redis;
 using Throneteki.DeckValidation;
+using Throneteki.Grpc.MappingProfiles;
 using Throneteki.Lobby;
 using Throneteki.Lobby.Models;
 using Throneteki.Lobby.Redis;
 using Throneteki.Lobby.Redis.Commands.Incoming;
 using Throneteki.Lobby.Redis.Handlers;
 using Throneteki.Models.Services;
-using Throneteki.WebService.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 

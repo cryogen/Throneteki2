@@ -8,11 +8,15 @@ using OpenIddict.Validation.AspNetCore;
 using System.Linq.Dynamic.Core;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using AutoMapper;
 using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.DeckValidation;
+using Throneteki.Models.Models;
 using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
+using Throneteki.Models.Services;
 
 namespace Throneteki.Web.Controllers.Api;
 
@@ -24,15 +28,20 @@ public class DeckController : ControllerBase
     private readonly ThronetekiDbContext context;
     private readonly UserManager<ThronetekiUser> userManager;
     private readonly ILogger<DeckController> logger;
+    private readonly IMapper mapper;
+    private readonly CardService cardService;
     private readonly ThronesDbOptions thronesDbOptions;
     private readonly JsonSerializerOptions jsonOptions;
 
     public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, 
-        IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger)
+        IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger, IMapper mapper,
+        CardService cardService)
     {
         this.context = context;
         this.userManager = userManager;
         this.logger = logger;
+        this.mapper = mapper;
+        this.cardService = cardService;
         this.thronesDbOptions = thronesDbOptions.Value;
         jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
     }
@@ -138,6 +147,9 @@ public class DeckController : ControllerBase
             .Take(options.PageSize)
             .ToListAsync();
 
+        var packs = mapper.Map<IEnumerable<LobbyPack>>(await context.Packs.ToListAsync());
+        var validator = new DeckValidator(packs, await cardService.GetRestrictedLists());
+
         var apiDecks = decks.Select(d => new ApiDeck
         {
             Id = d.Id,
@@ -167,7 +179,8 @@ public class DeckController : ControllerBase
                 },
                 Type = dc.CardType.ToString()
             }),
-            IsFavourite = d.IsFavourite
+            IsFavourite = d.IsFavourite,
+            Status = validator.ValidateDeck(mapper.Map<LobbyDeck>(d))
         });
 
         return Ok(new
@@ -204,21 +217,43 @@ public class DeckController : ControllerBase
             return Forbid();
         }
 
+        var packs = mapper.Map<IEnumerable<LobbyPack>>(await context.Packs.ToListAsync());
+        var validator = new DeckValidator(packs, await cardService.GetRestrictedLists());
+
         return Ok(new
         {
             Success = true,
-            Deck = new
+            Deck = new ApiDeck
             {
-                deck.Id,
-                deck.Name,
-                deck.ExternalId,
-                deck.Created,
-                deck.Updated,
+                Id = deck.Id,
+                Name = deck.Name,
+                ExternalId = deck.ExternalId,
+                Created = deck.Created,
+                Updated = deck.Updated,
                 Agenda = deck.Agenda != null
-                    ? new ApiCard { Code = deck.Agenda.Code, Label = deck.Agenda.Label }
+                    ? new ApiCard
+                    {
+                        Code = deck.Agenda.Code,
+                        Label = deck.Agenda.Label
+                    }
                     : null,
-                Faction = new ApiFaction { Code = deck.Faction.Code, Name = deck.Faction.Name },
-                DeckCards = deck.DeckCards.Select(dc => new ApiDeckCard { Count = dc.Count, Card = new ApiCard { Code = dc.Card.Code, Label = dc.Card.Label }, Type = dc.CardType.ToString() })
+                Faction = new ApiFaction
+                {
+                    Code = deck.Faction.Code,
+                    Name = deck.Faction.Name ?? string.Empty
+                },
+                DeckCards = deck.DeckCards.Select(dc => new ApiDeckCard
+                {
+                    Count = dc.Count,
+                    Card = new ApiCard
+                    {
+                        Code = dc.Card.Code,
+                        Label = dc.Card.Label
+                    },
+                    Type = dc.CardType.ToString()
+                }),
+                IsFavourite = deck.IsFavourite,
+                Status = validator.ValidateDeck(mapper.Map<LobbyDeck>(deck))
             }
         });
     }

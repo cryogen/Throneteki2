@@ -14,6 +14,8 @@
     <UserSecretsId>eba033a2-f6f4-4056-bd18-a4c458f6cd61</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="EFCore.NamingConventions" Version="6.0.0" />
     <PackageReference Include="JorgeSerrano.Json.JsonSnakeCaseNamingPolicy" Version="0.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
@@ -37,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Throneteki.Data\Throneteki.Data.csproj" />
+    <ProjectReference Include="..\Throneteki.DeckValidation\Throneteki.DeckValidation.csproj" />
     <ProjectReference Include="..\Throneteki.Models\Throneteki.Models.csproj" />
   </ItemGroup>
   <ItemGroup>

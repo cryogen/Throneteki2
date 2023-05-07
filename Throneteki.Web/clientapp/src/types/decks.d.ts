@@ -28,6 +28,7 @@ export interface Deck {
     faction: Faction;
     name: string;
     updated?: Date;
+    status?: DeckValidationStatus;
 }
 
 export interface ThronesDbDeck {

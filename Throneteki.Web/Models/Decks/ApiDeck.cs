@@ -1,4 +1,6 @@
-﻿namespace Throneteki.Web.Models.Decks;
+﻿using Throneteki.Models.Models;
+
+namespace Throneteki.Web.Models.Decks;
 
 public class ApiDeck
 {
@@ -11,4 +13,5 @@ public class ApiDeck
     public ApiFaction Faction { get; set; } = null!;
     public IEnumerable<ApiDeckCard> DeckCards { get; set; } = new List<ApiDeckCard>();
     public bool IsFavourite { get; set; }
+    public DeckValidationStatus? Status { get; set; }
 }

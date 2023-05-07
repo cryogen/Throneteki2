@@ -11,7 +11,8 @@ public class LobbyDeck
     public IReadOnlyCollection<LobbyDeckCard> PlotCards { get; set; } = new List<LobbyDeckCard>();
     public DeckValidationStatus ValidationStatus { get; set; }
 
-    public LobbyCard[] BannerCards => Agendas.Where(a => a.Traits.Contains("banner")).ToArray();
+    public LobbyCard[] BannerCards =>
+        Agendas.Where(a => a.Traits.Contains("banner", StringComparer.OrdinalIgnoreCase)).ToArray();
 
     public IEnumerable<LobbyCard> GetAllDeckCards()
     {

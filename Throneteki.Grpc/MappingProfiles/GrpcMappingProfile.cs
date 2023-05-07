@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
 using Throneteki.Models.Models;
+using Throneteki.WebService;
 
-namespace Throneteki.WebService.MappingProfiles;
+namespace Throneteki.Grpc.MappingProfiles;
 
 public class GrpcMappingProfile : Profile
 {

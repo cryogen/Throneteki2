@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Throneteki.Data;
 using Throneteki.Data.Models;
+using Throneteki.Grpc.MappingProfiles;
+using Throneteki.Models.Mapping;
 using Throneteki.Models.Services;
 using Throneteki.Web;
 using Throneteki.Web.Models.Options;
@@ -85,6 +87,8 @@ builder.Services.AddOpenIddict()
     });
 
 builder.Services.AddHostedService<DataInitialisationWorker>();
+
+builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly, typeof(LobbyMappingProfile).Assembly);
 
 builder.Services.AddTransient<CardService>();
 

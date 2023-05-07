@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import { faHeart, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef, ColumnFilter, RowData, Table } from '@tanstack/react-table';
@@ -18,9 +18,9 @@ import { Deck, DeckCard } from '../../types/decks';
 import { DrawCardType } from '../../types/enums';
 import CardImage from '../Images/CardImage';
 import FactionImage from '../Images/FactionImage';
-import FaIconButton from '../Site/FaIconButton';
 import ReactTable from '../Table/ReactTable';
 import TableGroupFilter from '../Table/TableGroupFilter';
+import DeckStatusLabel from './DeckStatusLabel';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -157,6 +157,16 @@ const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
                 enableColumnFilter: false
             },
             {
+                accessorKey: 'status',
+                cell: (info) => (
+                    <div className='d-flex justify-content-center'>
+                        <DeckStatusLabel status={info.row.original.status} />
+                    </div>
+                ),
+                header: t('Validity') as string,
+                enableColumnFilter: false
+            },
+            {
                 accessorKey: 'isFavourite',
                 cell: (info) => (
                     <div
@@ -192,7 +202,7 @@ const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
                 enableColumnFilter: false
             }
         ],
-        [t]
+        [t, readOnly, toggleFavourite]
     );
 
     return (
