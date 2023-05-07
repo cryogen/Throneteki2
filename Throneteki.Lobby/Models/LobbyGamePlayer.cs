@@ -1,4 +1,5 @@
-﻿using Throneteki.WebService;
+﻿using Throneteki.Models.Models;
+using Throneteki.WebService;
 
 namespace Throneteki.Lobby.Models;
 

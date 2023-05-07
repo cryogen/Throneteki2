@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Throneteki.DeckValidation;
 using Throneteki.Lobby.Models;
 using Throneteki.Lobby.Services;
+using Throneteki.Models.Models;
 using Throneteki.Models.Services;
 using Throneteki.WebService;
 using DeckValidationStatus = Throneteki.WebService.DeckValidationStatus;
@@ -235,6 +236,8 @@ public class LobbyHub : Hub
             return;
         }
 
+        var lobbyDeck = mapper.Map<LobbyDeck>(deck);
+
         if (!GamesByUsername.ContainsKey(user.Username))
         {
             return;
@@ -242,12 +245,14 @@ public class LobbyHub : Hub
 
         var game = GamesByUsername[user.Username];
 
-        var packs = mapper.Map<IEnumerable<LobbyPack>>((await lobbyService.GetAllPacksAsync(new GetAllPacksRequest())).Packs);
+        var packs = mapper.Map<IEnumerable<LobbyPack>>((await lobbyService.GetAllPacksAsync(new GetAllPacksRequest()))
+            .Packs);
 
-        var deckValidator = new DeckValidator(packs, game.RestrictedList != null ? new[] { game.RestrictedList } : Array.Empty<LobbyRestrictedList>());
+        var deckValidator = new DeckValidator(packs,
+            game.RestrictedList != null ? new[] { game.RestrictedList } : Array.Empty<LobbyRestrictedList>());
 
-        deck.ValidationStatus = mapper.Map<DeckValidationStatus>(deckValidator.ValidateDeck(deck));
-        game.SelectDeck(user.Username, deck);
+        lobbyDeck.ValidationStatus = deckValidator.ValidateDeck(lobbyDeck);
+        game.SelectDeck(user.Username, lobbyDeck);
 
         await SendGameState(game);
     }

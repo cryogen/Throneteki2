@@ -1,7 +1,5 @@
-﻿using Throneteki.Lobby.Models;
+﻿using Throneteki.Data.Models.RestrictedList;
 using Throneteki.Models.Models;
-using Throneteki.WebService;
-using LobbyCard = Throneteki.WebService.LobbyCard;
 
 namespace Throneteki.DeckValidation;
 

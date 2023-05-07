@@ -1,6 +1,4 @@
-﻿using Throneteki.WebService;
-
-namespace Throneteki.DeckValidation;
+﻿namespace Throneteki.Models.Models;
 
 public class RestrictedListValidationStatus
 {

@@ -13,5 +13,7 @@ public class LobbyMappingProfile : Profile
             .ForMember(c => c.Faction, cfg => cfg.MapFrom(s => s.Faction.Code));
 
         CreateMap<Pack, LobbyPack>();
+
+        CreateMap<Deck, LobbyDeck>();
     }
 }

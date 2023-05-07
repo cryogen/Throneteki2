@@ -1,6 +1,6 @@
-﻿using Throneteki.Models.Models;
+﻿using Throneteki.Data.Models.RestrictedList;
 
-namespace Throneteki.Lobby.Models;
+namespace Throneteki.Models.Models;
 
 public class LobbyRestrictedList
 {

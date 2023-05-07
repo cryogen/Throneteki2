@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Google.Protobuf.WellKnownTypes;
-using Throneteki.Data.Models;
+using Throneteki.Models.Models;
 
 namespace Throneteki.WebService.MappingProfiles;
 
@@ -8,8 +8,8 @@ public class GrpcMappingProfile : Profile
 {
     public GrpcMappingProfile()
     {
-        CreateMap<Deck, LobbyDeck>();
-        CreateMap<Card, LobbyCard>()
+        CreateMap<Data.Models.Deck, Deck>();
+        CreateMap<Data.Models.Card, Card>()
             .ForMember(c => c.Faction, cfg => cfg.MapFrom(s => s.Faction.Code))
             .ForMember(c => c.PackCode, cfg => cfg.MapFrom(s => s.Pack.Code))
             .ForMember(c => c.Icons, cfg => cfg.MapFrom(s => s.Icons ?? string.Empty))
@@ -23,23 +23,25 @@ public class GrpcMappingProfile : Profile
                 }
             });
 
-        CreateMap<DeckCard, LobbyDeckCard>();
-        CreateMap<Faction, LobbyFaction>();
+        CreateMap<Data.Models.DeckCard, DeckCard>();
+        CreateMap<Data.Models.Faction, Faction>();
         CreateMap<Data.Models.ThronetekiUserSettings, ThronetekiUserSettings>()
             .ForMember(s => s.CustomBackgroundUrl, cfg => cfg.MapFrom(s => s.CustomBackgroundUrl ?? string.Empty));
 
-        CreateMap<DeckValidation.DeckValidationStatus, DeckValidationStatus>()
-            .ForMember(s => s.FaqVersion, cfg => cfg.MapFrom(s => s.FaqVersion ?? string.Empty));
-
-        CreateMap<Pack, LobbyPack>()
+        CreateMap<Data.Models.Pack, Pack>()
             .ForMember(p => p.ReleaseDate,
             cfg => cfg.MapFrom(s =>
                 s.ReleaseDate.HasValue ? Timestamp.FromDateTime(s.ReleaseDate.Value) : new Timestamp()));
-        CreateMap<LobbyPack, Models.Models.LobbyPack>()
+        CreateMap<Pack, Models.Models.LobbyPack>()
             .ForMember(p => p.ReleaseDate,
                 cfg => cfg.MapFrom(s =>
                     s.ReleaseDate.Nanos == 0 && s.ReleaseDate.Seconds == 0
                         ? (DateTime?)null
                         : s.ReleaseDate.ToDateTime()));
+
+        CreateMap<Deck, LobbyDeck>();
+        CreateMap<Faction, LobbyFaction>();
+        CreateMap<DeckCard, LobbyDeckCard>();
+        CreateMap<Card, LobbyCard>();
     }
 }

@@ -86,15 +86,15 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             return new GetDeckByIdResponse();
         }
 
-        var retDeck = mapper.Map<LobbyDeck>(deck);
-        retDeck.DrawCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
-        retDeck.PlotCards.AddRange(mapper.Map<IEnumerable<LobbyDeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
+        var retDeck = mapper.Map<Deck>(deck);
+        retDeck.DrawCards.AddRange(mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
+        retDeck.PlotCards.AddRange(mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
         if (deck.Agenda != null)
         {
-            retDeck.Agendas.Add(mapper.Map<LobbyCard>(deck.Agenda));
+            retDeck.Agendas.Add(mapper.Map<Card>(deck.Agenda));
         }
 
-        retDeck.Agendas.AddRange(mapper.Map<IEnumerable<LobbyCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
+        retDeck.Agendas.AddRange(mapper.Map<IEnumerable<Card>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
 
         return new GetDeckByIdResponse
         {
@@ -169,7 +169,7 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
     {
         var ret = new GetAllPacksResponse();
 
-        var packs = mapper.Map<IEnumerable<LobbyPack>>(await dbContext.Packs.ToListAsync());
+        var packs = mapper.Map<IEnumerable<Pack>>(await dbContext.Packs.ToListAsync());
 
         ret.Packs.AddRange(packs);
 

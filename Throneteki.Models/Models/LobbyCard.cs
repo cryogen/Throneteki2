@@ -17,7 +17,7 @@ public class LobbyCard
     public string? PackCode { get; set; }
     public string? Label { get; set; }
     public string? Icons { get; set; }
-    public string? Traits { get; set; }
+    public string[] Traits { get; set; } = Array.Empty<string>();
     public int? Income { get; set; }
     public int? Claim { get; set; }
     public int? Reserve { get; set; }

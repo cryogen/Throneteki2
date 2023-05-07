@@ -1,9 +1,16 @@
-﻿using System;
+﻿namespace Throneteki.Models.Models;
 
-namespace Throneteki.WebService;
-
-public partial class LobbyDeck
+public class LobbyDeck
 {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Owner { get; set; }
+    public LobbyFaction Faction { get; set; }
+    public IReadOnlyCollection<LobbyCard> Agendas { get; set; } = new List<LobbyCard>();
+    public IReadOnlyCollection<LobbyDeckCard> DrawCards { get; set; } = new List<LobbyDeckCard>();
+    public IReadOnlyCollection<LobbyDeckCard> PlotCards { get; set; } = new List<LobbyDeckCard>();
+    public DeckValidationStatus ValidationStatus { get; set; }
+
     public LobbyCard[] BannerCards => Agendas.Where(a => a.Traits.Contains("banner")).ToArray();
 
     public IEnumerable<LobbyCard> GetAllDeckCards()
@@ -65,4 +72,5 @@ public partial class LobbyDeck
     {
         return deckCards.Sum(deckCard => deckCard.Count);
     }
+
 }

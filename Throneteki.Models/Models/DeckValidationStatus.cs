@@ -1,4 +1,4 @@
-﻿namespace Throneteki.DeckValidation;
+﻿namespace Throneteki.Models.Models;
 
 public class DeckValidationStatus
 {

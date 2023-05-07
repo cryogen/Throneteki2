@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Throneteki.Models.Models;
+namespace Throneteki.Data.Models.RestrictedList;
 
 public enum RestrictedListIssuer
 {

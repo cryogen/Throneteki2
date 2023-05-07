@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Throneteki.Lobby.Models;
+using Throneteki.Data.Models.RestrictedList;
 using Throneteki.Models.Models;
 
 namespace Throneteki.Models.Services;
@@ -16,8 +16,8 @@ public class CardService
 
         options.Converters.Add(new JsonStringEnumConverter());
 
-        var lists = JsonSerializer.Deserialize<IEnumerable<RestrictedList>>(listsString, options);
-        var cardSets = lists.Select(rl => rl.CardSet).Distinct();
+        var lists = JsonSerializer.Deserialize<IReadOnlyCollection<RestrictedList>>(listsString, options);
+        var cardSets = (lists ?? throw new InvalidOperationException()).Select(rl => rl.CardSet).Distinct();
 
         return cardSets.Select(set =>
         {

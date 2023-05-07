@@ -15,12 +15,12 @@ message BlockListEntry {
 	string Username = 2;
 }
 
-message LobbyFaction {
+message Faction {
 	string Code = 1;
 	string Name = 2;
 }  
 
-message LobbyCard {
+message Card {
 	string Code = 1;
     string Type = 2;
     string Name = 3;
@@ -47,9 +47,9 @@ message LobbyCard {
     string ImageUrl = 24;
 }
 
-message LobbyDeckCard {
+message DeckCard {
 	int32 Count = 1;
-	LobbyCard Card = 2;
+	Card Card = 2;
 }
 
 message DeckValidationStatus {
@@ -63,14 +63,14 @@ message DeckValidationStatus {
     repeated string Errors = 8;
 }
 
-message LobbyDeck {
+message Deck {
 	int32 Id = 1;
 	string Name = 2;
 	string Owner = 3;
-	LobbyFaction Faction = 4;
-	repeated LobbyCard Agendas = 5;
-    repeated LobbyDeckCard DrawCards = 6;
-	repeated LobbyDeckCard PlotCards = 7;
+	Faction Faction = 4;
+	repeated Card Agendas = 5;
+    repeated DeckCard DrawCards = 6;
+	repeated DeckCard PlotCards = 7;
 	DeckValidationStatus ValidationStatus = 8;
 }
 
@@ -83,7 +83,7 @@ message LobbyMessage {
 	ThronetekiUser Deletedby = 6;
 }
 
-message LobbyPack {
+message Pack {
     int32 Id = 1;
     string Code = 2;
     string Name = 3;

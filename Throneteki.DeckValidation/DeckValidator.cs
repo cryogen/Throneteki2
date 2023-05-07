@@ -1,5 +1,4 @@
-﻿using Throneteki.Lobby.Models;
-using Throneteki.WebService;
+﻿using Throneteki.Models.Models;
 
 namespace Throneteki.DeckValidation;
 

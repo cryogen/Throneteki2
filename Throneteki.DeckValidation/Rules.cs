@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Grpc.Core;
-using LobbyCard = Throneteki.WebService.LobbyCard;
+using Throneteki.Models.Models;
 
 namespace Throneteki.DeckValidation;
 

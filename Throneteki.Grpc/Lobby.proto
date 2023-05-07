@@ -25,7 +25,7 @@ message GetAllPacksRequest {
 }
 
 message GetAllPacksResponse {
-	repeated LobbyPack Packs = 1;
+	repeated Pack Packs = 1;
 }
 
 message GetDeckByIdRequest {
@@ -33,7 +33,7 @@ message GetDeckByIdRequest {
 }
 
 message GetDeckByIdResponse {
-	LobbyDeck Deck = 1;
+	Deck Deck = 1;
 }
 
 message GetLobbyMessagesForUserRequest {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
+using Throneteki.Models.Models;
 using Throneteki.WebService;
 
 namespace Throneteki.Lobby.Models;

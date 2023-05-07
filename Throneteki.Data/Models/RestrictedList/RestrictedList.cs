@@ -1,9 +1,9 @@
-﻿namespace Throneteki.Models.Models;
+﻿namespace Throneteki.Data.Models.RestrictedList;
 
 public class RestrictedList
 {
     public string Version { get; set; } = null!;
-    public string Issuer { get; set; }
+    public string? Issuer { get; set; }
     public string Name { get; set; } = null!;
     public RestrictedListCardSet CardSet { get; set; }
     public string Code { get; set; } = null!;

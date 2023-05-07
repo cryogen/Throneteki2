@@ -1,4 +1,4 @@
-﻿namespace Throneteki.Models.Models;
+﻿namespace Throneteki.Data.Models.RestrictedList;
 
 public enum RestrictedListCardSet
 {
