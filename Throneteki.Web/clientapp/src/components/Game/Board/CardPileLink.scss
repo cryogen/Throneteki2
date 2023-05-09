@@ -1,0 +1,170 @@
+/**
+  * Generates the specified property based on the calculation of:
+  * property: numCards * (cardSize + cardSpacing) + additionalOffset
+  *
+  * for the various different card sizes. Example, mixing in
+  * @include calculate-tiled-card-prop(min-height, 2, height, 3px) will generate CSS for:
+  * min-height: 2 * (@card-height + 5px) + 3px
+  * &.small {
+  *   min-height: 2 * (@card-sm-height + 5px) + 3px
+  * }
+  * ... etc ...
+  */
+
+@function card-var($value) {
+    @if $value == 'throneteki-card-height' {
+        @return $throneteki-card-height;
+    } @else if $value == 'throneteki-card-width' {
+        @return $throneteki-card-width;
+    } @else if $value == 'throneteki-card-lg-height' {
+        @return $throneteki-card-lg-height;
+    } @else if $value == 'throneteki-card-lg-width' {
+        @return $throneteki-card-lg-width;
+    } @else if $value == 'throneteki-card-sm-height' {
+        @return $throneteki-card-sm-height;
+    } @else if $value == 'throneteki-card-sm-width' {
+        @return $throneteki-card-sm-width;
+    } @else if $value == 'throneteki-card-xl-height' {
+        @return $throneteki-card-xl-height;
+    } @else if $value == 'throneteki-card-xl-width' {
+        @return $throneteki-card-xl-width;
+    }
+}
+
+@mixin calculate-tiled-card-prop($property, $numCards, $cardMeasurement, $additionalOffset: 0px) {
+    #{$property}: $numCards * (card-var('throneteki-card-#{$cardMeasurement}') + 10px) +
+        $additionalOffset;
+
+    &.small {
+        #{$property}: $numCards * (card-var('throneteki-card-sm-#{$cardMeasurement}') + 10px) +
+            $additionalOffset;
+    }
+
+    &.normal {
+        #{$property}: $numCards * (card-var('throneteki-card-#{$cardMeasurement}') + 10px) +
+            $additionalOffset;
+    }
+
+    &.large {
+        #{$property}: $numCards * (card-var('throneteki-card-lg-#{$cardMeasurement}') + 10px) +
+            $additionalOffset;
+    }
+
+    &.x-large {
+        #{$property}: $numCards * (card-var('throneteki-card-xl-#{$cardMeasurement}') + 10px) +
+            $additionalOffset;
+    }
+}
+
+.text {
+    min-width: max-content;
+    margin-left: 2px;
+    margin-right: 2px;
+    font-family: Verdana, serif;
+    font-size: 0.9rem;
+}
+
+.counter {
+    min-width: max-content;
+    margin-left: 2px;
+    margin-right: 2px;
+    font-family: Bombardier, serif;
+    font-size: 1.6rem;
+}
+
+.icon {
+    width: 21.4px;
+    height: 30px;
+}
+
+.inner {
+    @include calculate-tiled-card-prop(max-height, 4, height);
+    @include calculate-tiled-card-prop(height, 3, height, -5);
+    overflow-y: auto;
+
+    &.hand {
+        @include calculate-tiled-card-prop(height, 1, height);
+    }
+}
+
+.card-pile-link {
+    display: contents;
+    padding: 0px;
+    position: relative;
+    margin: 0px 5px;
+
+    .panel {
+        z-index: $layer-card-menu;
+        background-color: rgba(0, 0, 0, 0.85);
+        position: fixed;
+        a {
+            display: inline-block;
+            margin: 0 10px 8px 0;
+            text-decoration: none;
+
+            &:hover {
+                color: $info;
+                cursor: pointer;
+            }
+        }
+
+        .panel {
+            margin-bottom: 0;
+            padding: 5px;
+        }
+
+        .panel-title {
+            margin: 5px 5px;
+        }
+    }
+}
+
+.discard,
+.dead,
+.plots,
+.usedPlots,
+.used-plots {
+    .panel {
+        min-height: 146px;
+        z-index: $layer-pile-header;
+        @include calculate-tiled-card-prop(width, 5, width, $scrollbar-width + 10);
+        @include calculate-tiled-card-prop(height, 3, height);
+
+        .inner {
+            @include calculate-tiled-card-prop(width, 5, width, $scrollbar-width);
+            padding: 4px;
+        }
+    }
+}
+
+.draw {
+    .panel {
+        z-index: $layer-pile-header;
+        @include calculate-tiled-card-prop(width, 7, width, $scrollbar-width + 10);
+        @include calculate-tiled-card-prop(height, 3, height);
+
+        .inner {
+            @include calculate-tiled-card-prop(width, 7, width, $scrollbar-width);
+        }
+    }
+}
+
+.hand {
+    .panel {
+        z-index: $layer-card-menu;
+        @include calculate-tiled-card-prop(width, 6, width, $scrollbar-width + 10);
+        @include calculate-tiled-card-prop(height, 1, height);
+
+        .inner {
+            @include calculate-tiled-card-prop(width, 6, width, $scrollbar-width);
+        }
+    }
+}
+
+.additional-cards {
+    .panel {
+        .inner {
+            @include calculate-tiled-card-prop(min-width, 2, height, $scrollbar-width);
+        }
+    }
+}

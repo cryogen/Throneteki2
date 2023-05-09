@@ -27,7 +27,7 @@ const Panel = ({
     return (
         <Card border={type} bg='dark' text='light' className={className}>
             {title && (
-                <Card.Header className={`${titleClass || ' '}text-center bg-primary`}>
+                <Card.Header className={`${titleClass} text-center bg-primary`}>
                     {title}
                 </Card.Header>
             )}

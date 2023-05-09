@@ -3,12 +3,12 @@ import { Col } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
 
 import Settings from '../../components/Account/Settings';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 const SettingsPage: React.FC = () => {
     const auth = useAuth();
 
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
 
     return (
         <Col lg={{ span: 10, offset: 1 }}>

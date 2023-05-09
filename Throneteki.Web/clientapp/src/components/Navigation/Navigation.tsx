@@ -9,7 +9,7 @@ import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 // import LanguageSelector from './LanguageSelector';
 import ProfileDropdown from './ProfileMenu';
 import ServerStatus from './ServerStatus';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 // import GameContextMenu from './GameContextMenu';
 
 export interface UserSettings {
@@ -40,13 +40,13 @@ const Navigation = (props: NavigationProps) => {
         currentGame: activeGame
     } = useAppSelector((state) => state.gameNode);
 
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
 
-    const userCanSeeMenu = (menuItem: MenuItem, user: CustomUserProfile | null | undefined) => {
+    const userCanSeeMenu = (menuItem: MenuItem, user: ThronetekiUser | null | undefined) => {
         return !menuItem.permission || user?.role?.includes(menuItem.permission);
     };
 
-    const filterMenuItems = (menuItems: MenuItem[], user: CustomUserProfile | null | undefined) => {
+    const filterMenuItems = (menuItems: MenuItem[], user: ThronetekiUser | null | undefined) => {
         const returnedItems = [];
 
         for (const menuItem of menuItems) {

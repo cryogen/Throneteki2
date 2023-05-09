@@ -82,8 +82,6 @@ const NewGame = ({
         );
     }
 
-    console.info(restrictedLists);
-
     return (
         <Panel title={t(quickJoin ? 'Quick Join' : 'New game')}>
             <Formik
@@ -122,7 +120,6 @@ const NewGame = ({
                     //     dispatch(sendSocketMessage('newgame', values));
                     // }
 
-                    console.info(values);
                     dispatch(lobbyActions.sendNewGame(values));
                 }}
                 initialValues={initialValues}

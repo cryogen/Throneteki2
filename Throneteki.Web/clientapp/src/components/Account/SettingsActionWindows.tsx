@@ -4,11 +4,11 @@ import { Col, Form, Row } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import { ExistingProfileDetails } from './Settings';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 type SettingsActionWindowsProps = {
     formProps: FormikProps<ExistingProfileDetails>;
-    user: CustomUserProfile;
+    user: ThronetekiUser;
 };
 
 const windows = [

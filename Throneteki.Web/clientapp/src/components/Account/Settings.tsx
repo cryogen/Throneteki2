@@ -14,7 +14,7 @@ import Background2 from '../../assets/img/bgs/background2.png';
 import { ApiError, useSaveUserMutation } from '../../redux/api/apiSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 interface GameSettings {
     chooseOrder: boolean;
@@ -58,7 +58,7 @@ export interface ProfileCardSizeOption {
 }
 
 type ProfileProps = {
-    user: CustomUserProfile | null | undefined;
+    user: ThronetekiUser | null | undefined;
 };
 
 const toBase64 = (file: File): Promise<string | null | undefined> =>

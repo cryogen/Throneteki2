@@ -9,7 +9,7 @@ import Panel from '../Site/Panel';
 import GameTypeInfo from './GameTypeInfo';
 import PendingGamePlayers from './PendingGamePlayers';
 import { LobbyGamePlayer } from '../../types/lobby';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 import SelectDeckModal from './SelectDeckModal';
 import { lobbyActions } from '../../redux/slices/lobbySlice';
 import { Deck } from '../../types/decks';
@@ -36,7 +36,7 @@ const PendingGame = () => {
         (state) => state.gameNode
     );
     const auth = useAuth();
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
     const notificationRef = useRef<HTMLAudioElement | null>(null);
     const messageRef = useRef<HTMLDivElement | null>(null);
     const [waiting, setWaiting] = useState(false);

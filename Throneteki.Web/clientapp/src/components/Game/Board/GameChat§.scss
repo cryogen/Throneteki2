@@ -1,0 +1,12 @@
+.chat {
+    overflow: hidden;
+
+    .messages {
+        padding: 5px;
+    }
+}
+
+.gamechat {
+    overflow-y: hidden;
+    position: relative;
+}

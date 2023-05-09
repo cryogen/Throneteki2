@@ -15,7 +15,7 @@ import { lobbyActions } from '../redux/slices/lobbySlice';
 import { useAuth } from 'react-oidc-context';
 import LobbyChat from '../components/Lobby/LobbyChat';
 import { Permission } from '../components/Navigation/menus';
-import { CustomUserProfile } from '../types/user';
+import { ThronetekiUser } from '../types/user';
 // import UserList from '../Components/Lobby/UserList';
 // import LobbyChat from '../Components/Lobby/LobbyChat';
 // import { clearChatStatus, loadNews, removeLobbyMessage, sendSocketMessage } from '../redux/actions';
@@ -79,7 +79,7 @@ const Lobby = () => {
         }
     };
 
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
 
     const isLoggedIn = !!user;
     const placeholder = isLoggedIn

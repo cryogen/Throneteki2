@@ -5,7 +5,7 @@ export interface BlockListEntry {
     username: string;
 }
 
-export interface CustomUserProfile extends IdTokenClaims {
+export interface ThronetekiUser extends IdTokenClaims {
     role: [string];
     throneteki_settings?: string;
 }

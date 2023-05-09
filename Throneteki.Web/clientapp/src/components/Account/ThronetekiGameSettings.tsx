@@ -4,11 +4,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import Panel from '../Site/Panel';
 import { ExistingProfileDetails } from './Settings';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 type ThronetekiGameSettingsProps = {
     formProps: FormikProps<ExistingProfileDetails>;
-    user: CustomUserProfile;
+    user: ThronetekiUser;
 };
 
 const ThronetekiGameSettings = ({ formProps }: ThronetekiGameSettingsProps) => {

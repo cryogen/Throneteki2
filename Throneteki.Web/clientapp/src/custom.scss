@@ -82,5 +82,15 @@ $utilities: map-merge(
 @import 'components/Images/CardImage';
 @import 'components/Images/FactionImage';
 
+@import './components/Game/Board/GameBoard';
+@import './components/Game/Board/PlayerStats';
+@import './components/Game/Board/CardPileLink';
+@import './components/Game/Board/CardTiledList';
+@import './components/Game/Board/MovablePanel';
+@import './components/Game/Board/PlayerBoard';
+@import './components/Game/Board/SquishableCardPanel';
+@import './components/Game/Board/Droppable';
+@import './components/Game/Board/ActivePlayerPrompt';
+
 @import 'pages/Admin/UserAdminPage';
 @import 'pages/Lobby';

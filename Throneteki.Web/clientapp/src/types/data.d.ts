@@ -11,6 +11,7 @@ export interface Pack {
 }
 
 export interface Card {
+    source: string;
     id: number;
     code: string;
     type: string;

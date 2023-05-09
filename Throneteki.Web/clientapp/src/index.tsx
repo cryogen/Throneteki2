@@ -11,6 +11,8 @@ import reportWebVitals from './reportWebVitals';
 
 import './i18n';
 import './custom.scss';
+import { DndProvider } from 'react-dnd';
+import { TouchBackend } from 'react-dnd-touch-backend';
 
 const oidcConfig = {
     authority: 'https://localhost:7000/',
@@ -29,11 +31,13 @@ const oidcConfig = {
 function AppWrapper() {
     return (
         <Provider store={store}>
-            <Router>
-                <AuthProvider {...oidcConfig}>
-                    <App />
-                </AuthProvider>
-            </Router>{' '}
+            <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+                <Router>
+                    <AuthProvider {...oidcConfig}>
+                        <App />
+                    </AuthProvider>
+                </Router>
+            </DndProvider>
         </Provider>
     );
 }

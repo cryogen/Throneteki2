@@ -1,10 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { HandOff } from '../../types/lobby';
+import { Game } from '../../types/game';
 
 export interface GameNodeState {
     connection?: signalR.HubConnection | null;
     gameHost?: string;
-    currentGame?: string;
+    currentGame?: Game;
     isConnected: boolean;
     isEstablishingConnection: boolean;
     responseTime: number;
@@ -32,7 +33,7 @@ const gameNodeSlice = createSlice({
         disconnect: (state) => {
             state.isConnected = false;
         },
-        receieveGameState: (state, action: PayloadAction<string>) => {
+        receieveGameState: (state, action: PayloadAction<Game>) => {
             state.currentGame = action.payload;
         },
         responseTimeReceived: (state, action: PayloadAction<number>) => {

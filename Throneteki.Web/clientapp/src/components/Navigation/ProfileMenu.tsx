@@ -2,14 +2,14 @@ import React from 'react';
 import { NavDropdown } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 import Avatar from '../Site/Avatar';
 import { MenuItem } from './menus';
 
 type ProfileMenuProps = {
     menu: MenuItem[];
-    user: CustomUserProfile | null | undefined;
+    user: ThronetekiUser | null | undefined;
 };
 
 const ProfileMenu: React.FC<ProfileMenuProps> = (props) => {

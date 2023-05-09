@@ -3,13 +3,13 @@
     left: 0;
     top: $navbar-height;
     bottom: 0;
-    background-color: theme-color('dark');
+    background-color: $dark;
 
     & a {
-        color: theme-color('primary');
+        color: $primary;
 
         &:active {
-            color: theme-color('primary');
+            color: $primary;
         }
     }
 
@@ -17,7 +17,7 @@
         width: 200px;
 
         a {
-            color: theme-color('danger');
+            color: $danger;
         }
     }
 

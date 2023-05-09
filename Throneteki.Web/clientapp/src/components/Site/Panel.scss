@@ -1,9 +1,5 @@
-@import '../../styles/colours';
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-
 .card {
-    font-family: Helvetica, sans-serif;
+    font-family: Verdana, serif;
     box-shadow: 3px 3px 5px $primary !important;
 
     .card-header {
@@ -19,3 +15,4 @@
         }
     }
 }
+

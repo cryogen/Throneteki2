@@ -16,7 +16,7 @@ import {
 } from '../../redux/api/apiSlice';
 import Panel from '../../components/Site/Panel';
 import { Permission } from '../../components/Navigation/menus';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 
 const defaultPermissions = {
     canEditNews: false,
@@ -71,7 +71,7 @@ const UserAdminPage = () => {
     const [userDisabled, setUserDisabled] = useState(currentUser?.disabled);
     const [errorMessage, setErrorMessage] = useState('');
 
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
 
     useEffect(() => {
         if (currentUser) {

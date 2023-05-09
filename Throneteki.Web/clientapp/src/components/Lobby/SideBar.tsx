@@ -17,7 +17,7 @@ const SideBar = ({ children }: SidebarProps) => {
     });
 
     const burgerClass = classNames('btn-icon', {
-        'float-right': expanded
+        'float-end': expanded
     });
 
     const icon = expanded ? faTimes : faBars;

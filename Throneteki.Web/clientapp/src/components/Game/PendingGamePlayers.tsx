@@ -2,14 +2,14 @@ import React from 'react';
 import { Button } from 'react-bootstrap';
 import { useTranslation, Trans } from 'react-i18next';
 import { LobbyGame } from '../../types/lobby';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 import Avatar from '../Site/Avatar';
 import Panel from '../Site/Panel';
 import DeckStatus from '../Decks/DeckStatus';
 
 interface PendingGamePlayersProps {
     currentGame: LobbyGame;
-    user: CustomUserProfile;
+    user: ThronetekiUser;
     onSelectDeck: () => void;
 }
 

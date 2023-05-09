@@ -1,0 +1,42 @@
+.card-row {
+    display: flex;
+    justify-content: flex-start;
+    min-height: 0;
+    &.creatures {
+        margin: 0 auto;
+    }
+}
+
+.card-row .card.horizontal {
+    margin-bottom: $throneteki-card-height - $throneteki-card-width;
+
+    &.small {
+        margin-bottom: $throneteki-card-sm-height - $throneteki-card-sm-width;
+    }
+
+    &.large {
+        margin-bottom: $throneteki-card-lg-height - $throneteki-card-lg-width;
+    }
+
+    &.x-large {
+        margin-bottom: $throneteki-card-xl-height - $throneteki-card-xl-width;
+    }
+}
+
+.player-board .card-wrapper {
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.panel-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: $layer-pile-header;
+    padding: 1px 4px;
+    font-size: 10px;
+    line-height: 14px;
+    background: rgba(0, 0, 0, 0.6);
+    text-shadow: 1px 1px 2px #000;
+    border-radius: 4px;
+}

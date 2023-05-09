@@ -1,3 +1,8 @@
+export const ItemTypes = {
+    CARD: 'card',
+    PANEL: 'panel'
+};
+
 interface ContantsType {
     Factions: string[];
     FactionsImagePaths: Record<string, string>;

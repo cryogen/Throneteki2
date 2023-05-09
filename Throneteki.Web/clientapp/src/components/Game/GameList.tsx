@@ -4,7 +4,7 @@ import { Trans } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { GameType } from '../../types/enums';
 import { LobbyGame } from '../../types/lobby';
-import { CustomUserProfile } from '../../types/user';
+import { ThronetekiUser } from '../../types/user';
 import { Permission } from '../Navigation/menus';
 import GameTypeGroup from './GameTypeGroup';
 
@@ -19,7 +19,7 @@ const GameList = ({ currentGame, games, gameFilter }: GameListProps) => {
     let content;
     const auth = useAuth();
 
-    const user = auth.user?.profile as CustomUserProfile;
+    const user = auth.user?.profile as ThronetekiUser;
     const isAdmin = user && user.role.includes(Permission.CanManageGames);
 
     const groupedGames = useMemo(() => {
