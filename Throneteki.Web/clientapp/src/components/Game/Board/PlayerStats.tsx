@@ -176,7 +176,7 @@ const PlayerStats = ({
     const plots = (
         <CardPileLink
             {...pileProps}
-            cards={cardPiles.deadPile}
+            cards={cardPiles.plotDeck}
             className='plots'
             title={t('Plots')}
             source='plots'
@@ -186,7 +186,7 @@ const PlayerStats = ({
     const usedPlots = (
         <CardPileLink
             {...pileProps}
-            cards={cardPiles.deadPile}
+            cards={cardPiles.plotDiscard}
             className='used-plots'
             title={t('Used Plots')}
             source='usedPlots'

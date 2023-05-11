@@ -86,13 +86,13 @@ const PlayerBoard = ({
                 canDrag={manualMode}
                 card={card}
                 disableMouseOver={card.facedown && !card.code}
-                halfSize={user.settings.optionSettings.useHalfSizedCards}
+                halfSize={/*user.settings.optionSettings.useHalfSizedCards*/ false}
                 isSpectating={isSpectating}
                 onClick={onCardClick}
                 onMenuItemClick={onMenuItemClick}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
-                size={user.settings.cardSize}
+                size={/*user.settings.cardSize*/ 'md'}
                 source='play area'
             />
         ));

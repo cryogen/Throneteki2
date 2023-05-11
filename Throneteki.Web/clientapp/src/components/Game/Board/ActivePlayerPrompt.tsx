@@ -34,8 +34,6 @@ const ActivePlayerPrompt = ({
 }: ActivePlayerPromptProps) => {
     const { i18n, t } = useTranslation();
 
-    console.info(promptTitle);
-
     const localizedText = (source: any, text: any, values: any) => {
         if (!isNaN(text)) {
             // text is just a plain number, avoid translation
@@ -107,8 +105,8 @@ const ActivePlayerPrompt = ({
                     key={button.command + buttonIndex.toString()}
                     className='btn btn-default prompt-button btn-stretch'
                     title={originalButtonText}
-                    onClick={(event) =>
-                        onButtonClick(event, button.command, button.arg, button.uuid, button.method)
+                    onClick={() =>
+                        onButtonClick(button.command, button.arg, button.method, button.promptId)
                     }
                     onMouseOver={() => onMouseOver(button.card)}
                     onMouseOut={() => onMouseOut(button.card)}

@@ -14,3 +14,8 @@ export enum RestrictedListCardSet {
     Original = 'original',
     Redesign = 'redesign'
 }
+
+export enum GameCommands {
+    MenuButton = 'menuButton',
+    CardClicked = 'cardClicked'
+}

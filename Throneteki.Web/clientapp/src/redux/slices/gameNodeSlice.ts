@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { HandOff } from '../../types/lobby';
 import { Game } from '../../types/game';
+import { PromptClicked } from '../../types/gameMessages';
 
 export interface GameNodeState {
     connection?: signalR.HubConnection | null;
@@ -8,6 +9,7 @@ export interface GameNodeState {
     currentGame?: Game;
     isConnected: boolean;
     isEstablishingConnection: boolean;
+    isWaitingForResponse: boolean;
     responseTime: number;
     rootGameState?: string;
 }
@@ -15,6 +17,7 @@ export interface GameNodeState {
 const initialState: GameNodeState = {
     isConnected: false,
     isEstablishingConnection: false,
+    isWaitingForResponse: false,
     responseTime: -1
 };
 
@@ -35,9 +38,16 @@ const gameNodeSlice = createSlice({
         },
         receieveGameState: (state, action: PayloadAction<Game>) => {
             state.currentGame = action.payload;
+            state.isWaitingForResponse = false;
         },
         responseTimeReceived: (state, action: PayloadAction<number>) => {
             state.responseTime = action.payload;
+        },
+        sendCardClickedMessage: (state, _: PayloadAction<string>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendPromptClickedMessage: (state, _: PayloadAction<PromptClicked>) => {
+            state.isWaitingForResponse = true;
         },
         setRootState: (state, action: PayloadAction<string>) => {
             state.rootGameState = action.payload;

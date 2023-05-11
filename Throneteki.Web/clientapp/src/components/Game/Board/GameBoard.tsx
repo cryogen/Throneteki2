@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
 import { useAuth } from 'react-oidc-context';
@@ -10,6 +10,7 @@ import PlayerBoard from './PlayerBoard';
 import { useGetCardsQuery } from '../../../redux/api/apiSlice';
 import ActivePlayerPrompt from './ActivePlayerPrompt';
 import GameChat from './GameChat';
+import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -63,6 +64,7 @@ const GameBoard = () => {
     const user = auth.user?.profile as ThronetekiUser;
     const { isLoading, data: cards } = useGetCardsQuery({});
     const [showMessages, setShowMessages] = useState(true);
+    const dispatch = useAppDispatch();
 
     const renderBoard = (thisPlayer: GamePlayer, otherPlayer: GamePlayer) => {
         return (
@@ -141,19 +143,22 @@ const GameBoard = () => {
         'select-cursor': thisPlayer && thisPlayer.selectCard
     });
 
-    const onCardClick = () => true;
+    const onCardClick = (card: any) => dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
     const onDragDrop = () => true;
     const handleDrawPopupChange = () => true;
     const onMenuItemClick = () => true;
     const onMouseOut = () => true;
     const onMouseOver = () => true;
     const onShuffleClick = () => true;
-    const onCommand = () => true;
+    const onCommand = (command: any, arg: any, method: any, promptId: any) => {
+        console.info(command);
+        dispatch(gameNodeActions.sendPromptClickedMessage({ arg, promptId, method }));
+    };
     const onTitleClick = () => true;
     const sendChatMessage = () => true;
 
     const isSpectating = () => !activeGame.players[user.name as string];
-    console.info(thisPlayer);
+
     return (
         <div className={boardClass}>
             <div className='stats-top'>

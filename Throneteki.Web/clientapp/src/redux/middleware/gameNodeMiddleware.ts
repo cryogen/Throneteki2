@@ -4,6 +4,15 @@ import { Socket, io } from 'socket.io-client';
 import { HandOff } from '../../types/lobby';
 import { gameNodeActions } from '../slices/gameNodeSlice';
 import { getUser } from '../../helpers/UserHelper';
+import * as jsondiffpatch from 'jsondiffpatch';
+import { PromptClicked } from '../../types/gameMessages';
+import { GameCommands } from '../../types/enums';
+
+const patcher = jsondiffpatch.create({
+    objectHash: (obj: any, index: number) => {
+        return obj.uuid || obj.name || obj.id || obj._id || '$$index:' + index;
+    }
+});
 
 const gameNodeMiddleware: Middleware = (store) => {
     let connection: Socket | null = null;
@@ -12,7 +21,7 @@ const gameNodeMiddleware: Middleware = (store) => {
         const isConnectionEstablished = connection && store.getState().gameNode.isConnected;
         const user = getUser();
         if (gameNodeActions.startConnecting.match(action)) {
-            const handOff = action.payload as unknown as HandOff;
+            const handOff = action.payload as HandOff;
             connection = io(handOff.url, {
                 auth: {
                     token: user?.access_token || ''
@@ -49,7 +58,12 @@ const gameNodeMiddleware: Middleware = (store) => {
                 let gameState;
 
                 if (store.getState().gameNode.rootGameState) {
-                    // patch
+                    if (game) {
+                        const currentState = patcher.clone(store.getState().gameNode.currentGame);
+                        gameState = patcher.patch(currentState, game);
+                    } else {
+                        gameState = store.getState().gameNode.currentGame;
+                    }
                 } else {
                     gameState = game;
                     store.dispatch(gameNodeActions.setRootState(game));
@@ -63,6 +77,20 @@ const gameNodeMiddleware: Middleware = (store) => {
             next(action);
 
             return;
+        }
+
+        if (gameNodeActions.sendPromptClickedMessage.match(action)) {
+            const prompt = action.payload as PromptClicked;
+
+            connection.emit(
+                'game',
+                GameCommands.MenuButton,
+                prompt.arg,
+                prompt.method,
+                prompt.promptId
+            );
+        } else if (gameNodeActions.sendCardClickedMessage.match(action)) {
+            connection.emit('game', GameCommands.CardClicked, action.payload);
         }
 
         next(action);
