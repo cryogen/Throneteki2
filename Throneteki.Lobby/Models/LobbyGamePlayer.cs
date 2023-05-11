@@ -39,7 +39,8 @@ public class LobbyGamePlayer
             Deck = selectedDeck,
             Name,
             Role,
-            user.Settings
+            user.Settings,
+            PromptedActionWindows = user.Settings.ActionWindows
         };
     }
 
