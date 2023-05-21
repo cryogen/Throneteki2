@@ -37,7 +37,7 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
         }
     }
 
-    const splitCards = [[], [], []];
+    const splitCards: JSX.Element[][] = [[], [], []];
     let cardIndex = 0;
     let currentContainer: JSX.Element[] = splitCards[0];
     for (const [type, cards] of Object.entries(groupedCards)) {

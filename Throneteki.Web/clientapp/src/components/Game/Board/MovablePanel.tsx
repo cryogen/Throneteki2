@@ -1,20 +1,21 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDrag } from 'react-dnd';
 import { ItemTypes } from '../../../constants';
+import { CardSize } from '../../../types/enums';
 
 interface MovablePanelProps {
     children: ReactNode | ReactNode[];
     name: string;
-    onCloseClick: any;
+    onCloseClick: MouseEventHandler;
     side: any;
-    title: any;
-    size: any;
+    title: string;
+    size: CardSize;
 }
 
 const PopupDefaults: any = {
-    'deck-bottom': {
+    'draw-bottom': {
         bottom: '140px'
     },
     'discard-bottom': {

@@ -1,18 +1,19 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CardMenuItem } from '../../../types/game';
 
 interface CardMenuProps {
-    menu: any;
+    menu: CardMenuItem[];
     onMenuItemClick: any;
 }
 
 const CardMenu = ({ menu, onMenuItemClick }: CardMenuProps) => {
-    const [submenu, setSubmenu] = useState();
+    const [submenu, setSubmenu] = useState<string | null>();
     const { t } = useTranslation();
     let menuIndex = 0;
 
-    const menuItemClick = (menuItem: any) => {
+    const menuItemClick = (menuItem: CardMenuItem) => {
         if (['main', 'tokens'].includes(menuItem.command)) {
             setSubmenu(menuItem.command);
         } else {
@@ -22,7 +23,7 @@ const CardMenu = ({ menu, onMenuItemClick }: CardMenuProps) => {
         }
     };
 
-    const menuItems = menu.map((menuItem: any) => {
+    const menuItems = menu.map((menuItem: CardMenuItem) => {
         const className = classNames('menu-item', {
             disabled: !!menuItem.disabled
         });

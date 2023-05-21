@@ -1,14 +1,15 @@
 import React from 'react';
+import { GameCard } from '../../../types/game';
+import { CardOrientation, CardSize } from '../../../types/enums';
 
 interface CardImageProps {
-    card: any;
-    cardBack?: any;
-    orientation?: any;
-    halfSize?: any;
-    size?: any;
+    card: GameCard;
+    orientation?: CardOrientation;
+    halfSize?: boolean;
+    size?: CardSize;
 }
 
-const CardImage = ({ card, cardBack, halfSize, orientation, size }: CardImageProps) => {
+const CardImage = ({ card, halfSize, orientation, size }: CardImageProps) => {
     return <div>CardImage</div>;
 };
 

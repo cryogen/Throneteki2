@@ -1,35 +1,43 @@
-import React from 'react';
-import { ThronetekiUser } from '../../../types/user';
-import Avatar from '../../Site/Avatar';
+import React, { MouseEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Minus from '../../../assets/img/Minus.png';
-import Plus from '../../../assets/img/Plus.png';
-import { CardPiles, GamePlayerStats, StatsIndexer } from '../../../types/game';
+import Avatar from '../../Site/Avatar';
 import Droppable from './Droppable';
 import CardPileLink from './CardPileLink';
 import DrawDeck from './DrawDeck';
+import { BoardSide, CardLocation, CardSize } from '../../../types/enums';
+import {
+    CardMenuItem,
+    CardMouseOverEventArgs,
+    CardPiles,
+    GameCard,
+    GamePlayerStats,
+    PopupChangeEventArgs,
+    StatsIndexer
+} from '../../../types/game';
+import { ThronetekiUser } from '../../../types/user';
+
+import Minus from '../../../assets/img/Minus.png';
+import Plus from '../../../assets/img/Plus.png';
 
 interface PlayerStatsProps {
     activePlayer: boolean;
     cardPiles: CardPiles;
-    deck: any;
     firstPlayer: boolean;
     isMe: boolean;
     manualMode?: boolean;
     numDeckCards: number;
-    onCardClick: any;
-    onDragDrop: any;
-    onDrawPopupChange: any;
-    onMenuItemClick: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    onPopupChange?: any;
-    onShuffleClick: any;
-    onTouchMove?: any;
+    onCardClick: (card: GameCard) => void;
+    onDragDrop: (card: GameCard) => void;
+    onDrawPopupChange: (args: PopupChangeEventArgs) => void;
+    onMenuItemClick: (menuItem: CardMenuItem) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    onPopupChange?: (args: PopupChangeEventArgs) => void;
+    onShuffleClick: () => void;
     showControls: boolean;
-    side: string;
-    size: string;
+    side: BoardSide;
+    size: CardSize;
     spectating: boolean;
     stats: GamePlayerStats;
     user: ThronetekiUser;
@@ -38,7 +46,6 @@ interface PlayerStatsProps {
 const PlayerStats = ({
     activePlayer,
     cardPiles,
-    deck,
     isMe,
     manualMode = false,
     numDeckCards,
@@ -50,7 +57,6 @@ const PlayerStats = ({
     onMouseOver,
     onPopupChange,
     onShuffleClick,
-    onTouchMove,
     showControls,
     side,
     size,
@@ -110,7 +116,6 @@ const PlayerStats = ({
         isMe,
         onMenuItemClick,
         onPopupChange,
-        onTouchMove,
         manualMode,
         onCardClick,
         onDragDrop,
@@ -120,7 +125,7 @@ const PlayerStats = ({
         size
     };
 
-    const renderDroppableList = (source: any, child: any) => {
+    const renderDroppableList = (source: CardLocation, child: JSX.Element) => {
         return isMe ? (
             <Droppable onDragDrop={onDragDrop} source={source} manualMode={manualMode}>
                 {child}
@@ -136,7 +141,7 @@ const PlayerStats = ({
             cards={cardPiles.hand}
             className='hand'
             title={t('Hand')}
-            source='hand'
+            source={CardLocation.Hand}
         />
     );
 
@@ -159,7 +164,7 @@ const PlayerStats = ({
             cards={cardPiles.discardPile}
             className='discard'
             title={t('Discard')}
-            source='discard'
+            source={CardLocation.Discard}
         />
     );
 
@@ -169,7 +174,7 @@ const PlayerStats = ({
             cards={cardPiles.deadPile}
             className='dead'
             title={t('Dead')}
-            source='dead'
+            source={CardLocation.Dead}
         />
     );
 
@@ -179,7 +184,7 @@ const PlayerStats = ({
             cards={cardPiles.plotDeck}
             className='plots'
             title={t('Plots')}
-            source='plots'
+            source={CardLocation.Plots}
         />
     );
 
@@ -189,7 +194,7 @@ const PlayerStats = ({
             cards={cardPiles.plotDiscard}
             className='used-plots'
             title={t('Used Plots')}
-            source='usedPlots'
+            source={CardLocation.UsedPlots}
         />
     );
 
@@ -203,12 +208,16 @@ const PlayerStats = ({
                 {getButton('claim', 'Claim')}
                 {getButton('reserve', 'Reserve')}
 
-                {!isMe && <div className='state'>{renderDroppableList('hand', hand)}</div>}
-                <div className='state'>{renderDroppableList('draw', draw)}</div>
-                <div className='state'>{renderDroppableList('discard', discard)}</div>
-                <div className='state'>{renderDroppableList('dead', dead)}</div>
-                <div className='state'>{renderDroppableList('plots', plots)}</div>
-                <div className='state'>{renderDroppableList('usedPlots', usedPlots)}</div>
+                {!isMe && (
+                    <div className='state'>{renderDroppableList(CardLocation.Hand, hand)}</div>
+                )}
+                <div className='state'>{renderDroppableList(CardLocation.Draw, draw)}</div>
+                <div className='state'>{renderDroppableList(CardLocation.Discard, discard)}</div>
+                <div className='state'>{renderDroppableList(CardLocation.Dead, dead)}</div>
+                <div className='state'>{renderDroppableList(CardLocation.Plots, plots)}</div>
+                <div className='state'>
+                    {renderDroppableList(CardLocation.UsedPlots, usedPlots)}
+                </div>
             </div>
         </div>
     );

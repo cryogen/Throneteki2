@@ -10,7 +10,12 @@ export interface Pack {
     releaseDate: Date;
 }
 
+export interface CardLocale {
+    name: string;
+}
+
 export interface Card {
+    locale: { [key: string]: CardLocale };
     source: string;
     id: number;
     code: string;

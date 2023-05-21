@@ -1,25 +1,26 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import classNames from 'classnames';
 
 import CardTiledList from './CardTiledList';
 import Droppable from './Droppable';
 import MovablePanel from './MovablePanel';
+import { CardMouseOverEventArgs, GameCard, PopupMenuItem } from '../../../types/game';
+import { BoardSide, CardLocation, CardSize } from '../../../types/enums';
 
 interface CardPilePopupProps {
-    cards: any;
-    disableMouseOver: any;
-    manualMode: any;
-    onCardClick: any;
-    onCloseClick: any;
-    onDragDrop: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    onTouchMove: any;
-    popupLocation: any;
-    popupMenu: any;
-    size: any;
-    source: any;
-    title: any;
+    cards: GameCard[];
+    disableMouseOver: boolean;
+    manualMode: boolean;
+    onCardClick: (card: GameCard) => void;
+    onCloseClick: () => void;
+    onDragDrop: (card: GameCard) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    popupLocation: BoardSide;
+    popupMenu?: PopupMenuItem[];
+    size: CardSize;
+    source: CardLocation;
+    title: string;
 }
 
 const CardPilePopup = ({
@@ -31,7 +32,6 @@ const CardPilePopup = ({
     onDragDrop,
     onMouseOut,
     onMouseOver,
-    onTouchMove,
     popupLocation,
     popupMenu,
     size,
@@ -47,17 +47,16 @@ const CardPilePopup = ({
         onCardClick,
         onCardMouseOut: onMouseOut,
         onCardMouseOver: onMouseOver,
-        onTouchMove,
         size,
         source
     };
 
-    if (cards && cards.some((card: any) => card.group)) {
-        const cardGroup = cards.reduce((grouping: any, card: any) => {
+    if (cards && cards.some((card) => card.group)) {
+        const cardGroup = cards.reduce((grouping, card) => {
             (grouping[card.group] = grouping[card.group] || []).push(card);
 
             return grouping;
-        }, {});
+        }, {} as { [key: string]: GameCard[] });
         const sortedKeys = Object.keys(cardGroup).sort();
         for (const key of sortedKeys) {
             cardList.push(
@@ -81,7 +80,7 @@ const CardPilePopup = ({
 
     const popupMenuToRender = popupMenu && (
         <div>
-            {popupMenu.map((menuItem: any) => {
+            {popupMenu.map((menuItem) => {
                 return (
                     <a
                         className='btn btn-default'

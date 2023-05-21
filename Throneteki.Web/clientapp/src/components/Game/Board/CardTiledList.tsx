@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 
 import Card from './Card';
+import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
+import { CardLocation, CardOrientation, CardSize } from '../../../types/enums';
 
 interface CardTiledListProps {
-    cards: any;
+    cards: GameCard[];
     disableMouseOver: boolean;
     manualMode: boolean;
-    onCardClick: any;
-    onCardMouseOut: any;
-    onCardMouseOver: any;
-    size: string;
-    source: string;
+    onCardClick: (card: GameCard) => void;
+    onCardMouseOut: MouseEventHandler;
+    onCardMouseOver: (args: CardMouseOverEventArgs) => void;
+    size: CardSize;
+    source: CardLocation;
     title?: string;
     titleCount?: number;
 }
@@ -18,7 +20,7 @@ interface CardTiledListProps {
 function CardTiledList(props: CardTiledListProps) {
     const cardList =
         props.cards &&
-        props.cards.map((card: any, index: number) => {
+        props.cards.map((card, index: number) => {
             return (
                 <Card
                     canDrag={props.manualMode}
@@ -28,7 +30,7 @@ function CardTiledList(props: CardTiledListProps) {
                     onClick={props.onCardClick}
                     onMouseOut={props.onCardMouseOut}
                     onMouseOver={props.onCardMouseOver}
-                    orientation='vertical'
+                    orientation={CardOrientation.Vertical}
                     size={props.size}
                     source={props.source}
                 />

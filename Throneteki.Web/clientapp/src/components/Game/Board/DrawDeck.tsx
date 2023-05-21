@@ -1,25 +1,31 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 import CardPileLink from './CardPileLink';
 import Droppable from './Droppable';
+import { BoardSide, CardLocation, CardSize } from '../../../types/enums';
+import {
+    CardMenuItem,
+    CardMouseOverEventArgs,
+    GameCard,
+    PopupChangeEventArgs
+} from '../../../types/game';
 
 interface DrawDeckProps {
     cardCount: number;
-    cards: any;
+    cards: GameCard[];
     isMe: boolean;
     manualMode: boolean;
     numDeckCards: number;
-    onCardClick: any;
-    onDragDrop: any;
-    onMenuItemClick: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    onPopupChange: any;
-    onShuffleClick: any;
-    onTouchMove: any;
-    popupLocation: any;
+    onCardClick: (card: GameCard) => void;
+    onDragDrop: (card: GameCard) => void;
+    onMenuItemClick: (menuItem: CardMenuItem) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (arg: CardMouseOverEventArgs) => void;
+    onPopupChange?: (args: PopupChangeEventArgs) => void;
+    onShuffleClick: () => void;
+    popupLocation: BoardSide;
     showDeck?: boolean;
-    size: any;
+    size: CardSize;
     spectating: boolean;
 }
 
@@ -38,7 +44,7 @@ const DrawDeck = (props: DrawDeckProps) => {
 
     const drawDeckPopupMenu = showDeck
         ? [{ text: 'Close and Shuffle', handler: () => onShuffleClick && onShuffleClick() }]
-        : null;
+        : undefined;
 
     const hasCards = cards?.length !== 0;
 
@@ -48,11 +54,11 @@ const DrawDeck = (props: DrawDeckProps) => {
             className='draw'
             disablePopup={!hasCards && (spectating || !isMe)}
             hiddenTopCard
-            onPopupChange={(event: any) =>
+            onPopupChange={(event) =>
                 onPopupChange && !event.visible && onPopupChange({ visible: false })
             }
             popupMenu={drawDeckPopupMenu}
-            source='deck'
+            source={CardLocation.Draw}
             cards={cards}
             title={t('Draw')}
         />

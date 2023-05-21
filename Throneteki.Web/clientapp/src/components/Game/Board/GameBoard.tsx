@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
 import { useAuth } from 'react-oidc-context';
-import { GamePlayer } from '../../../types/game';
+import { GameCard, GamePlayer } from '../../../types/game';
 import classNames from 'classnames';
 import PlayerStats from './PlayerStats';
 import PlayerBoard from './PlayerBoard';
@@ -11,6 +11,9 @@ import { useGetCardsQuery } from '../../../redux/api/apiSlice';
 import ActivePlayerPrompt from './ActivePlayerPrompt';
 import GameChat from './GameChat';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
+import LoadingSpinner from '../../LoadingSpinner';
+import { Card } from '../../../types/data';
+import { BoardSide, CardSize } from '../../../types/enums';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -45,11 +48,11 @@ const placeholderPlayer: GamePlayer = {
     },
     title: null,
     user: null,
-    controls: undefined,
+    controls: [],
     menuTitle: undefined,
     promptTitle: undefined,
     phase: undefined,
-    buttons: undefined
+    buttons: []
 };
 
 const defaultPlayerInfo = (source?: GamePlayer) => {
@@ -85,7 +88,7 @@ const GameBoard = () => {
                                 />
                                 <PlayerBoard
                                     cardsInPlay={thisPlayer.cardPiles.cardsInPlay}
-                                    cardSize={'md'}
+                                    cardSize={CardSize.Medium}
                                     hand={thisPlayer.cardPiles.hand}
                                     isMe={!isSpectating()}
                                     isSpectating={isSpectating()}
@@ -105,6 +108,10 @@ const GameBoard = () => {
             </div>
         );
     };
+
+    if (isLoading) {
+        return <LoadingSpinner text='Please wait while the card data is loaded' />;
+    }
 
     if (!activeGame) {
         return (
@@ -143,16 +150,16 @@ const GameBoard = () => {
         'select-cursor': thisPlayer && thisPlayer.selectCard
     });
 
-    const onCardClick = (card: any) => dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
+    const onCardClick = (card: GameCard) =>
+        dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
     const onDragDrop = () => true;
     const handleDrawPopupChange = () => true;
     const onMenuItemClick = () => true;
     const onMouseOut = () => true;
     const onMouseOver = () => true;
     const onShuffleClick = () => true;
-    const onCommand = (command: any, arg: any, method: any, promptId: any) => {
-        console.info(command);
-        dispatch(gameNodeActions.sendPromptClickedMessage({ arg, promptId, method }));
+    const onCommand = (command: string, arg: string, method: string, promptId: string) => {
+        dispatch(gameNodeActions.sendPromptClickedMessage({ arg, command, method, promptId }));
     };
     const onTitleClick = () => true;
     const sendChatMessage = () => true;
@@ -169,7 +176,6 @@ const GameBoard = () => {
                     stats={otherPlayer.stats}
                     user={otherPlayer.user}
                     cardPiles={otherPlayer.cardPiles}
-                    deck={otherPlayer.deckData}
                     isMe={false}
                     numDeckCards={otherPlayer.numDeckCards}
                     onCardClick={onCardClick}
@@ -179,8 +185,8 @@ const GameBoard = () => {
                     onMouseOut={onMouseOut}
                     onMouseOver={onMouseOver}
                     onShuffleClick={onShuffleClick}
-                    side='top'
-                    size={/*user.throneteki_settings.cardSize*/ 'md'}
+                    side={BoardSide.Top}
+                    size={/*user.throneteki_settings.cardSize*/ CardSize.Medium}
                     spectating={isSpectating()}
                 />
             </div>
@@ -227,7 +233,6 @@ const GameBoard = () => {
                 firstPlayer={thisPlayer.firstPlayer}
                 activePlayer={thisPlayer.activePlayer}
                 cardPiles={thisPlayer.cardPiles}
-                deck={thisPlayer.deckData}
                 isMe={!isSpectating()}
                 manualMode={true}
                 //muteSpectators={activeGame.muteSpectators}
@@ -247,8 +252,8 @@ const GameBoard = () => {
                 showControls={!isSpectating() && true}
                 //        showManualMode={!isSpectating()}
                 //      showMessages
-                side='bottom'
-                size={'md'}
+                side={BoardSide.Bottom}
+                size={CardSize.Medium}
                 spectating={isSpectating()}
                 stats={thisPlayer.stats}
                 user={thisPlayer.user}

@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 import Droppable from './Droppable';
 import SquishableCardPanel from './SquishableCardPanel';
+import { CardSize } from '../../../types/enums';
+import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 interface PlayerRowProps {
-    cardSize: any;
-    hand: any;
+    cardSize: CardSize;
+    hand: GameCard[];
     isMe: boolean;
     manualMode: boolean;
-    onCardClick: any;
-    onDragDrop: any;
-    onMouseOut: any;
-    onMouseOver: any;
+    onCardClick: (card: GameCard) => void;
+    onDragDrop: (card: GameCard) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
 }
 
 const PlayerRow = ({

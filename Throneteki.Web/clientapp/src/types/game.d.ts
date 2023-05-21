@@ -1,27 +1,28 @@
 import { Card } from './data';
+import { CardLocation, GamePhase } from './enums';
 
 export interface CardPiles {
-    bannerCards: Card[];
-    cardsInPlay: Card[];
-    conclavePile: Card[];
-    deadPile: Card[];
-    discardPile: Card[];
-    drawDeck: Card[];
-    hand: Card[];
-    outOfGamePile: Card[];
-    plotDeck: Card[];
-    plotDiscard: Card[];
-    shadows: Card[];
+    bannerCards: GameCard[];
+    cardsInPlay: GameCard[];
+    conclavePile: GameCard[];
+    deadPile: GameCard[];
+    discardPile: GameCard[];
+    drawDeck: GameCard[];
+    hand: GameCard[];
+    outOfGamePile: GameCard[];
+    plotDeck: GameCard[];
+    plotDiscard: GameCard[];
+    shadows: GameCard[];
 }
 
 export interface GamePlayer {
-    controls: any;
-    menuTitle: any;
-    promptTitle: any;
-    phase: any;
-    buttons: any;
+    controls: PromptControl[];
+    menuTitle?: string;
+    promptTitle?: string;
+    phase: GamePhase;
+    buttons: PromptButton[];
     deckData: any;
-    numDeckCards: any;
+    numDeckCards: number;
     activePlayer: boolean;
     selectCard?: boolean;
     activePlot?: Card | null;
@@ -32,7 +33,7 @@ export interface GamePlayer {
     numDrawCards: number;
     plotSelected: boolean;
     stats: GamePlayerStats;
-    title?: any;
+    title?: string;
     user?: any;
     name: string;
 }
@@ -50,7 +51,7 @@ export interface Game {
     needsPassword: boolean;
     node: string;
     owner: string;
-    players: { [name: string]: GamePlayer };
+    players: { [key: string]: GamePlayer };
     showHand: boolean;
     spectators: UserSummary[];
     started: boolean;
@@ -64,6 +65,68 @@ export interface GamePlayerStats {
     gold: number;
     reserve: number;
     totalPower: number;
+}
+
+export interface PromptButton {
+    arg: string;
+    card: Card;
+    command: string;
+    disabled: boolean;
+    icon: Icon;
+    method: string;
+    promptId: string;
+    text: string;
+    values: any;
+}
+
+export interface PromptControl {
+    name: string;
+    source: Card;
+    type: PromptControlType;
+}
+
+export interface Prompt {
+    text: string;
+}
+
+export interface PopupChangeEventArgs {
+    source?: CardLocation;
+    visible: boolean;
+}
+
+export interface CardMouseOverEventArgs {
+    image: JSX.Element;
+    size: CardSize;
+}
+
+export interface GameCard extends Card {
+    attachments: GameCard[];
+    canPlay: boolean;
+    childCards: GameCard[];
+    controlled: unknown;
+    facedown: boolean;
+    group: string;
+    kneeled: boolean;
+    location: CardLocation;
+    menu: CardMenuItem[];
+    new: boolean;
+    order: number;
+    selectable: boolean;
+    selected: boolean;
+    uuid: string;
+    unselectable: boolean;
+}
+
+export interface PopupMenuItem {
+    handler: () => void;
+    text: string;
+}
+
+export interface CardMenuItem {
+    menu: string;
+    command: string;
+    disabled: boolean;
+    text: string;
 }
 
 export type StatsIndexer = 'claim' | 'initiative' | 'gold' | 'reserve' | 'totalPower';

@@ -1,23 +1,30 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import classNames from 'classnames';
 import Droppable from './Droppable';
 import Card from './Card';
 import PlayerRow from './PlayerRow';
+import { CardLocation, CardSize } from '../../../types/enums';
+import { CardMenuItem, CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 interface PlayerBoardProps {
-    cardsInPlay: any;
-    cardSize?: any;
-    hand?: any;
+    cardsInPlay: GameCard[];
+    cardSize?: CardSize;
+    hand?: GameCard[];
     isMe?: boolean;
     isSpectating: boolean;
     manualMode?: boolean;
-    onCardClick: any;
-    onDragDrop?: any;
-    onMenuItemClick: any;
-    onMouseOut: any;
-    onMouseOver: any;
+    onCardClick: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard) => void;
+    onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
     rowDirection: string;
     user: any;
+}
+
+interface GameCardRow {
+    cards: GameCard[];
+    name: string;
 }
 
 const PlayerBoard = ({
@@ -36,7 +43,7 @@ const PlayerBoard = ({
     user
 }: PlayerBoardProps) => {
     const getCardRows = () => {
-        const groupedCards = cardsInPlay.reduce((group: any, card: any) => {
+        const groupedCards = cardsInPlay.reduce((group: { [key: string]: GameCard[] }, card) => {
             (group[card.type] = group[card.type] || []).push(card);
 
             return group;
@@ -45,7 +52,7 @@ const PlayerBoard = ({
         const rows = [];
         const locations = groupedCards['location'] || [];
         const characters = groupedCards['character'] || [];
-        let other: any[] = [];
+        let other: GameCard[] = [];
 
         for (const key of Object.keys(groupedCards).filter(
             (k) => !['location', 'character'].includes(k)
@@ -71,16 +78,16 @@ const PlayerBoard = ({
         return rows;
     };
 
-    const renderRows = (rows: any) => {
-        return rows.map((row: any, index: number) => (
+    const renderRows = (rows: GameCardRow[]) => {
+        return rows.map((row, index: number) => (
             <div className={`card-row ${row.name}`} key={`card-row-${index}`}>
                 {renderRow(row.cards)}
             </div>
         ));
     };
 
-    const renderRow = (row: any) => {
-        return row.map((card: any) => (
+    const renderRow = (row: GameCard[]) => {
+        return row.map((card: GameCard) => (
             <Card
                 key={card.uuid}
                 canDrag={manualMode}
@@ -92,8 +99,8 @@ const PlayerBoard = ({
                 onMenuItemClick={onMenuItemClick}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
-                size={/*user.settings.cardSize*/ 'md'}
-                source='play area'
+                size={/*user.settings.cardSize*/ CardSize.Medium}
+                source={CardLocation.PlayArea}
             />
         ));
     };

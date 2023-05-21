@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { MouseEventHandler, useState } from 'react';
 import classNames from 'classnames';
-//import 'jquery-migrate';
 import { useDrag } from 'react-dnd';
 import { useTranslation } from 'react-i18next';
 
@@ -8,22 +7,27 @@ import CardMenu from './CardMenu';
 import CardImage from './CardImage';
 import { ItemTypes } from '../../../constants';
 import SquishableCardPanel from './SquishableCardPanel';
+import { CardLocation, CardOrientation, CardSize } from '../../../types/enums';
+
+import CardBack from '../../../assets/img/cardback.png';
+import CardBackShadow from '../../../assets/img/cardback_shadow.png';
+import { CardMenuItem, CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 interface CardProps {
-    canDrag: any;
-    card: any;
-    className?: any;
-    disableMouseOver: any;
+    canDrag: boolean;
+    card: GameCard;
+    className?: string;
+    disableMouseOver: boolean;
     halfSize?: boolean;
     isSpectating?: boolean;
-    language?: any;
-    onClick: any;
-    onMenuItemClick?: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    orientation?: any;
-    size: any;
-    source: any;
+    language?: string;
+    onClick: (card: GameCard) => void;
+    onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    orientation?: CardOrientation;
+    size: CardSize;
+    source: CardLocation;
     style?: any;
     wrapped?: boolean;
 }
@@ -39,7 +43,7 @@ const Card = ({
     onMenuItemClick,
     onMouseOut,
     onMouseOver,
-    orientation = 'vertical',
+    orientation = CardOrientation.Vertical,
     size,
     source,
     style,
@@ -64,10 +68,10 @@ const Card = ({
     }));
 
     const isAllowedMenuSource = () => {
-        return source === 'play area' && !isSpectating;
+        return source === CardLocation.PlayArea && !isSpectating;
     };
 
-    const onCardClicked = (event: any, card: any) => {
+    const onCardClicked = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, card: GameCard) => {
         event.preventDefault();
         event.stopPropagation();
         if (isAllowedMenuSource() && card.menu && card.menu.length !== 0) {
@@ -79,36 +83,36 @@ const Card = ({
     };
     const getCardSizeMultiplier = () => {
         switch (size) {
-            case 'small':
+            case CardSize.Small:
                 return 0.6;
-            case 'large':
+            case CardSize.Large:
                 return 1.4;
-            case 'x-large':
+            case CardSize.ExtraLarge:
                 return 2;
         }
 
         return 1;
     };
 
-    const getupgrades = () => {
-        if (!['full deck', 'play area'].includes(source) || !card.upgrades) {
+    const getAttachments = () => {
+        if (![CardLocation.FullDeck, CardLocation.PlayArea].includes(source) || !card.attachments) {
             return null;
         }
 
-        const upgrades = card.upgrades.map((upgrade: any, index: any) => {
+        const upgrades = card.attachments.map((attachment, index) => {
             const returnedupgrade = (
                 <Card
                     canDrag={canDrag}
                     disableMouseOver={disableMouseOver}
                     isSpectating={isSpectating}
-                    key={upgrade.uuid}
+                    key={index}
                     source={source}
-                    card={upgrade}
-                    className={classNames('upgrade', `upgrade-${index + 1}`)}
+                    card={attachment}
+                    className={classNames('attachment', `attachment-${index + 1}`)}
                     wrapped={false}
                     onMouseOver={
                         !disableMouseOver && onMouseOver
-                            ? (upgrade: any) => onMouseOver(upgrade)
+                            ? (attachment) => onMouseOver(attachment)
                             : undefined
                     }
                     onMouseOut={!disableMouseOver && onMouseOut}
@@ -175,7 +179,7 @@ const Card = ({
         return card.facedown || !card.name;
     };
 
-    const getDragFrame = (image: any) => {
+    const getDragFrame = (image: JSX.Element) => {
         if (!isDragging) {
             return null;
         }
@@ -197,7 +201,7 @@ const Card = ({
         );
     };
 
-    const getCardName = (card: any) => {
+    const getCardName = (card: GameCard) => {
         if (i18n.language === 'en') {
             return card.name;
         }
@@ -207,15 +211,15 @@ const Card = ({
     };
 
     const imageUrl = () => {
-        let image = 'cardback.jpg';
+        let image = CardBack;
 
         if (!isFacedown()) {
-            image = `${card.code}.png`;
-        } else if (source === 'shadows') {
-            image = 'cardback_shadow.png';
+            image = `/img/cards/${card.code}.png`;
+        } else if (source === CardLocation.Shadows) {
+            image = CardBackShadow;
         }
 
-        return '/img/cards/' + image;
+        return image;
     };
 
     const getCard = () => {
@@ -234,8 +238,8 @@ const Card = ({
             statusClass,
             {
                 'custom-card': card.code && card.code.startsWith('custom'),
-                horizontal: orientation !== 'vertical' || card.kneeled,
-                vertical: orientation === 'vertical' && !card.kneeled,
+                horizontal: orientation !== CardOrientation.Vertical || card.kneeled,
+                vertical: orientation === CardOrientation.Vertical && !card.kneeled,
                 'can-play':
                     statusClass !== 'selected' &&
                     statusClass !== 'selectable' &&
@@ -251,7 +255,10 @@ const Card = ({
             sizeClass,
             halfSize ? 'halfSize' : '',
             {
-                kneeled: orientation === 'kneeled' || card.kneeled || orientation === 'horizontal'
+                kneeled:
+                    orientation === CardOrientation.Kneeled ||
+                    card.kneeled ||
+                    orientation === CardOrientation.Horizontal
             }
         );
         const image = <img className={imageClass} src={imageUrl()} />;
@@ -265,7 +272,11 @@ const Card = ({
                         !disableMouseOver && !isFacedown() && onMouseOver
                             ? () =>
                                   onMouseOver({
-                                      image: <CardImage card={{ ...card, location: 'zoom' }} />,
+                                      image: (
+                                          <CardImage
+                                              card={{ ...card, location: CardLocation.Zoom }}
+                                          />
+                                      ),
                                       size: 'normal'
                                   })
                             : undefined
@@ -281,7 +292,7 @@ const Card = ({
                 {shouldShowMenu() && (
                     <CardMenu
                         menu={card.menu}
-                        onMenuItemClick={(menuItem: any) => {
+                        onMenuItemClick={(menuItem: CardMenuItem) => {
                             onMenuItemClick && onMenuItemClick(card, menuItem);
                             setShowMenu(!showMenu);
                         }}
@@ -308,14 +319,14 @@ const Card = ({
     };
 
     const styleCopy = Object.assign({}, style);
-    if (card.upgrades) {
-        styleCopy.top = card.upgrades.length * (15 * getCardSizeMultiplier());
+    if (card.attachments) {
+        styleCopy.top = card.attachments.length * (15 * getCardSizeMultiplier());
     }
     if (wrapped) {
         return (
             <div className='card-wrapper' style={style}>
                 {getCard()}
-                {getupgrades()}
+                {getAttachments()}
                 {renderUnderneathCards()}
             </div>
         );

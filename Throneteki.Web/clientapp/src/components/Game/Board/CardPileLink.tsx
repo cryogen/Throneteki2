@@ -1,29 +1,36 @@
-import classNames from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import CardImage from './CardImage';
 import CardPilePopup from './CardPilePopup';
+import {
+    CardMouseOverEventArgs,
+    GameCard,
+    PopupChangeEventArgs,
+    PopupMenuItem
+} from '../../../types/game';
+import { MouseEventHandler } from 'react';
+import { BoardSide, CardLocation, CardOrientation, CardSize } from '../../../types/enums';
 
 interface CardPileLinkProps {
-    cards: any;
-    className: any;
+    cards: GameCard[];
+    className: string;
     closeOnClick?: boolean;
     disableMouseOver?: boolean;
     disablePopup?: boolean;
     hiddenTopCard?: boolean;
-    manualMode: any;
+    manualMode: boolean;
     numDeckCards?: number;
-    onCardClick: any;
-    onDragDrop: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    onPopupChange: any;
-    onTouchMove: any;
-    orientation?: any;
-    popupLocation: any;
-    popupMenu?: any;
-    size: any;
-    source: any;
-    title: any;
+    onCardClick: (card: GameCard) => void;
+    onDragDrop: (card: GameCard) => void;
+    onMouseOut: MouseEventHandler;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    onPopupChange?: (args: PopupChangeEventArgs) => void;
+    orientation?: CardOrientation;
+    popupLocation: BoardSide;
+    popupMenu?: PopupMenuItem[];
+    size: CardSize;
+    source: CardLocation;
+    title: string;
 }
 
 const CardPileLink = ({
@@ -40,8 +47,7 @@ const CardPileLink = ({
     onMouseOut,
     onMouseOver,
     onPopupChange,
-    onTouchMove,
-    orientation = 'vertical',
+    orientation = CardOrientation.Vertical,
     popupLocation,
     popupMenu,
     size,
@@ -64,7 +70,7 @@ const CardPileLink = ({
             return;
         }
 
-        if (cards?.some((card: any) => card.selectable)) {
+        if (cards?.some((card) => card.selectable)) {
             updatePopupVisibility(true);
         } else {
             updatePopupVisibility(false);
@@ -72,8 +78,8 @@ const CardPileLink = ({
     }, [cards, manualPopup, updatePopupVisibility]);
 
     const classNameStr = classNames('card-pile-link', className, {
-        horizontal: orientation === 'horizontal' || orientation === 'exhausted',
-        vertical: orientation === 'vertical'
+        horizontal: orientation === CardOrientation.Horizontal,
+        vertical: orientation === CardOrientation.Vertical
     });
 
     const topCard = () => {
@@ -81,7 +87,7 @@ const CardPileLink = ({
             return;
         }
         const card = cards[0];
-        if (!card.facedown && card.location !== 'deck') {
+        if (!card.facedown && card.location !== CardLocation.Draw) {
             return card;
         }
     };
@@ -103,25 +109,29 @@ const CardPileLink = ({
                     className='icon'
                     onMouseOver={() =>
                         onMouseOver({
-                            image: <CardImage card={{ ...card, location: 'zoom' }} />,
+                            image: <CardImage card={{ ...card, location: CardLocation.Zoom }} />,
                             size: 'normal'
                         })
                     }
                     onMouseOut={onMouseOut}
                 >
-                    <CardImage card={card} orientation='vertical' size='icon' />
+                    <CardImage
+                        card={card}
+                        orientation={CardOrientation.Vertical}
+                        size={CardSize.Icon}
+                    />
                 </div>
             )}
             <div className={'text ' + title.toLowerCase()}>{title}:</div>&nbsp;
             <div className={'counter ' + title.toLowerCase()}>
-                {source === 'deck' ? numDeckCards : cards.length}
+                {source === CardLocation.Draw ? numDeckCards : cards.length}
             </div>
             {!disablePopup && showPopup && (
                 <CardPilePopup
                     cards={cards}
                     disableMouseOver={disableMouseOver}
                     manualMode={manualMode}
-                    onCardClick={(card: any) => {
+                    onCardClick={(card) => {
                         if (closeOnClick) {
                             updatePopupVisibility(false);
                             setManualPopup(false);
@@ -136,7 +146,6 @@ const CardPileLink = ({
                     onDragDrop={onDragDrop}
                     onMouseOut={onMouseOut}
                     onMouseOver={onMouseOver}
-                    onTouchMove={onTouchMove}
                     popupLocation={popupLocation}
                     popupMenu={popupMenu}
                     size={size}

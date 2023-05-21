@@ -2,21 +2,24 @@ import React from 'react';
 import Panel from '../../Site/Panel';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'react-bootstrap';
+import { Prompt, PromptButton, PromptControl } from '../../../types/game';
+import { Card } from '../../../types/data';
+import { GamePhase } from '../../../types/enums';
 
 interface ActivePlayerPromptProps {
-    buttons: any;
-    cards: any;
-    controls: any;
-    onButtonClick: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    onTitleClick: any;
-    phase: any;
-    promptText: any;
-    promptTitle: any;
-    stopAbilityTimer?: any;
-    timerLimit?: any;
-    timerStartTime?: any;
+    buttons: PromptButton[];
+    cards: Card[];
+    controls: PromptControl[];
+    onButtonClick: (command: string, arg: string, method: string, promptId: string) => void;
+    onMouseOut: (card: Card) => void;
+    onMouseOver: (card: Card) => void;
+    onTitleClick: (card: Card) => void;
+    phase: GamePhase;
+    promptText?: string;
+    promptTitle?: string;
+    stopAbilityTimer?: boolean;
+    timerLimit?: number;
+    timerStartTime?: number;
     user: any;
 }
 
@@ -34,10 +37,10 @@ const ActivePlayerPrompt = ({
 }: ActivePlayerPromptProps) => {
     const { i18n, t } = useTranslation();
 
-    const localizedText = (source: any, text: any, values: any) => {
-        if (!isNaN(text)) {
+    const localizedText = (source: Card | null, text: string | null, values?: any): string => {
+        if (!isNaN(Number(text))) {
             // text is just a plain number, avoid translation
-            return text;
+            return text || '';
         }
 
         if (!text) {
@@ -71,7 +74,7 @@ const ActivePlayerPrompt = ({
         return t(text, values);
     };
 
-    const getSafePromptText = (promptObject: any) => {
+    const getSafePromptText = (promptObject: Prompt | string | null | undefined) => {
         if (promptObject) {
             return typeof promptObject === 'string' ? promptObject : promptObject.text;
         }
@@ -86,7 +89,7 @@ const ActivePlayerPrompt = ({
 
         if (
             !buttons ||
-            controls.some((c: any) => ['house-select', 'options-select'].includes(c.type))
+            controls.some((c: PromptControl) => ['house-select', 'options-select'].includes(c.type))
         ) {
             return null;
         }
@@ -137,7 +140,7 @@ const ActivePlayerPrompt = ({
 
         promptTitleToRender = (
             <div className='menu-pane-source'>
-                {localizedText(controlSource, promptTitleText, promptTitle.values)}
+                {localizedText(controlSource, promptTitleText, null)}
             </div>
         );
     }
@@ -149,11 +152,11 @@ const ActivePlayerPrompt = ({
         if (safePromptText.includes('\n')) {
             const split = safePromptText.split('\n');
             for (const token of split) {
-                promptTexts.push(localizedText(controlSource, token, promptText.values));
+                promptTexts.push(localizedText(controlSource, token, null));
                 promptTexts.push(<br />);
             }
         } else {
-            promptTexts.push(localizedText(controlSource, safePromptText, promptText.values));
+            promptTexts.push(localizedText(controlSource, safePromptText, null));
         }
     }
 
