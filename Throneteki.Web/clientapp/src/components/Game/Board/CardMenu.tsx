@@ -5,7 +5,7 @@ import { CardMenuItem } from '../../../types/game';
 
 interface CardMenuProps {
     menu: CardMenuItem[];
-    onMenuItemClick: any;
+    onMenuItemClick: (menuItem: CardMenuItem) => void;
 }
 
 const CardMenu = ({ menu, onMenuItemClick }: CardMenuProps) => {

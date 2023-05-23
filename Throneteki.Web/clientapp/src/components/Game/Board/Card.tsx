@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useDrag } from 'react-dnd';
 import { useTranslation } from 'react-i18next';
@@ -23,8 +23,8 @@ interface CardProps {
     language?: string;
     onClick: (card: GameCard) => void;
     onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
-    onMouseOut: MouseEventHandler;
-    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    onMouseOut: (card: GameCard) => void;
+    onMouseOver?: (args: CardMouseOverEventArgs) => void;
     orientation?: CardOrientation;
     size: CardSize;
     source: CardLocation;
@@ -47,7 +47,7 @@ const Card = ({
     size,
     source,
     style,
-    wrapped = false
+    wrapped = true
 }: CardProps) => {
     const { i18n } = useTranslation();
 
@@ -250,17 +250,15 @@ const Card = ({
                 controlled: card.controlled
             }
         );
-        const imageClass = classNames(
-            'card-image vertical',
-            sizeClass,
-            halfSize ? 'halfSize' : '',
-            {
-                kneeled:
-                    orientation === CardOrientation.Kneeled ||
+        const imageClass = classNames('card-image', sizeClass, {
+            horizontal: card.type === 'plot',
+            vertical: card.type !== 'plot',
+            kneeled:
+                card.type !== 'plot' &&
+                (orientation === CardOrientation.Kneeled ||
                     card.kneeled ||
-                    orientation === CardOrientation.Horizontal
-            }
-        );
+                    orientation === CardOrientation.Horizontal)
+        });
         const image = <img className={imageClass} src={imageUrl()} />;
         return (
             <div className='card-frame' ref={drag}>
@@ -281,7 +279,7 @@ const Card = ({
                                   })
                             : undefined
                     }
-                    onMouseOut={!disableMouseOver && !isFacedown() ? onMouseOut : undefined}
+                    onMouseOut={!disableMouseOver && !isFacedown() ? () => onMouseOut : undefined}
                     onClick={(event) => onCardClicked(event, card)}
                 >
                     <div>

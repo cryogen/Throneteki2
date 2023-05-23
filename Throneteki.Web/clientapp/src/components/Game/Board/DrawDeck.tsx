@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import CardPileLink from './CardPileLink';
 import Droppable from './Droppable';
@@ -18,8 +18,8 @@ interface DrawDeckProps {
     numDeckCards: number;
     onCardClick: (card: GameCard) => void;
     onDragDrop: (card: GameCard) => void;
-    onMenuItemClick: (menuItem: CardMenuItem) => void;
-    onMouseOut: MouseEventHandler;
+    onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (arg: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
     onShuffleClick: () => void;

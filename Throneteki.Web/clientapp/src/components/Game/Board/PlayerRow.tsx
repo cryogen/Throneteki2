@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Droppable from './Droppable';
 import SquishableCardPanel from './SquishableCardPanel';
@@ -12,7 +12,7 @@ interface PlayerRowProps {
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
     onDragDrop: (card: GameCard) => void;
-    onMouseOut: MouseEventHandler;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
 }
 

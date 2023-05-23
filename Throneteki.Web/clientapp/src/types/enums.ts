@@ -16,8 +16,9 @@ export enum RestrictedListCardSet {
 }
 
 export enum GameCommands {
+    CardClicked = 'cardClicked',
     MenuButton = 'menuButton',
-    CardClicked = 'cardClicked'
+    MenuItemClicked = 'menuItemClick'
 }
 
 export enum Icon {

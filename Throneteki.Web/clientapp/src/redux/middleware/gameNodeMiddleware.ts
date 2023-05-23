@@ -5,7 +5,7 @@ import { HandOff } from '../../types/lobby';
 import { gameNodeActions } from '../slices/gameNodeSlice';
 import { getUser } from '../../helpers/UserHelper';
 import * as jsondiffpatch from 'jsondiffpatch';
-import { PromptClicked } from '../../types/gameMessages';
+import { CardMenuItemClicked, PromptClicked } from '../../types/gameMessages';
 import { GameCommands } from '../../types/enums';
 
 const patcher = jsondiffpatch.create({
@@ -91,6 +91,14 @@ const gameNodeMiddleware: Middleware = (store) => {
             );
         } else if (gameNodeActions.sendCardClickedMessage.match(action)) {
             connection.emit('game', GameCommands.CardClicked, action.payload);
+        } else if (gameNodeActions.sendMenuItemClickMessage.match(action)) {
+            const menuItemClicked = action.payload as CardMenuItemClicked;
+            connection.emit(
+                'game',
+                GameCommands.CardClicked,
+                menuItemClicked.card,
+                menuItemClicked.menuItem
+            );
         }
 
         next(action);

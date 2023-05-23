@@ -91,6 +91,9 @@ $utilities: map-merge(
 @import './components/Game/Board/SquishableCardPanel';
 @import './components/Game/Board/Droppable';
 @import './components/Game/Board/ActivePlayerPrompt';
+@import './components/Game/Board/GameChat';
+@import './components/Game/Board/Messages';
+@import './components/Game/Board/Icons';
 
 @import 'pages/Admin/UserAdminPage';
 @import 'pages/Lobby';

@@ -69,7 +69,7 @@ export interface GamePlayerStats {
 
 export interface PromptButton {
     arg: string;
-    card: Card;
+    card: GameCard;
     command: string;
     disabled: boolean;
     icon: Icon;

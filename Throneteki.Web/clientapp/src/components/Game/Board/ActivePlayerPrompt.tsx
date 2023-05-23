@@ -2,7 +2,7 @@ import React from 'react';
 import Panel from '../../Site/Panel';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'react-bootstrap';
-import { Prompt, PromptButton, PromptControl } from '../../../types/game';
+import { GameCard, Prompt, PromptButton, PromptControl } from '../../../types/game';
 import { Card } from '../../../types/data';
 import { GamePhase } from '../../../types/enums';
 
@@ -11,7 +11,7 @@ interface ActivePlayerPromptProps {
     cards: Card[];
     controls: PromptControl[];
     onButtonClick: (command: string, arg: string, method: string, promptId: string) => void;
-    onMouseOut: (card: Card) => void;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (card: Card) => void;
     onTitleClick: (card: Card) => void;
     phase: GamePhase;
@@ -116,7 +116,9 @@ const ActivePlayerPrompt = ({
                     disabled={button.disabled}
                 >
                     {buttonText}{' '}
-                    {button.icon && <div className={`button-icon icon-${button.icon}`} />}
+                    {button.icon && (
+                        <div className={`with-background thronesicon thronesicon-${button.icon}`} />
+                    )}
                 </Button>
             );
 

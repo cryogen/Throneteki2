@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import Droppable from './Droppable';
 import Card from './Card';
@@ -16,7 +16,7 @@ interface PlayerBoardProps {
     onCardClick: (card: GameCard) => void;
     onDragDrop?: (card: GameCard) => void;
     onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
-    onMouseOut: MouseEventHandler;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     rowDirection: string;
     user: any;

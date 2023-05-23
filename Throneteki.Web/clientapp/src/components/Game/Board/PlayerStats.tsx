@@ -1,11 +1,11 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Avatar from '../../Site/Avatar';
 import Droppable from './Droppable';
 import CardPileLink from './CardPileLink';
 import DrawDeck from './DrawDeck';
-import { BoardSide, CardLocation, CardSize } from '../../../types/enums';
+import { BoardSide, CardLocation, CardOrientation, CardSize } from '../../../types/enums';
 import {
     CardMenuItem,
     CardMouseOverEventArgs,
@@ -30,8 +30,8 @@ interface PlayerStatsProps {
     onCardClick: (card: GameCard) => void;
     onDragDrop: (card: GameCard) => void;
     onDrawPopupChange: (args: PopupChangeEventArgs) => void;
-    onMenuItemClick: (menuItem: CardMenuItem) => void;
-    onMouseOut: MouseEventHandler;
+    onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
     onShuffleClick: () => void;
@@ -185,6 +185,7 @@ const PlayerStats = ({
             className='plots'
             title={t('Plots')}
             source={CardLocation.Plots}
+            orientation={CardOrientation.Horizontal}
         />
     );
 

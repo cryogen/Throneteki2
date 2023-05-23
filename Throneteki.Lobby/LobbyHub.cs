@@ -10,7 +10,6 @@ using Throneteki.Lobby.Services;
 using Throneteki.Models.Models;
 using Throneteki.Models.Services;
 using Throneteki.WebService;
-using DeckValidationStatus = Throneteki.WebService.DeckValidationStatus;
 using LobbyMessage = Throneteki.Lobby.Models.LobbyMessage;
 using LobbyPack = Throneteki.Models.Models.LobbyPack;
 

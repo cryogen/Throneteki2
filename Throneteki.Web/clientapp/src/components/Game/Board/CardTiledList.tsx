@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 
 import Card from './Card';
 import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
@@ -9,8 +9,9 @@ interface CardTiledListProps {
     disableMouseOver: boolean;
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
-    onCardMouseOut: MouseEventHandler;
+    onCardMouseOut: (card: GameCard) => void;
     onCardMouseOver: (args: CardMouseOverEventArgs) => void;
+    orientation: CardOrientation;
     size: CardSize;
     source: CardLocation;
     title?: string;
@@ -18,6 +19,7 @@ interface CardTiledListProps {
 }
 
 function CardTiledList(props: CardTiledListProps) {
+    console.info(props);
     const cardList =
         props.cards &&
         props.cards.map((card, index: number) => {
@@ -30,7 +32,7 @@ function CardTiledList(props: CardTiledListProps) {
                     onClick={props.onCardClick}
                     onMouseOut={props.onCardMouseOut}
                     onMouseOver={props.onCardMouseOver}
-                    orientation={CardOrientation.Vertical}
+                    orientation={props.orientation}
                     size={props.size}
                     source={props.source}
                 />

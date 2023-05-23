@@ -5,7 +5,7 @@ import CardTiledList from './CardTiledList';
 import Droppable from './Droppable';
 import MovablePanel from './MovablePanel';
 import { CardMouseOverEventArgs, GameCard, PopupMenuItem } from '../../../types/game';
-import { BoardSide, CardLocation, CardSize } from '../../../types/enums';
+import { BoardSide, CardLocation, CardOrientation, CardSize } from '../../../types/enums';
 
 interface CardPilePopupProps {
     cards: GameCard[];
@@ -14,8 +14,9 @@ interface CardPilePopupProps {
     onCardClick: (card: GameCard) => void;
     onCloseClick: () => void;
     onDragDrop: (card: GameCard) => void;
-    onMouseOut: MouseEventHandler;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
+    orientation: CardOrientation;
     popupLocation: BoardSide;
     popupMenu?: PopupMenuItem[];
     size: CardSize;
@@ -32,6 +33,7 @@ const CardPilePopup = ({
     onDragDrop,
     onMouseOut,
     onMouseOver,
+    orientation,
     popupLocation,
     popupMenu,
     size,
@@ -47,6 +49,7 @@ const CardPilePopup = ({
         onCardClick,
         onCardMouseOut: onMouseOut,
         onCardMouseOver: onMouseOver,
+        orientation: orientation,
         size,
         source
     };

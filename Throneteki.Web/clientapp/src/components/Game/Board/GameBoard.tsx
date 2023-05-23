@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
 import { useAuth } from 'react-oidc-context';
-import { GameCard, GamePlayer } from '../../../types/game';
+import { CardMenuItem, GameCard, GamePlayer } from '../../../types/game';
 import classNames from 'classnames';
 import PlayerStats from './PlayerStats';
 import PlayerBoard from './PlayerBoard';
@@ -12,7 +12,6 @@ import ActivePlayerPrompt from './ActivePlayerPrompt';
 import GameChat from './GameChat';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 import LoadingSpinner from '../../LoadingSpinner';
-import { Card } from '../../../types/data';
 import { BoardSide, CardSize } from '../../../types/enums';
 
 const placeholderPlayer: GamePlayer = {
@@ -71,7 +70,7 @@ const GameBoard = () => {
 
     const renderBoard = (thisPlayer: GamePlayer, otherPlayer: GamePlayer) => {
         return (
-            <div className='board-middle d-flex flex-column flex-grow-1 flex-shrink-1 w-100'>
+            <div className='board-middle d-flex flex-column flex-grow-1 flex-shrink-1'>
                 <div className='board-inner flex-grow-1 flex-shrink-1 d-flex'>
                     <div className='play-area'>
                         {
@@ -154,8 +153,11 @@ const GameBoard = () => {
         dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
     const onDragDrop = () => true;
     const handleDrawPopupChange = () => true;
-    const onMenuItemClick = () => true;
-    const onMouseOut = () => true;
+    const onMenuItemClick = (card: GameCard, menuItem: CardMenuItem) => {
+        dispatch(gameNodeActions.sendMenuItemClickMessage({ card: card.uuid, menuItem }));
+    };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const onMouseOut = (card: GameCard) => {};
     const onMouseOver = () => true;
     const onShuffleClick = () => true;
     const onCommand = (command: string, arg: string, method: string, promptId: string) => {

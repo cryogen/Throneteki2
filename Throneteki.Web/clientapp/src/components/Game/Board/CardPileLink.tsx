@@ -8,7 +8,6 @@ import {
     PopupChangeEventArgs,
     PopupMenuItem
 } from '../../../types/game';
-import { MouseEventHandler } from 'react';
 import { BoardSide, CardLocation, CardOrientation, CardSize } from '../../../types/enums';
 
 interface CardPileLinkProps {
@@ -22,7 +21,7 @@ interface CardPileLinkProps {
     numDeckCards?: number;
     onCardClick: (card: GameCard) => void;
     onDragDrop: (card: GameCard) => void;
-    onMouseOut: MouseEventHandler;
+    onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
     orientation?: CardOrientation;
@@ -113,7 +112,7 @@ const CardPileLink = ({
                             size: 'normal'
                         })
                     }
-                    onMouseOut={onMouseOut}
+                    onMouseOut={() => onMouseOut(card)}
                 >
                     <CardImage
                         card={card}
@@ -146,6 +145,7 @@ const CardPileLink = ({
                     onDragDrop={onDragDrop}
                     onMouseOut={onMouseOut}
                     onMouseOver={onMouseOver}
+                    orientation={orientation}
                     popupLocation={popupLocation}
                     popupMenu={popupMenu}
                     size={size}
