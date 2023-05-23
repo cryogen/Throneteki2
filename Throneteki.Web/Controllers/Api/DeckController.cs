@@ -25,31 +25,31 @@ namespace Throneteki.Web.Controllers.Api;
 [Route("/api/decks/")]
 public class DeckController : ControllerBase
 {
-    private readonly ThronetekiDbContext context;
-    private readonly UserManager<ThronetekiUser> userManager;
-    private readonly ILogger<DeckController> logger;
-    private readonly IMapper mapper;
-    private readonly CardService cardService;
-    private readonly ThronesDbOptions thronesDbOptions;
-    private readonly JsonSerializerOptions jsonOptions;
+    private readonly ThronetekiDbContext _context;
+    private readonly UserManager<ThronetekiUser> _userManager;
+    private readonly ILogger<DeckController> _logger;
+    private readonly IMapper _mapper;
+    private readonly CardService _cardService;
+    private readonly ThronesDbOptions _thronesDbOptions;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, 
         IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger, IMapper mapper,
         CardService cardService)
     {
-        this.context = context;
-        this.userManager = userManager;
-        this.logger = logger;
-        this.mapper = mapper;
-        this.cardService = cardService;
-        this.thronesDbOptions = thronesDbOptions.Value;
-        jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
+        _context = context;
+        _userManager = userManager;
+        _logger = logger;
+        _mapper = mapper;
+        _cardService = cardService;
+        _thronesDbOptions = thronesDbOptions.Value;
+        _jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
     }
 
     [HttpPost]
     public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
@@ -88,9 +88,9 @@ public class DeckController : ControllerBase
 
         deck.DeckCards = deckCards;
 
-        context.Decks.Add(deck);
+        _context.Decks.Add(deck);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(new
         {
@@ -101,13 +101,13 @@ public class DeckController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var baseQuery = context.Decks.Where(d => d.UserId == user.Id);
+        var baseQuery = _context.Decks.Where(d => d.UserId == user.Id);
 
         if (options.Filters != null && options.Filters.Any())
         {
@@ -147,8 +147,8 @@ public class DeckController : ControllerBase
             .Take(options.PageSize)
             .ToListAsync();
 
-        var packs = mapper.Map<IEnumerable<LobbyPack>>(await context.Packs.ToListAsync());
-        var validator = new DeckValidator(packs, await cardService.GetRestrictedLists());
+        var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
+        var validator = new DeckValidator(packs, await _cardService.GetRestrictedLists());
 
         var apiDecks = decks.Select(d => new ApiDeck
         {
@@ -180,7 +180,7 @@ public class DeckController : ControllerBase
                 Type = dc.CardType.ToString()
             }),
             IsFavourite = d.IsFavourite,
-            Status = validator.ValidateDeck(mapper.Map<LobbyDeck>(d))
+            Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(d))
         });
 
         return Ok(new
@@ -194,13 +194,13 @@ public class DeckController : ControllerBase
     [HttpGet("{deckId}")]
     public async Task<IActionResult> GetDeck(int deckId)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var deck = await context.Decks
+        var deck = await _context.Decks
             .Include(d => d.Faction)
             .Include(d => d.Agenda)
             .Include(d => d.DeckCards)
@@ -217,8 +217,8 @@ public class DeckController : ControllerBase
             return Forbid();
         }
 
-        var packs = mapper.Map<IEnumerable<LobbyPack>>(await context.Packs.ToListAsync());
-        var validator = new DeckValidator(packs, await cardService.GetRestrictedLists());
+        var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
+        var validator = new DeckValidator(packs, await _cardService.GetRestrictedLists());
 
         return Ok(new
         {
@@ -253,7 +253,7 @@ public class DeckController : ControllerBase
                     Type = dc.CardType.ToString()
                 }),
                 IsFavourite = deck.IsFavourite,
-                Status = validator.ValidateDeck(mapper.Map<LobbyDeck>(deck))
+                Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck))
             }
         });
     }
@@ -261,13 +261,13 @@ public class DeckController : ControllerBase
     [HttpGet("groupFilter")]
     public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var query = context.Decks
+        var query = _context.Decks
             .Where(d => d.UserId == user.Id);
 
         if (options.Filters != null && options.Filters.Any())
@@ -289,13 +289,13 @@ public class DeckController : ControllerBase
     [HttpGet("thronesdb/status")]
     public async Task<IActionResult> GetThronesDbLinkStatus()
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var anyThronesDbToken = await userManager.Users
+        var anyThronesDbToken = await _userManager.Users
             .Include(u => u.ExternalTokens)
             .AnyAsync(u => u.Id == user.Id && u.ExternalTokens.Any(t => t.ExternalId == "ThronesDB"));
 
@@ -309,13 +309,13 @@ public class DeckController : ControllerBase
     [HttpGet("thronesdb")]
     public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        user = await _userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
         if (user == null)
         {
             return Unauthorized();
@@ -351,12 +351,12 @@ public class DeckController : ControllerBase
 
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-        var dbDecks = await context.Decks
+        var dbDecks = await _context.Decks
             .Include(d => d.DeckCards)
             .Where(d => d.UserId == user.Id && d.ExternalId != null)
             .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
 
-        var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
+        var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", _jsonOptions, cancellationToken);
         if (decks == null)
         {
             return BadRequest(new
@@ -386,13 +386,13 @@ public class DeckController : ControllerBase
     [HttpPost("thronesdb")]
     public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        user = await userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        user = await _userManager.Users.Include(u => u.ExternalTokens).FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
         if (user == null)
         {
             return Unauthorized();
@@ -427,7 +427,7 @@ public class DeckController : ControllerBase
 
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
 
-        var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", jsonOptions, cancellationToken);
+        var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", _jsonOptions, cancellationToken);
         if (thronesDbDecks == null)
         {
             return BadRequest(new
@@ -438,12 +438,12 @@ public class DeckController : ControllerBase
         }
 
         var decks = thronesDbDecks.Where(d => deckIds.Contains(d.Id));
-        var dbDecks = await context.Decks
+        var dbDecks = await _context.Decks
             .Include(d => d.DeckCards)
             .Where(d => d.UserId == user.Id && d.ExternalId != null)
             .ToDictionaryAsync(k => k.ExternalId!, v => v, cancellationToken);
-        var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
-        var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
+        var dbFactions = await _context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
+        var dbCards = await _context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
 
         const string bannerAgendaCode = "06018";
 
@@ -458,7 +458,7 @@ public class DeckController : ControllerBase
             if (!dbDecks.TryGetValue(deckId, out var dbDeck))
             {
                 dbDeck = new Deck();
-                context.Decks.Add(dbDeck);
+                _context.Decks.Add(dbDeck);
             }
 
             dbDeck.ExternalId = deck.Uuid;
@@ -513,7 +513,7 @@ public class DeckController : ControllerBase
             }
         }
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(new
         {
@@ -524,13 +524,13 @@ public class DeckController : ControllerBase
     [HttpPost("{deckId}/toggleFavourite")]
     public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var deck = await context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
+        var deck = await _context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
         if (deck == null)
         {
             return NotFound();
@@ -543,7 +543,7 @@ public class DeckController : ControllerBase
 
         deck.IsFavourite = !deck.IsFavourite;
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(new
         {
@@ -553,15 +553,15 @@ public class DeckController : ControllerBase
 
     private async Task<bool> RefreshToken(HttpClient httpClient, ExternalToken token, CancellationToken cancellationToken)
     {
-        if (thronesDbOptions.ClientId == null || thronesDbOptions.ClientSecret == null)
+        if (_thronesDbOptions.ClientId == null || _thronesDbOptions.ClientSecret == null)
         {
             return false;
         }
 
         var request = new List<KeyValuePair<string, string>>
         {
-            new("client_id", thronesDbOptions.ClientId),
-            new("client_secret", thronesDbOptions.ClientSecret),
+            new("client_id", _thronesDbOptions.ClientId),
+            new("client_secret", _thronesDbOptions.ClientSecret),
             new("grant_type", "refresh_token"),
             new("refresh_token", token.RefreshToken)
         };
@@ -574,12 +574,12 @@ public class DeckController : ControllerBase
         if (!response.IsSuccessStatusCode)
         {
             var responseStr = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogWarning($"Error refreshing thronesdb token: {responseStr}");
+            _logger.LogWarning($"Error refreshing thronesdb token: {responseStr}");
 
             return false;
         }
 
-        var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(jsonOptions, cancellationToken);
+        var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>(_jsonOptions, cancellationToken);
 
         if (tokenResponse?.AccessToken == null || tokenResponse.RefreshToken == null)
         {
@@ -590,7 +590,7 @@ public class DeckController : ControllerBase
         token.RefreshToken = tokenResponse.RefreshToken;
         token.Expiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return true;
     }

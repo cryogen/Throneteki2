@@ -6,11 +6,11 @@ namespace Throneteki.Auth.Helpers;
 
 public class MaxFileSizeAttribute : ValidationAttribute
 {
-    private readonly int maxFileSize;
+    private readonly int _maxFileSize;
 
     public MaxFileSizeAttribute(int maxFileSize)
     {
-        this.maxFileSize = maxFileSize;
+        _maxFileSize = maxFileSize;
     }
 
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
@@ -20,11 +20,11 @@ public class MaxFileSizeAttribute : ValidationAttribute
             return ValidationResult.Success!;
         }
 
-        return file.Length > maxFileSize ? new ValidationResult(GetErrorMessage()) : ValidationResult.Success!;
+        return file.Length > _maxFileSize ? new ValidationResult(GetErrorMessage()) : ValidationResult.Success!;
     }
 
     public string GetErrorMessage()
     {
-        return $"Maximum allowed file size is {maxFileSize} bytes.";
+        return $"Maximum allowed file size is {_maxFileSize} bytes.";
     }
 }

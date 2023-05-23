@@ -17,30 +17,30 @@ namespace Throneteki.Import;
 
 public class ThronetekiDataImporter : IHostedService
 {
-    private readonly IDatabase database;
-    private readonly string imagePath;
-    private readonly IHostApplicationLifetime lifeTime;
-    private readonly ILogger<ThronetekiDataImporter> logger;
-    private readonly IMapper mapper;
-    private readonly IServiceProvider serviceProvider;
+    private readonly IDatabase _database;
+    private readonly string _imagePath;
+    private readonly IHostApplicationLifetime _lifeTime;
+    private readonly ILogger<ThronetekiDataImporter> _logger;
+    private readonly IMapper _mapper;
+    private readonly IServiceProvider _serviceProvider;
 
     public ThronetekiDataImporter(IServiceProvider serviceProvider, ILogger<ThronetekiDataImporter> logger, IHostApplicationLifetime lifeTime, IConfiguration configuration,
         IConnectionMultiplexer connectionMultiplexer, IMapper mapper)
     {
-        this.serviceProvider = serviceProvider;
-        this.logger = logger;
-        this.lifeTime = lifeTime;
-        this.mapper = mapper;
-        database = connectionMultiplexer.GetDatabase();
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+        _lifeTime = lifeTime;
+        _mapper = mapper;
+        _database = connectionMultiplexer.GetDatabase();
 
-        imagePath = configuration.GetValue<string>("Settings:ImagePath");
+        _imagePath = configuration.GetValue<string>("Settings:ImagePath");
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        logger.LogInformation("Starting importing data");
+        _logger.LogInformation("Starting importing data");
 
-        using var scope = serviceProvider.CreateScope();
+        using var scope = _serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ThronetekiDbContext>();
 
@@ -51,17 +51,17 @@ public class ThronetekiDataImporter : IHostedService
             BaseAddress = new Uri("https://thronesdb.com/api/")
         };
 
-        logger.LogInformation("Fetching packs from ThronesDB");
+        _logger.LogInformation("Fetching packs from ThronesDB");
 
         var packs = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbPack>>("public/packs", jsonOptions, cancellationToken);
         if (packs == null)
         {
-            logger.LogError("Failed to fetch packs, aborting");
+            _logger.LogError("Failed to fetch packs, aborting");
 
             return;
         }
 
-        logger.LogInformation("Finished fetching packs, importing...");
+        _logger.LogInformation("Finished fetching packs, importing...");
 
         var dbPacks = await context.Packs.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
 
@@ -69,7 +69,7 @@ public class ThronetekiDataImporter : IHostedService
         {
             if (pack.Code == null)
             {
-                logger.LogWarning("Null pack code encountered, skipping");
+                _logger.LogWarning("Null pack code encountered, skipping");
                 continue;
             }
 
@@ -87,11 +87,11 @@ public class ThronetekiDataImporter : IHostedService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Packs imported, fetching cards");
+        _logger.LogInformation("Packs imported, fetching cards");
         var cards = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbCard>>("public/cards", jsonOptions, cancellationToken);
         if (cards == null)
         {
-            logger.LogError("Failed to fetch cards, aborting");
+            _logger.LogError("Failed to fetch cards, aborting");
 
             return;
         }
@@ -99,25 +99,25 @@ public class ThronetekiDataImporter : IHostedService
         var dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
         var dbFactions = await context.Factions.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
 
-        logger.LogInformation("Cards fetched, importing...");
+        _logger.LogInformation("Cards fetched, importing...");
 
         foreach (var card in cards)
         {
             if (card.Code == null)
             {
-                logger.LogWarning("Null card code encountered, skipping");
+                _logger.LogWarning("Null card code encountered, skipping");
                 continue;
             }
 
             if (card.PackCode == null)
             {
-                logger.LogError("Card {cardCode} had empty pack code, ignoring", card.Code);
+                _logger.LogError("Card {cardCode} had empty pack code, ignoring", card.Code);
                 continue;
             }
 
             if (card.FactionCode == null)
             {
-                logger.LogError("Card {cardCode} has empty faction code, ignoring", card.Code);
+                _logger.LogError("Card {cardCode} has empty faction code, ignoring", card.Code);
                 continue;
             }
 
@@ -154,18 +154,18 @@ public class ThronetekiDataImporter : IHostedService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Card import done, fetching images");
+        _logger.LogInformation("Card import done, fetching images");
 
-        await Parallel.ForEachAsync(dbCards.Values.Where(card => !File.Exists($"{Path.Combine(imagePath, card.Code)}.png") && card.ImageUrl != null),
+        await Parallel.ForEachAsync(dbCards.Values.Where(card => !File.Exists($"{Path.Combine(_imagePath, card.Code)}.png") && card.ImageUrl != null),
             new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 5 }, async (card, token) =>
             {
-                logger.LogInformation("Downloading image for {cardLabel} from {url}", card.Label, card.ImageUrl);
+                _logger.LogInformation("Downloading image for {cardLabel} from {url}", card.Label, card.ImageUrl);
                 await using var imageStream = await httpClient.GetStreamAsync(card.ImageUrl, token);
-                await using var file = File.OpenWrite($"{Path.Combine(imagePath, card.Code)}.png");
+                await using var file = File.OpenWrite($"{Path.Combine(_imagePath, card.Code)}.png");
                 await imageStream.CopyToAsync(file, token);
             });
 
-        logger.LogInformation(imagePath);
+        _logger.LogInformation(_imagePath);
 
         var options = new JsonSerializerOptions
         {
@@ -173,18 +173,18 @@ public class ThronetekiDataImporter : IHostedService
         };
 
         dbPacks = await context.Packs.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
-        await database.StringSetAsync("data:packs", JsonSerializer.Serialize(dbPacks.Values.Select(mapper.Map<LobbyPack>), options));
+        await _database.StringSetAsync("data:packs", JsonSerializer.Serialize(dbPacks.Values.Select(_mapper.Map<LobbyPack>), options));
 
         dbCards = await context.Cards.ToDictionaryAsync(k => k.Code, v => v, cancellationToken);
-        await database.StringSetAsync("data:cards", JsonSerializer.Serialize(
-            dbCards.ToDictionary(k => k.Key, v => mapper.Map<LobbyCard>(v.Value)), options));
+        await _database.StringSetAsync("data:cards", JsonSerializer.Serialize(
+            dbCards.ToDictionary(k => k.Key, v => _mapper.Map<LobbyCard>(v.Value)), options));
 
-        lifeTime.StopApplication();
+        _lifeTime.StopApplication();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        logger.LogInformation("Finished importing data");
+        _logger.LogInformation("Finished importing data");
 
         return Task.CompletedTask;
     }

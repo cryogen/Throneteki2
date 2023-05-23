@@ -15,18 +15,18 @@ namespace Throneteki.WebService.Services;
 [Authorize]
 public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
 {
-    private readonly ThronetekiDbContext dbContext;
-    private readonly IMapper mapper;
+    private readonly ThronetekiDbContext _dbContext;
+    private readonly IMapper _mapper;
 
     public ThronetekiServiceImpl(ThronetekiDbContext dbContext, IMapper mapper)
     {
-        this.dbContext = dbContext;
-        this.mapper = mapper;
+        _dbContext = dbContext;
+        _mapper = mapper;
     }
 
     public override async Task<AddLobbyMessageResponse> AddLobbyMessage(AddLobbyMessageRequest request, ServerCallContext context)
     {
-        var poster = await dbContext.Users
+        var poster = await _dbContext.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(user => user.Id == request.UserId);
@@ -43,9 +43,9 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             PosterId = poster.Id
         };
 
-        dbContext.LobbyMessages.Add(newMessage);
+        _dbContext.LobbyMessages.Add(newMessage);
 
-        await dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
 
         return new AddLobbyMessageResponse
         {
@@ -68,7 +68,7 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
 
     public override async Task<GetDeckByIdResponse> GetDeckById(GetDeckByIdRequest request, ServerCallContext context)
     {
-        var deck = await dbContext.Decks
+        var deck = await _dbContext.Decks
             .Include(d => d.Faction)
             .Include(d => d.Agenda)
             .ThenInclude(a => a.Faction)
@@ -86,15 +86,15 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
             return new GetDeckByIdResponse();
         }
 
-        var retDeck = mapper.Map<Deck>(deck);
-        retDeck.DrawCards.AddRange(mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
-        retDeck.PlotCards.AddRange(mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
+        var retDeck = _mapper.Map<Deck>(deck);
+        retDeck.DrawCards.AddRange(_mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Draw)));
+        retDeck.PlotCards.AddRange(_mapper.Map<IEnumerable<DeckCard>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Plot)));
         if (deck.Agenda != null)
         {
-            retDeck.Agendas.Add(mapper.Map<Card>(deck.Agenda));
+            retDeck.Agendas.Add(_mapper.Map<Card>(deck.Agenda));
         }
 
-        retDeck.Agendas.AddRange(mapper.Map<IEnumerable<Card>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
+        retDeck.Agendas.AddRange(_mapper.Map<IEnumerable<Card>>(deck.DeckCards.Where(dc => dc.CardType == DeckCardType.Banner).Select(dc => dc.Card)));
 
         return new GetDeckByIdResponse
         {
@@ -105,9 +105,9 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
     [SuppressMessage("ReSharper", "SimplifyLinqExpressionUseAll")]
     public override async Task<GetLobbyMessagesForUserResponse> GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest request, ServerCallContext context)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == request.UserId);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(user => user.Id == request.UserId);
 
-        var messages = await dbContext.LobbyMessages
+        var messages = await _dbContext.LobbyMessages
             .Include(m => m.Poster)
             .ThenInclude(p => p.ProfileImage)
             .Include(m => m.Poster)
@@ -130,7 +130,7 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
     {
         var ret = new GetUserByUsernameResponse();
 
-        var user = await dbContext.Users
+        var user = await _dbContext.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
             .Include(u => u.ProfileImage)
@@ -160,7 +160,7 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
 
         var settings = JsonSerializer.Deserialize<Data.Models.ThronetekiUserSettings>(user.Settings);
 
-        ret.User.Settings = mapper.Map<ThronetekiUserSettings>(settings);
+        ret.User.Settings = _mapper.Map<ThronetekiUserSettings>(settings);
 
         return ret;
     }
@@ -169,7 +169,7 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
     {
         var ret = new GetAllPacksResponse();
 
-        var packs = mapper.Map<IEnumerable<Pack>>(await dbContext.Packs.ToListAsync());
+        var packs = _mapper.Map<IEnumerable<Pack>>(await _dbContext.Packs.ToListAsync());
 
         ret.Packs.AddRange(packs);
 

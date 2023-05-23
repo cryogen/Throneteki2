@@ -4,11 +4,11 @@ namespace Throneteki.Auth.Helpers;
 
 public class AllowedExtensionsAttribute : ValidationAttribute
 {
-    private readonly string[] extensions;
+    private readonly string[] _extensions;
 
     public AllowedExtensionsAttribute(string[] extensions)
     {
-        this.extensions = extensions;
+        _extensions = extensions;
     }
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
@@ -20,7 +20,7 @@ public class AllowedExtensionsAttribute : ValidationAttribute
 
         var extension = Path.GetExtension(file.FileName);
 
-        return !extensions.Contains(extension.ToLower()) ? new ValidationResult(GetErrorMessage()) : ValidationResult.Success;
+        return !_extensions.Contains(extension.ToLower()) ? new ValidationResult(GetErrorMessage()) : ValidationResult.Success;
     }
 
     public string GetErrorMessage()

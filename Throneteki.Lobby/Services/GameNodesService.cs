@@ -9,11 +9,11 @@ namespace Throneteki.Lobby.Services;
 
 public class GameNodesService
 {
-    private readonly RedisCommandHandlerFactory commandHandlerFactory;
-    private readonly IDatabase database;
-    private readonly ISubscriber publisher;
+    private readonly RedisCommandHandlerFactory _commandHandlerFactory;
+    private readonly IDatabase _database;
+    private readonly ISubscriber _publisher;
 
-    private readonly JsonSerializerOptions jsonOptions = new()
+    private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
@@ -21,9 +21,9 @@ public class GameNodesService
     public GameNodesService(IConnectionMultiplexer connectionMultiplexer,
         RedisCommandHandlerFactory commandHandlerFactory)
     {
-        this.commandHandlerFactory = commandHandlerFactory;
-        database = connectionMultiplexer.GetDatabase();
-        publisher = connectionMultiplexer.GetSubscriber();
+        _commandHandlerFactory = commandHandlerFactory;
+        _database = connectionMultiplexer.GetDatabase();
+        _publisher = connectionMultiplexer.GetSubscriber();
         var subscriber = connectionMultiplexer.GetSubscriber();
 
         subscriber.SubscribeAsync(LobbyCommands.Hello, HandleMessage<RedisIncomingMessage<HelloMessage>>);
@@ -47,14 +47,14 @@ public class GameNodesService
             Arg = message
         };
 
-        var messageString = JsonSerializer.Serialize(outgoingMessage, jsonOptions);
+        var messageString = JsonSerializer.Serialize(outgoingMessage, _jsonOptions);
 
-        await publisher.PublishAsync(command, messageString);
+        await _publisher.PublishAsync(command, messageString);
     }
 
     private void HandleMessage<T>(RedisChannel channel, RedisValue message) where T : class, new()
     {
-        var handler = commandHandlerFactory.GetHandler<T>();
+        var handler = _commandHandlerFactory.GetHandler<T>();
         if (handler == null)
         {
             throw new InvalidOperationException($"Unknown redis command: '{channel}'");
@@ -64,7 +64,7 @@ public class GameNodesService
 
         if (message != RedisValue.Null)
         {
-            param = JsonSerializer.Deserialize<T>(message!, jsonOptions);
+            param = JsonSerializer.Deserialize<T>(message!, _jsonOptions);
         }
 
         handler.Handle(param!);

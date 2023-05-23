@@ -12,18 +12,18 @@ namespace Throneteki.Auth.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly SignInManager<ThronetekiUser> signInManager;
-    private readonly UserManager<ThronetekiUser> userManager;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly ILogger<AccountController> logger;
+    private readonly SignInManager<ThronetekiUser> _signInManager;
+    private readonly UserManager<ThronetekiUser> _userManager;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<AccountController> _logger;
 
     public AccountController(SignInManager<ThronetekiUser> signInManager, UserManager<ThronetekiUser> userManager, IHttpClientFactory httpClientFactory,
         ILogger<AccountController> logger)
     {
-        this.signInManager = signInManager;
-        this.userManager = userManager;
-        this.httpClientFactory = httpClientFactory;
-        this.logger = logger;
+        _signInManager = signInManager;
+        _userManager = userManager;
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -42,7 +42,7 @@ public class AccountController : Controller
 
         var model = new LoginViewModel
         {
-            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList(),
             ReturnUrl = returnUrl
         };
 
@@ -54,17 +54,17 @@ public class AccountController : Controller
     {
         returnUrl ??= Url.Content("~/");
 
-        model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        model.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, true);
+        var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, true);
         if (result.Succeeded)
         {
-            logger.LogInformation($"User {model.Username} logged in.");
+            _logger.LogInformation($"User {model.Username} logged in.");
             return LocalRedirect(returnUrl);
         }
 
@@ -75,7 +75,7 @@ public class AccountController : Controller
 
         if (result.IsLockedOut)
         {
-            logger.LogWarning("User account locked out.");
+            _logger.LogWarning("User account locked out.");
             return RedirectToPage("./Lockout");
         }
 
@@ -89,7 +89,7 @@ public class AccountController : Controller
         var model = new RegisterViewModel
         {
             ReturnUrl = returnUrl,
-            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
         };
 
         return View(model);
@@ -99,17 +99,17 @@ public class AccountController : Controller
     public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
-        model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        model.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
         var user = new ThronetekiUser { UserName = model.Username, Email = model.Email, RegisteredDateTime = DateTime.UtcNow };
-        var result = await userManager.CreateAsync(user, model.Password);
+        var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
-            logger.LogInformation("User created a new account with password.");
+            _logger.LogInformation("User created a new account with password.");
 
             /*
             var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -123,7 +123,7 @@ public class AccountController : Controller
             await emailSender.SendEmailAsync(model.Email, "Confirm your email",
                     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");*/
 
-            var httpClient = httpClientFactory.CreateClient();
+            var httpClient = _httpClientFactory.CreateClient();
             var stringToHash = StringUtilities.GetRandomString(32);
             var profileImage = new ProfileImage
             {
@@ -132,14 +132,14 @@ public class AccountController : Controller
 
             user.ProfileImage = profileImage;
 
-            await userManager.UpdateAsync(user);
+            await _userManager.UpdateAsync(user);
 
-            if (userManager.Options.SignIn.RequireConfirmedAccount)
+            if (_userManager.Options.SignIn.RequireConfirmedAccount)
             {
                 return RedirectToPage("RegisterConfirmation", new { email = model.Email, returnUrl });
             }
 
-            await signInManager.SignInAsync(user, false);
+            await _signInManager.SignInAsync(user, false);
             return LocalRedirect(returnUrl);
         }
 
@@ -154,7 +154,7 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Profile(string? returnUrl)
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
             return NotFound();
@@ -170,13 +170,13 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Profile(string? returnUrl, ProfileViewModel model)
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
             return NotFound();
         }
 
-        user = await userManager.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.Id == user.Id);
+        user = await _userManager.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.Id == user.Id);
         if (user == null)
         {
             return NotFound();
@@ -189,13 +189,13 @@ public class AccountController : Controller
 
         if (user.UserName != model.Username)
         {
-            await userManager.SetUserNameAsync(user, model.Username);
+            await _userManager.SetUserNameAsync(user, model.Username);
         }
 
         if (user.Email != model.Email)
         {
             // XXX Send confirmation email here if configured
-            await userManager.SetEmailAsync(user, model.Email);
+            await _userManager.SetEmailAsync(user, model.Email);
         }
 
         if (model.Avatar != null)
@@ -218,12 +218,12 @@ public class AccountController : Controller
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to save profile picture for user {user.UserName}");
+                _logger.LogError(ex, $"Failed to save profile picture for user {user.UserName}");
                 ModelState.AddModelError(string.Empty, "Invalid image file");
             }
         }
 
-        await userManager.UpdateAsync(user);
+        await _userManager.UpdateAsync(user);
 
         return Ok(new
         {

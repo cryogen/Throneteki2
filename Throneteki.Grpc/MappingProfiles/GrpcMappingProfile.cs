@@ -33,7 +33,7 @@ public class GrpcMappingProfile : Profile
             .ForMember(p => p.ReleaseDate,
             cfg => cfg.MapFrom(s =>
                 s.ReleaseDate.HasValue ? Timestamp.FromDateTime(s.ReleaseDate.Value) : new Timestamp()));
-        CreateMap<Pack, Models.Models.LobbyPack>()
+        CreateMap<Pack, LobbyPack>()
             .ForMember(p => p.ReleaseDate,
                 cfg => cfg.MapFrom(s =>
                     s.ReleaseDate.Nanos == 0 && s.ReleaseDate.Seconds == 0

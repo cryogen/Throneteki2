@@ -7,16 +7,16 @@ namespace Throneteki.Web;
 
 public class DataInitialisationWorker : IHostedService
 {
-    private readonly IServiceProvider serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public DataInitialisationWorker(IServiceProvider serviceProvider)
     {
-        this.serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        using var scope = serviceProvider.CreateScope();
+        using var scope = _serviceProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ThronetekiDbContext>();
         if ((await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any())

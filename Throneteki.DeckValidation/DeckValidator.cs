@@ -4,14 +4,14 @@ namespace Throneteki.DeckValidation;
 
 public class DeckValidator
 {
-    private readonly Dictionary<string, Models.Models.LobbyPack> releasedPacks;
-    private readonly IReadOnlyCollection<RestrictedListValidator> restrictedListValidators;
+    private readonly Dictionary<string, LobbyPack> _releasedPacks;
+    private readonly IReadOnlyCollection<RestrictedListValidator> _restrictedListValidators;
 
-    public DeckValidator(IEnumerable<Models.Models.LobbyPack> packs, IEnumerable<LobbyRestrictedList> restrictedListRules)
+    public DeckValidator(IEnumerable<LobbyPack> packs, IEnumerable<LobbyRestrictedList> restrictedListRules)
     {
-        releasedPacks = packs.Where(p => p.ReleaseDate != null && p.ReleaseDate <= DateTime.UtcNow)
+        _releasedPacks = packs.Where(p => p.ReleaseDate != null && p.ReleaseDate <= DateTime.UtcNow)
             .ToDictionary(k => k.Code, v => v);
-        restrictedListValidators = restrictedListRules.Select(r => new RestrictedListValidator(r)).ToList();
+        _restrictedListValidators = restrictedListRules.Select(r => new RestrictedListValidator(r)).ToList();
     }
 
     public DeckValidationStatus ValidateDeck(LobbyDeck deck)
@@ -58,7 +58,7 @@ public class DeckValidator
             .Select(card => $"{card.Label} is not allowed by faction or agenda"));
 
         var unreleasedCards = deck.GetUniqueCards()
-            .Where(card => !releasedPacks.ContainsKey(card.PackCode))
+            .Where(card => !_releasedPacks.ContainsKey(card.PackCode))
             .Select(card => $"{card.Label} is not yet released").ToList();
 
         var doubledPlots = cardCountsByName.Values.Where(card => card.Card.Type == "plot" && card.Count == 2);
@@ -70,7 +70,7 @@ public class DeckValidator
         errors.AddRange(cardCountsByName.Values.Where(deckCard => deckCard.Count > deckCard.Card.DeckLimit)
             .Select(deckCard => $"{deckCard.Card.Name} has limit {deckCard.Card.DeckLimit}"));
 
-        var restrictedListResults = restrictedListValidators.Select(restrictedList => restrictedList.Validate(deck)).ToList();
+        var restrictedListResults = _restrictedListValidators.Select(restrictedList => restrictedList.Validate(deck)).ToList();
         var officialRestrictedResult = restrictedListResults.Any()
             ? restrictedListResults.First()
             : new RestrictedListValidationStatus

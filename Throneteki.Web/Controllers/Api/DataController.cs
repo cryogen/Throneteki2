@@ -9,31 +9,31 @@ namespace Throneteki.Web.Controllers.Api;
 [ApiController]
 public class DataController : ControllerBase
 {
-    private readonly ThronetekiDbContext context;
-    private readonly CardService cardService;
+    private readonly ThronetekiDbContext _context;
+    private readonly CardService _cardService;
 
     public DataController(ThronetekiDbContext context, CardService cardService)
     {
-        this.context = context;
-        this.cardService = cardService;
+        _context = context;
+        _cardService = cardService;
     }
 
     [HttpGet("/api/data/factions")]
     public async Task<IActionResult> GetFactions(CancellationToken cancellationToken)
     {
-        return Ok(await context.Factions.ToListAsync(cancellationToken));
+        return Ok(await _context.Factions.ToListAsync(cancellationToken));
     }
 
     [HttpGet("/api/data/packs")]
     public async Task<IActionResult> GetPacks(CancellationToken cancellationToken)
     {
-        return Ok(await context.Packs.ToListAsync(cancellationToken));
+        return Ok(await _context.Packs.ToListAsync(cancellationToken));
     }
 
     [HttpGet("/api/data/restricted-list")]
     public async Task<IActionResult> GetRestrictedList(CancellationToken cancellationToken)
     {
-        return Ok(await cardService.GetRestrictedLists());
+        return Ok(await _cardService.GetRestrictedLists());
     }
 
     [HttpGet("/api/data/cards")]
@@ -46,7 +46,7 @@ public class DataController : ControllerBase
             "VKm"
         };
 
-        return Ok(await context.Cards
+        return Ok(await _context.Cards
             .Include(c => c.Faction)
             .Include(c => c.Pack)
             .Where(card => !excludedPackCodes.Contains(card.Pack.Code))

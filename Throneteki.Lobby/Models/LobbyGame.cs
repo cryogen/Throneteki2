@@ -8,7 +8,7 @@ namespace Throneteki.Lobby.Models;
 
 public class LobbyGame
 {
-    private readonly ConcurrentDictionary<string, GameUser> gameUsers = new();
+    private readonly ConcurrentDictionary<string, GameUser> _gameUsers = new();
 
     public LobbyGame(NewGameRequest request, ThronetekiUser owner, LobbyRestrictedList? restrictedList)
     {
@@ -26,8 +26,8 @@ public class LobbyGame
     public bool AllowSpectators { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string GameType { get; set; }
-    public ICollection<GameUser> GameUsers => gameUsers.Values;
-    public ICollection<GameUser> Players => gameUsers.Values.Where(gu => gu.GameUserType == GameUserType.Player).ToList();
+    public ICollection<GameUser> GameUsers => _gameUsers.Values;
+    public ICollection<GameUser> Players => _gameUsers.Values.Where(gu => gu.GameUserType == GameUserType.Player).ToList();
     public Guid Id { get; set; } = Guid.NewGuid();
     public bool IsChessClocksEnabled { get; set; }
     public bool IsGameTimeLimited { get; set; }
@@ -43,7 +43,7 @@ public class LobbyGame
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)
     {
-        gameUsers[user.Name] = new GameUser { GameUserType = userType, User = user };
+        _gameUsers[user.Name] = new GameUser { GameUserType = userType, User = user };
     }
 
     private static string HashPassword(string password)
@@ -170,21 +170,21 @@ public class LobbyGame
 
     public void SelectDeck(string username, LobbyDeck deck)
     {
-        var player = gameUsers[username];
+        var player = _gameUsers[username];
 
         player.User.SelectDeck(deck);
     }
 
     public void UserDisconnect(string username)
     {
-        if (IsStarted || !gameUsers.ContainsKey(username))
+        if (IsStarted || !_gameUsers.ContainsKey(username))
         {
             return;
         }
 
         AddMessage($"{username} has disconnected.");
 
-        var user = gameUsers[username];
+        var user = _gameUsers[username];
 
         if (user.GameUserType == GameUserType.Player)
         {
@@ -200,7 +200,7 @@ public class LobbyGame
             }
         }
 
-        gameUsers.Remove(username, out _);
+        _gameUsers.Remove(username, out _);
     }
 
     private void AddMessage(string format, params object[] args)
@@ -209,7 +209,7 @@ public class LobbyGame
 
     public void PlayerLeave(string username)
     {
-        var player = gameUsers[username];
+        var player = _gameUsers[username];
 
         if (!IsStarted)
         {
@@ -226,12 +226,12 @@ public class LobbyGame
             {
                 RemoveAndResetOwner(player);
 
-                gameUsers.Remove(username, out _);
+                _gameUsers.Remove(username, out _);
             }
         }
         else
         {
-            gameUsers.Remove(username, out _);
+            _gameUsers.Remove(username, out _);
         }
     }
 

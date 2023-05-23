@@ -19,24 +19,24 @@ namespace Throneteki.Web.Controllers.Api;
 [Route("/api/user/")]
 public class UserController : ControllerBase
 {
-    private readonly UserManager<ThronetekiUser> userManager;
-    private readonly ThronetekiDbContext dbContext;
-    private readonly IWebHostEnvironment hostEnvironment;
-    private readonly JsonSerializerOptions serializerOptions;
+    private readonly UserManager<ThronetekiUser> _userManager;
+    private readonly ThronetekiDbContext _dbContext;
+    private readonly IWebHostEnvironment _hostEnvironment;
+    private readonly JsonSerializerOptions _serializerOptions;
 
     public UserController(UserManager<ThronetekiUser> userManager, ThronetekiDbContext dbContext, IWebHostEnvironment hostEnvironment)
     {
-        this.userManager = userManager;
-        this.dbContext = dbContext;
-        this.hostEnvironment = hostEnvironment;
+        _userManager = userManager;
+        _dbContext = dbContext;
+        _hostEnvironment = hostEnvironment;
 
-        serializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        _serializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     }
 
     [HttpPatch("{userId}")]
     public async Task<IActionResult> SaveUser(string userId, SaveUserRequest request)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
             return NotFound();
@@ -47,13 +47,13 @@ public class UserController : ControllerBase
             return Forbid();
         }
 
-        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", serializerOptions) ?? new ThronetekiUserSettings();
+        var settings = JsonSerializer.Deserialize<ThronetekiUserSettings>(user.Settings ?? "{}", _serializerOptions) ?? new ThronetekiUserSettings();
 
         if (request.CustomBackground != null)
         {
             await using var imageStream = new MemoryStream(Convert.FromBase64String(request.CustomBackground));
             using var image = await Image.LoadAsync(imageStream);
-            var bgPath = Path.Combine(hostEnvironment.WebRootPath, "img", "bgs");
+            var bgPath = Path.Combine(_hostEnvironment.WebRootPath, "img", "bgs");
 
             image.Mutate(img => img.Resize(new Size(1280, 720), KnownResamplers.Bicubic, true));
 
@@ -79,10 +79,10 @@ public class UserController : ControllerBase
         settings.TimerEvents = request.Settings.TimerEvents;
         settings.WindowTimer = request.Settings.WindowTimer;
 
-        user.Settings = JsonSerializer.Serialize(settings, serializerOptions);
+        user.Settings = JsonSerializer.Serialize(settings, _serializerOptions);
 
-        await userManager.UpdateAsync(user);
-        await dbContext.SaveChangesAsync();
+        await _userManager.UpdateAsync(user);
+        await _dbContext.SaveChangesAsync();
 
         return Ok(new
         {
@@ -93,7 +93,7 @@ public class UserController : ControllerBase
     [HttpGet("{userId}/blocklist")]
     public async Task<IActionResult> GetBlockList(string userId)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
             return NotFound();
@@ -104,7 +104,7 @@ public class UserController : ControllerBase
             return Forbid();
         }
 
-        user = await userManager.Users
+        user = await _userManager.Users
             .Include(u => u.BlockListEntries)
             .ThenInclude(bl => bl.BlockedUser)
             .FirstOrDefaultAsync(u => u.Id == user.Id);
@@ -127,7 +127,7 @@ public class UserController : ControllerBase
     [HttpPost("{userId}/blocklist")]
     public async Task<IActionResult> AddToBlockList(string userId, AddBlockListEntryRequest request)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
             return NotFound();
@@ -138,13 +138,13 @@ public class UserController : ControllerBase
             return Forbid();
         }
 
-        user = await userManager.Users.Include(u => u.BlockListEntries).FirstOrDefaultAsync(u => u.Id == user.Id);
+        user = await _userManager.Users.Include(u => u.BlockListEntries).FirstOrDefaultAsync(u => u.Id == user.Id);
         if (user == null)
         {
             return NotFound();
         }
 
-        var blockedUser = await userManager.FindByNameAsync(request.UserName);
+        var blockedUser = await _userManager.FindByNameAsync(request.UserName);
         if (blockedUser == null)
         {
             return BadRequest(new
@@ -178,8 +178,8 @@ public class UserController : ControllerBase
             BlockedUserId = blockedUser.Id
         });
 
-        await userManager.UpdateAsync(user);
-        await dbContext.SaveChangesAsync();
+        await _userManager.UpdateAsync(user);
+        await _dbContext.SaveChangesAsync();
 
         return Ok(new
         {

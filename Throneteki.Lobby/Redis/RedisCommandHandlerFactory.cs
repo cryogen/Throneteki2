@@ -2,15 +2,15 @@
 
 public class RedisCommandHandlerFactory
 {
-    private readonly IServiceProvider serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public RedisCommandHandlerFactory(IServiceProvider serviceProvider)
     {
-        this.serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider;
     }
 
     public IRedisCommandHandler<T>? GetHandler<T>()
     {
-        return serviceProvider.GetService<IRedisCommandHandler<T>>();
+        return _serviceProvider.GetService<IRedisCommandHandler<T>>();
     }
 }

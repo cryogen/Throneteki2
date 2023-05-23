@@ -8,11 +8,11 @@ namespace Throneteki.Auth.Helpers;
 
 public class ThronetekiUserClaimsTransformation : IClaimsTransformation
 {
-    private readonly ThronetekiDbContext dbContext;
+    private readonly ThronetekiDbContext _dbContext;
 
     public ThronetekiUserClaimsTransformation(ThronetekiDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        _dbContext = dbContext;
     }
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
@@ -22,7 +22,7 @@ public class ThronetekiUserClaimsTransformation : IClaimsTransformation
             return principal;
         }
 
-        var user = await dbContext.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.UserName == principal.Identity.Name);
+        var user = await _dbContext.Users.Include(u => u.ProfileImage).SingleOrDefaultAsync(u => u.UserName == principal.Identity.Name);
         var claimsIdentity = new ClaimsIdentity();
         if (!principal.HasClaim(claim => claim.Type == OpenIddictConstants.Claims.Picture) && user?.ProfileImage != null)
         {

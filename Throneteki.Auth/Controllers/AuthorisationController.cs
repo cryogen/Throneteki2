@@ -15,11 +15,11 @@ namespace Throneteki.Auth.Controllers;
 
 public class AuthorisationController : Controller
 {
-    private readonly IOpenIddictApplicationManager applicationManager;
-    private readonly IOpenIddictAuthorizationManager authorizationManager;
-    private readonly IOpenIddictScopeManager scopeManager;
-    private readonly SignInManager<ThronetekiUser> signInManager;
-    private readonly UserManager<ThronetekiUser> userManager;
+    private readonly IOpenIddictApplicationManager _applicationManager;
+    private readonly IOpenIddictAuthorizationManager _authorizationManager;
+    private readonly IOpenIddictScopeManager _scopeManager;
+    private readonly SignInManager<ThronetekiUser> _signInManager;
+    private readonly UserManager<ThronetekiUser> _userManager;
 
     public AuthorisationController(IOpenIddictApplicationManager applicationManager,
         IOpenIddictAuthorizationManager authorizationManager,
@@ -27,11 +27,11 @@ public class AuthorisationController : Controller
         SignInManager<ThronetekiUser> signInManager,
         UserManager<ThronetekiUser> userManager)
     {
-        this.applicationManager = applicationManager;
-        this.authorizationManager = authorizationManager;
-        this.scopeManager = scopeManager;
-        this.signInManager = signInManager;
-        this.userManager = userManager;
+        _applicationManager = applicationManager;
+        _authorizationManager = authorizationManager;
+        _scopeManager = scopeManager;
+        _signInManager = signInManager;
+        _userManager = userManager;
     }
 
     [HttpGet("~/connect/authorize")]
@@ -93,7 +93,7 @@ public class AuthorisationController : Controller
         }
 
         // Retrieve the profile of the logged in user.
-        var user = await userManager.GetUserAsync(result.Principal) ?? throw new InvalidOperationException("The user details cannot be retrieved.");
+        var user = await _userManager.GetUserAsync(result.Principal) ?? throw new InvalidOperationException("The user details cannot be retrieved.");
 
         // Retrieve the application details from the database.
         if (request.ClientId == null)
@@ -101,18 +101,18 @@ public class AuthorisationController : Controller
             return BadRequest();
         }
 
-        var application = await applicationManager.FindByClientIdAsync(request.ClientId) ??
+        var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
                           throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
 
         // Retrieve the permanent authorizations associated with the user and the calling client application.
-        var authorizations = await authorizationManager.FindAsync(
-            await userManager.GetUserIdAsync(user),
-            await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
+        var authorizations = await _authorizationManager.FindAsync(
+            await _userManager.GetUserIdAsync(user),
+            await _applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
             Statuses.Valid,
             AuthorizationTypes.Permanent,
             request.GetScopes()).ToListAsync();
 
-        switch (await applicationManager.GetConsentTypeAsync(application))
+        switch (await _applicationManager.GetConsentTypeAsync(application))
         {
             // If the consent is external (e.g when authorizations are granted by a sysadmin),
             // immediately return an error if no authorization can be found in the database.
@@ -131,24 +131,24 @@ public class AuthorisationController : Controller
             case ConsentTypes.Implicit:
             case ConsentTypes.External when authorizations.Any():
             case ConsentTypes.Explicit when authorizations.Any() && !request.HasPrompt(Prompts.Consent):
-                var principal = await signInManager.CreateUserPrincipalAsync(user);
+                var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
                 // Note: in this sample, the granted scopes match the requested scope
                 // but you may want to allow the user to uncheck specific scopes.
                 // For that, simply restrict the list of scopes before calling SetScopes.
                 principal.SetScopes(request.GetScopes());
-                principal.SetResources(new[] { "throneteki-nodes" }.Concat(await scopeManager.ListResourcesAsync(principal.GetScopes()).ToListAsync()));
+                principal.SetResources(new[] { "throneteki-nodes" }.Concat(await _scopeManager.ListResourcesAsync(principal.GetScopes()).ToListAsync()));
 
                 // Automatically create a permanent authorization to avoid requiring explicit consent
                 // for future authorization or token requests containing the same scopes.
-                var authorization = authorizations.LastOrDefault() ?? await authorizationManager.CreateAsync(
+                var authorization = authorizations.LastOrDefault() ?? await _authorizationManager.CreateAsync(
                     principal,
-                    await userManager.GetUserIdAsync(user),
-                    await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
+                    await _userManager.GetUserIdAsync(user),
+                    await _applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException(),
                     AuthorizationTypes.Permanent,
                     principal.GetScopes());
 
-                principal.SetAuthorizationId(await authorizationManager.GetIdAsync(authorization));
+                principal.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
 
                 foreach (var claim in principal.Claims)
                 {
@@ -174,7 +174,7 @@ public class AuthorisationController : Controller
             default:
                 return View(new AuthoriseViewModel
                 {
-                    ApplicationName = await applicationManager.GetDisplayNameAsync(application),
+                    ApplicationName = await _applicationManager.GetDisplayNameAsync(application),
                     Scope = request.Scope
                 });
         }
@@ -183,7 +183,7 @@ public class AuthorisationController : Controller
     [HttpGet("~/connect/logout")]
     public async Task<IActionResult> Logout()
     {
-        await signInManager.SignOutAsync();
+        await _signInManager.SignOutAsync();
 
         return SignOut(
             authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -212,7 +212,7 @@ public class AuthorisationController : Controller
             // Note: if you want to automatically invalidate the authorization code/refresh token
             // when the user password/roles change, use the following line instead:
             // var user = _signInManager.ValidateSecurityStampAsync(info.Principal);
-            var user = await userManager.GetUserAsync(principal);
+            var user = await _userManager.GetUserAsync(principal);
             if (user == null)
             {
                 return Forbid(
@@ -225,7 +225,7 @@ public class AuthorisationController : Controller
             }
 
             // Ensure the user is still allowed to sign in.
-            if (!await signInManager.CanSignInAsync(user))
+            if (!await _signInManager.CanSignInAsync(user))
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,

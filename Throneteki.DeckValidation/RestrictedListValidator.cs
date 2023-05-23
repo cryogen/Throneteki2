@@ -5,20 +5,20 @@ namespace Throneteki.DeckValidation;
 
 public class RestrictedListValidator
 {
-    private readonly LobbyRestrictedList rules;
-    private readonly IReadOnlyCollection<RestrictedListPod> pods;
+    private readonly LobbyRestrictedList _rules;
+    private readonly IReadOnlyCollection<RestrictedListPod> _pods;
 
     public RestrictedListValidator(LobbyRestrictedList restrictedList)
     {
-        rules = restrictedList;
-        pods = restrictedList.Pods;
+        _rules = restrictedList;
+        _pods = restrictedList.Pods;
     }
 
     public RestrictedListValidationStatus Validate(LobbyDeck deck)
     {
         var cards = deck.GetUniqueCards().ToList();
-        var restrictedCardsOnList = cards.Where(card => rules.Restricted.Contains(card.Code)).ToList();
-        var bannedCardsOnList = cards.Where(card => rules.Banned.Contains(card.Code)).ToList();
+        var restrictedCardsOnList = cards.Where(card => _rules.Restricted.Contains(card.Code)).ToList();
+        var bannedCardsOnList = cards.Where(card => _rules.Banned.Contains(card.Code)).ToList();
         var noBannedCards = true;
 
         var errors = new List<string>();
@@ -34,17 +34,17 @@ public class RestrictedListValidator
         if (restrictedCardsOnList.Count > 1)
         {
             errors.Add(
-                $"{rules.Name}: Contains more than 1 card on the restricted list: {string.Join(", ", restrictedCardsOnList.Select(card => card.Name))}");
+                $"{_rules.Name}: Contains more than 1 card on the restricted list: {string.Join(", ", restrictedCardsOnList.Select(card => card.Name))}");
         }
 
         if (bannedCardsOnList.Any())
         {
             noBannedCards = false;
             errors.Add(
-                $"{rules.Name}: Contains cards that are not tournament legal: {string.Join(", ", bannedCardsOnList.Select(card => card.Name))}");
+                $"{_rules.Name}: Contains cards that are not tournament legal: {string.Join(", ", bannedCardsOnList.Select(card => card.Name))}");
         }
 
-        foreach (var pod in pods)
+        foreach (var pod in _pods)
         {
             var podErrors =
                 (pod.Restricted != null ? ValidateRestrictedPods(pod, cards) : ValidateAnyCardPod(pod, cards)).ToList();
@@ -54,7 +54,7 @@ public class RestrictedListValidator
 
         return new RestrictedListValidationStatus
         {
-            Name = rules.Name, Valid = !errors.Any(), RestrictedRules = restrictedCardsOnList.Count <= 1,
+            Name = _rules.Name, Valid = !errors.Any(), RestrictedRules = restrictedCardsOnList.Count <= 1,
             NoBannedCards = noBannedCards,
             Errors = errors,
             RestrictedCards = restrictedCardsOnList,
@@ -77,7 +77,7 @@ public class RestrictedListValidator
         if (cardsOnList.Any())
         {
             errors.Add(
-                $"{rules.Name}: {string.Join(", ", cardsOnList.Select(card => card.Name))} cannot be used with ${restrictedCard.Name}");
+                $"{_rules.Name}: {string.Join(", ", cardsOnList.Select(card => card.Name))} cannot be used with ${restrictedCard.Name}");
         }
 
         return errors;
@@ -91,7 +91,7 @@ public class RestrictedListValidator
         if (cardsOnList.Count > 1)
         {
             errors.Add(
-                $"{rules.Name}: {string.Join(", ", cardsOnList.Select(card => card.Name))} cannot be used together");
+                $"{_rules.Name}: {string.Join(", ", cardsOnList.Select(card => card.Name))} cannot be used together");
         }
 
         return errors;

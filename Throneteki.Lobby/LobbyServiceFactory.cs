@@ -9,25 +9,25 @@ namespace Throneteki.Lobby;
 
 public class LobbyServiceFactory
 {
-    private readonly HttpClient httpClient;
-    private readonly LobbyOptions lobbyOptions;
-    private LobbyService.LobbyServiceClient? lobbyServiceClient;
+    private readonly HttpClient _httpClient;
+    private readonly LobbyOptions _lobbyOptions;
+    private LobbyService.LobbyServiceClient? _lobbyServiceClient;
 
     public LobbyServiceFactory(HttpClient httpClient, IOptions<LobbyOptions> lobbyOptions)
     {
-        this.httpClient = httpClient;
-        this.lobbyOptions = lobbyOptions.Value;
+        _httpClient = httpClient;
+        _lobbyOptions = lobbyOptions.Value;
 
-        httpClient.BaseAddress = new Uri(this.lobbyOptions.AuthServerUrl);
+        httpClient.BaseAddress = new Uri(_lobbyOptions.AuthServerUrl);
     }
 
     public LobbyService.LobbyServiceClient GetLobbyServiceClient()
     {
-        var address = lobbyOptions.LobbyServiceUrl;
+        var address = _lobbyOptions.LobbyServiceUrl;
 
-        if (lobbyServiceClient != null)
+        if (_lobbyServiceClient != null)
         {
-            return lobbyServiceClient;
+            return _lobbyServiceClient;
         }
 
         var credentials = CallCredentials.FromInterceptor(async (_, metadata) =>
@@ -45,14 +45,14 @@ public class LobbyServiceFactory
             Credentials = ChannelCredentials.Create(new SslCredentials(), credentials)
         });
 
-        lobbyServiceClient = new LobbyService.LobbyServiceClient(channel);
+        _lobbyServiceClient = new LobbyService.LobbyServiceClient(channel);
 
-        return lobbyServiceClient;
+        return _lobbyServiceClient;
     }
 
     private async Task<string> GetAccessToken()
     {
-        var discoveryDocument = await httpClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
         {
             Policy =
             {
@@ -65,7 +65,7 @@ public class LobbyServiceFactory
             throw new ApplicationException($"Status code: {discoveryDocument.IsError}, Error: {discoveryDocument.Error}");
         }
 
-        var tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+        var tokenResponse = await _httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
         {
             Scope = "webservices",
             ClientSecret = "27EB193C-DDA7-4BE4-9A6B-81A4A04FA2AF",
