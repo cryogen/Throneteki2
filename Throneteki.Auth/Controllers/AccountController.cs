@@ -64,7 +64,7 @@ public class AccountController : Controller
         var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, true);
         if (result.Succeeded)
         {
-            _logger.LogInformation($"User {model.Username} logged in.");
+            _logger.LogInformation("User {username} logged in.", model.Username);
             return LocalRedirect(returnUrl);
         }
 
@@ -218,7 +218,7 @@ public class AccountController : Controller
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to save profile picture for user {user.UserName}");
+                _logger.LogError(ex, "Failed to save profile picture for user {username}", user.UserName);
                 ModelState.AddModelError(string.Empty, "Invalid image file");
             }
         }

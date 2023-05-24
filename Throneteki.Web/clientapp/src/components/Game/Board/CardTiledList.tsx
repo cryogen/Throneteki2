@@ -19,7 +19,6 @@ interface CardTiledListProps {
 }
 
 function CardTiledList(props: CardTiledListProps) {
-    console.info(props);
     const cardList =
         props.cards &&
         props.cards.map((card, index: number) => {

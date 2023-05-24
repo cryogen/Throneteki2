@@ -17,30 +17,30 @@ namespace Throneteki.Lobby;
 
 public class LobbyHub : Hub
 {
-    private readonly ILogger<LobbyHub> logger;
-    private readonly LobbyService.LobbyServiceClient lobbyService;
-    private readonly GameNodesService gameNodesService;
-    private readonly GameNodeManager nodeManager;
-    private readonly IMapper mapper;
-    private readonly CardService cardService;
+    private readonly ILogger<LobbyHub> _logger;
+    private readonly LobbyService.LobbyServiceClient _lobbyService;
+    private readonly GameNodesService _gameNodesService;
+    private readonly GameNodeManager _nodeManager;
+    private readonly IMapper _mapper;
+    private readonly CardService _cardService;
 
     private static readonly ConcurrentDictionary<string, ThronetekiUser> UsersByName = new();
     private static readonly ConcurrentDictionary<string, string> ConnectionsByUsername = new();
     private static readonly ConcurrentDictionary<string, string> Connections = new();
     private static readonly ConcurrentDictionary<Guid, LobbyGame> GamesById = new();
     private static readonly ConcurrentDictionary<string, LobbyGame> GamesByUsername = new();
-    private readonly IConfigurationSection settings;
+    private readonly IConfigurationSection _settings;
 
     public LobbyHub(ILogger<LobbyHub> logger, LobbyService.LobbyServiceClient lobbyServiceClient, IConfiguration configuration, GameNodesService gameNodesService,
         GameNodeManager nodeManager, IMapper mapper, CardService cardService)
     {
-        this.logger = logger;
-        lobbyService = lobbyServiceClient;
-        this.gameNodesService = gameNodesService;
-        this.nodeManager = nodeManager;
-        this.mapper = mapper;
-        this.cardService = cardService;
-        settings = configuration.GetSection("Settings");
+        _logger = logger;
+        _lobbyService = lobbyServiceClient;
+        _gameNodesService = gameNodesService;
+        _nodeManager = nodeManager;
+        _mapper = mapper;
+        _cardService = cardService;
+        _settings = configuration.GetSection("Settings");
     }
 
     public override async Task OnConnectedAsync()
@@ -50,7 +50,7 @@ public class LobbyHub : Hub
         ThronetekiUser? user = null;
         if (Context.User?.Identity?.IsAuthenticated == true)
         {
-            user = (await lobbyService.GetUserByUsernameAsync(
+            user = (await _lobbyService.GetUserByUsernameAsync(
                 new GetUserByUsernameRequest
                 {
                     Username = Context.User.Identity.Name
@@ -69,7 +69,7 @@ public class LobbyHub : Hub
         });
         await Clients.Caller.SendAsync(LobbyMethods.Users, userSummaries, Context.ConnectionAborted);
 
-        var lobbyMessages = await lobbyService.GetLobbyMessagesForUserAsync(new GetLobbyMessagesForUserRequest { UserId = user != null ? user.Id : string.Empty });
+        var lobbyMessages = await _lobbyService.GetLobbyMessagesForUserAsync(new GetLobbyMessagesForUserRequest { UserId = user != null ? user.Id : string.Empty });
         await Clients.Caller.SendAsync(LobbyMethods.LobbyMessages, lobbyMessages.Messages.OrderBy(m => m.Time).Select(message => new LobbyMessage
         {
             Id = message.Id,
@@ -107,9 +107,9 @@ public class LobbyHub : Hub
     {
         Connections.TryRemove(Context.ConnectionId, out _);
 
-        if (Context.User?.Identity?.IsAuthenticated == true && Context.User.Identity.Name != null)
+        if (Context.User?.Identity is { IsAuthenticated: true, Name: not null })
         {
-            var user = (await lobbyService.GetUserByUsernameAsync(
+            var user = (await _lobbyService.GetUserByUsernameAsync(
                 new GetUserByUsernameRequest
                 {
                     Username = Context.User.Identity.Name
@@ -126,10 +126,8 @@ public class LobbyHub : Hub
 
             await Clients.AllExcept(excludedConnectionIds).SendAsync(LobbyMethods.UserLeft, user.Username);
 
-            if (GamesByUsername.ContainsKey(user.Username))
+            if (GamesByUsername.TryGetValue(user.Username, out var game))
             {
-                var game = GamesByUsername[user.Username];
-
                 game.UserDisconnect(user.Username);
             }
         }
@@ -145,18 +143,18 @@ public class LobbyHub : Hub
     [Authorize]
     public async Task LobbyChat(string message)
     {
-        var user = (await lobbyService.GetUserByUsernameAsync(
+        var user = (await _lobbyService.GetUserByUsernameAsync(
             new GetUserByUsernameRequest
             {
                 Username = Context.User!.Identity!.Name
             })).User;
 
-        if ((DateTime.UtcNow - user.Registered.ToDateTime()).TotalSeconds < int.Parse(settings["MinLobbyChatTime"]))
+        if ((DateTime.UtcNow - user.Registered.ToDateTime()).TotalSeconds < int.Parse(_settings["MinLobbyChatTime"]))
         {
             await Clients.Caller.SendCoreAsync(LobbyMethods.NoChat, new object?[] { });
         }
 
-        var response = await lobbyService.AddLobbyMessageAsync(new AddLobbyMessageRequest
+        var response = await _lobbyService.AddLobbyMessageAsync(new AddLobbyMessageRequest
         {
             Message = message[..Math.Min(512, message.Length)],
             UserId = user.Id
@@ -164,7 +162,7 @@ public class LobbyHub : Hub
 
         if (response?.Message == null)
         {
-            logger.LogError("Error adding lobby message");
+            _logger.LogError("Error adding lobby message");
             return;
         }
 
@@ -194,7 +192,7 @@ public class LobbyHub : Hub
     [Authorize]
     public async Task NewGame(NewGameRequest request)
     {
-        var user = (await lobbyService.GetUserByUsernameAsync(
+        var user = (await _lobbyService.GetUserByUsernameAsync(
             new GetUserByUsernameRequest
             {
                 Username = Context.User!.Identity!.Name
@@ -203,7 +201,7 @@ public class LobbyHub : Hub
         // Check for existing game
         // Check for quickjoin
 
-        var restrictedLists = await cardService.GetRestrictedLists();
+        var restrictedLists = await _cardService.GetRestrictedLists();
 
         var restrictedList = request.RestrictedListId == null ? restrictedLists.First() : restrictedLists.FirstOrDefault(r => r.Id == request.RestrictedListId);
 
@@ -223,19 +221,19 @@ public class LobbyHub : Hub
     [Authorize]
     public async Task SelectDeck(int deckId)
     {
-        var user = (await lobbyService.GetUserByUsernameAsync(
+        var user = (await _lobbyService.GetUserByUsernameAsync(
             new GetUserByUsernameRequest
             {
                 Username = Context.User!.Identity!.Name
             })).User;
 
-        var deck = (await lobbyService.GetDeckByIdAsync(new GetDeckByIdRequest { DeckId = deckId })).Deck;
+        var deck = (await _lobbyService.GetDeckByIdAsync(new GetDeckByIdRequest { DeckId = deckId })).Deck;
         if (deck == null)
         {
             return;
         }
 
-        var lobbyDeck = mapper.Map<LobbyDeck>(deck);
+        var lobbyDeck = _mapper.Map<LobbyDeck>(deck);
 
         if (!GamesByUsername.ContainsKey(user.Username))
         {
@@ -244,7 +242,7 @@ public class LobbyHub : Hub
 
         var game = GamesByUsername[user.Username];
 
-        var packs = mapper.Map<IEnumerable<LobbyPack>>((await lobbyService.GetAllPacksAsync(new GetAllPacksRequest()))
+        var packs = _mapper.Map<IEnumerable<LobbyPack>>((await _lobbyService.GetAllPacksAsync(new GetAllPacksRequest()))
             .Packs);
 
         var deckValidator = new DeckValidator(packs,
@@ -259,7 +257,7 @@ public class LobbyHub : Hub
     [Authorize]
     public async Task StartGame(string _)
     {
-        var user = (await lobbyService.GetUserByUsernameAsync(
+        var user = (await _lobbyService.GetUserByUsernameAsync(
         new GetUserByUsernameRequest
         {
             Username = Context.User!.Identity!.Name
@@ -276,7 +274,7 @@ public class LobbyHub : Hub
             return;
         }
 
-        var node = nodeManager.GetNextAvailableNode();
+        var node = _nodeManager.GetNextAvailableNode();
         if (node == null)
         {
             await Clients.Caller.SendAsync(LobbyMethods.GameError, "No game nodes available. Try again later.");
@@ -286,7 +284,7 @@ public class LobbyHub : Hub
         game.IsStarted = true;
 
         await BroadcastGameMessage(LobbyMethods.UpdateGame, game);
-        await gameNodesService.StartGame(node, game.GetStartGameDetails());
+        await _gameNodesService.StartGame(node, game.GetStartGameDetails());
 
         await Clients.Group(game.Id.ToString()).SendAsync(LobbyMethods.HandOff, new
         {
@@ -299,7 +297,7 @@ public class LobbyHub : Hub
     [Authorize]
     public async Task LeaveGame(string _)
     {
-        var user = (await lobbyService.GetUserByUsernameAsync(
+        var user = (await _lobbyService.GetUserByUsernameAsync(
             new GetUserByUsernameRequest
             {
                 Username = Context.User!.Identity!.Name
@@ -370,7 +368,7 @@ public class LobbyHub : Hub
         {
             if (!ConnectionsByUsername.ContainsKey(player.User.Name))
             {
-                logger.LogError("Trying to send game state to {playerName} but they're disconnected", player.User.Name);
+                _logger.LogError("Trying to send game state to {playerName} but they're disconnected", player.User.Name);
                 continue; 
             }
 

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Throneteki.Auth.Helpers;
 

@@ -27,18 +27,17 @@ const GameChat = ({
     const placeholder = muted ? 'Spectators cannot chat in this game' : 'Chat...';
 
     useEffect(() => {
-        if (canScroll) {
+        if (messagePanel.current && canScroll) {
             messagePanel.current.scrollTop = 999999;
         }
-    }, [canScroll]);
+    });
 
     const onScroll = () => {
-        const messages = messagePanel;
-
         setTimeout(() => {
             if (
-                messages.current.scrollTop >=
-                messages.current.scrollHeight - messages.current.offsetHeight - 20
+                messagePanel.current &&
+                messagePanel.current.scrollTop >=
+                    messagePanel.current.scrollHeight - messagePanel.current.offsetHeight - 20
             ) {
                 setCanScroll(true);
             } else {

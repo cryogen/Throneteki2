@@ -1,6 +1,4 @@
-﻿using Throneteki.Lobby.Models;
-
-namespace Throneteki.Lobby.Redis.Commands.Incoming;
+﻿namespace Throneteki.Lobby.Redis.Commands.Incoming;
 
 public class HelloMessage
 {

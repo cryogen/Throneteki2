@@ -5,6 +5,8 @@ import { useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-bootstrap';
 import CardImage from './CardImage';
 import Avatar from '../../Site/Avatar';
+import CardBackImage from '../../../assets/img/cardback.png';
+import GoldImage from '../../../assets/img/Gold.png';
 
 interface MessagesProps {
     messages: any;
@@ -13,9 +15,9 @@ interface MessagesProps {
 }
 
 const tokens: any = {
-    card: { className: 'icon-card', imageSrc: '/img/cards/cardback.jpg' },
-    cards: { className: 'icon-card', imageSrc: '/img/cards/cardback.jpg' },
-    gold: { className: 'icon-gold', imageSrc: '/img/Gold.png' }
+    card: { className: 'icon-card', imageSrc: CardBackImage },
+    cards: { className: 'icon-card', imageSrc: CardBackImage },
+    gold: { className: 'icon-gold', imageSrc: GoldImage }
 };
 
 const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) => {
@@ -33,6 +35,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
             if (tokens[lowerToken]) {
                 const tokenEntry = tokens[lowerToken];
 
+                console.info(tokenEntry);
                 messages.push(` ${token} `);
                 messages.push(
                     <img

@@ -150,6 +150,8 @@ public class ThronetekiDataImporter : IHostedService
             dbCard.Strength = card.Strength;
             dbCard.Traits = string.Join(",", card.Traits.Split(".", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
             dbCard.Unique = card.IsUnique;
+            dbCard.Claim = card.Claim;
+            dbCard.Reserve = card.Reserve;
         }
 
         await context.SaveChangesAsync(cancellationToken);
