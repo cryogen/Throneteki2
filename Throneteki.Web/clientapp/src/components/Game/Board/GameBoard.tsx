@@ -12,7 +12,7 @@ import ActivePlayerPrompt from './ActivePlayerPrompt';
 import GameChat from './GameChat';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 import LoadingSpinner from '../../LoadingSpinner';
-import { BoardSide, CardSize } from '../../../types/enums';
+import { BoardSide } from '../../../types/enums';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -87,7 +87,7 @@ const GameBoard = () => {
                                 />
                                 <PlayerBoard
                                     cardsInPlay={thisPlayer.cardPiles.cardsInPlay}
-                                    cardSize={CardSize.Medium}
+                                    cardSize={settings.cardSize}
                                     hand={thisPlayer.cardPiles.hand}
                                     isMe={!isSpectating()}
                                     isSpectating={isSpectating()}
@@ -168,6 +168,8 @@ const GameBoard = () => {
 
     const isSpectating = () => !activeGame.players[user.name as string];
 
+    const settings = JSON.parse(user.throneteki_settings);
+
     return (
         <div className={boardClass}>
             <div className='stats-top'>
@@ -188,7 +190,7 @@ const GameBoard = () => {
                     onMouseOver={onMouseOver}
                     onShuffleClick={onShuffleClick}
                     side={BoardSide.Top}
-                    size={/*user.throneteki_settings.cardSize*/ CardSize.Medium}
+                    size={settings.cardSize}
                     spectating={isSpectating()}
                 />
             </div>
@@ -255,7 +257,7 @@ const GameBoard = () => {
                 //        showManualMode={!isSpectating()}
                 //      showMessages
                 side={BoardSide.Bottom}
-                size={CardSize.Medium}
+                size={settings.cardSize}
                 spectating={isSpectating()}
                 stats={thisPlayer.stats}
                 user={thisPlayer.user}

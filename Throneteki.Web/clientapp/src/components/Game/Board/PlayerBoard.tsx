@@ -99,7 +99,7 @@ const PlayerBoard = ({
                 onMenuItemClick={onMenuItemClick}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
-                size={/*user.settings.cardSize*/ CardSize.Medium}
+                size={cardSize}
                 source={CardLocation.PlayArea}
             />
         ));

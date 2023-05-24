@@ -38,9 +38,23 @@ export interface GamePlayer {
     name: string;
 }
 
+interface ChatMessage {
+    activePlayer?: string;
+    argType?: string;
+    avatar?: string;
+    code?: string;
+    image?: string;
+    label?: string;
+    link?: string;
+    message: { [key: string]: ChatMessage };
+    name?: string;
+    role?: string;
+    type?: string;
+}
+
 export interface Game {
     muteSpectators: boolean;
-    messages: any;
+    messages: ChatMessage[];
     allowSpectators: boolean;
     createdAt: Date;
     full: boolean;

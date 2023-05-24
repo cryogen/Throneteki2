@@ -208,6 +208,43 @@
     z-index: $layer-top;
 }
 
+.attachment {
+    margin-top: $attachment-offset - $throneteki-card-height;
+    &.halfSize {
+        margin-top: $attachment-offset - $throneteki-card-halfSize-height;
+        border-radius: 10px;
+    }
+
+    &.small {
+        margin-top: $attachment-offset-sm - $throneteki-card-sm-height;
+        &.halfSize {
+            margin-top: $attachment-offset - $throneteki-card-halfSize-sm-height;
+            border-radius: 10px;
+        }
+    }
+
+    &.large {
+        margin-top: $attachment-offset-halfSize-lg - $throneteki-card-lg-height;
+        &.halfSize {
+            margin-top: $attachment-offset-halfSize-lg - $throneteki-card-halfSize-lg-height;
+            border-radius: 10px;
+        }
+    }
+
+    &.x-large {
+        margin-top: $attachment-offset-xl - $throneteki-card-xl-height;
+        &.halfSize {
+            margin-top: $attachment-offset-halfSize-xl - $throneteki-card-halfSize-xl-height;
+            border-radius: 10px;
+        }
+    }
+}
+@for $i from 1 through 10 {
+    .attachment-#{$i} {
+        z-index: $layer-cards - $i;
+    }
+}
+
 .card-ordering {
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.9);

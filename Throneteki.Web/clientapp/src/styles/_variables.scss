@@ -27,6 +27,36 @@ $throneteki-card-xl-height: $throneteki-card-height * 2;
 $throneteki-card-sm-width: $throneteki-card-width * 0.6;
 $throneteki-card-sm-height: $throneteki-card-height * 0.6;
 
+$underneath-offset: 15px;
+$underneath-offset-sm: $underneath-offset * 0.6;
+$underneath-offset-lg: $underneath-offset * 1.4;
+$underneath-offset-xl: $underneath-offset * 2;
+
+$attachment-offset: 10px;
+$attachment-offset-sm: $attachment-offset * 0.6;
+$attachment-offset-lg: $attachment-offset * 1.4;
+$attachment-offset-xl: $attachment-offset * 2;
+
+$throneteki-card-halfSize-width: 75px;
+$throneteki-card-halfSize-height: $throneteki-card-halfSize-width * 0.875;
+
+$throneteki-card-halfSize-lg-width: $throneteki-card-halfSize-width * 1.4;
+$throneteki-card-halfSize-lg-height: $throneteki-card-halfSize-height * 1.4;
+
+$throneteki-card-halfSize-xl-width: $throneteki-card-halfSize-width * 2;
+$throneteki-card-halfSize-xl-height: $throneteki-card-halfSize-height * 2;
+
+$throneteki-card-halfSize-sm-width: $throneteki-card-halfSize-width * 0.6;
+$throneteki-card-halfSize-sm-height: $throneteki-card-halfSize-height * 0.6;
+
+$attachment-offset-halfSize-sm: $attachment-offset * 0.6;
+$attachment-offset-halfSize-lg: $attachment-offset * 1.4;
+$attachment-offset-halfSize-xl: $attachment-offset * 2;
+
+$underneath-offset-halfSize-sm: $underneath-offset * 0.6;
+$underneath-offset-halfSize-lg: $underneath-offset * 1.4;
+$underneath-offset-halfSize-xl: $underneath-offset * 2;
+
 $controlledBox: 0 0 1px 2px $controlled-border-color;
 
 $form-check-input-bg: white;

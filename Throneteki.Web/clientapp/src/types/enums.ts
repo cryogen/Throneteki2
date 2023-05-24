@@ -56,10 +56,6 @@ export enum CardLocation {
     Zoom = 'zoom'
 }
 
-export enum CardSize {
-    Normal = 'normal'
-}
-
 export enum CardOrientation {
     Horizontal = 'horizontal',
     Kneeled = 'kneeled',
@@ -73,7 +69,7 @@ export enum BoardSide {
 
 export enum CardSize {
     Small = 'small',
-    Medium = 'md',
+    Normal = 'normal',
     Large = 'large',
     ExtraLarge = 'x-large',
     Icon = 'icon'

@@ -99,8 +99,8 @@ const Card = ({
             return null;
         }
 
-        const upgrades = card.attachments.map((attachment, index) => {
-            const returnedupgrade = (
+        const attachments = card.attachments.map((attachment, index) => {
+            const returnedAttachment = (
                 <Card
                     canDrag={canDrag}
                     disableMouseOver={disableMouseOver}
@@ -125,10 +125,10 @@ const Card = ({
                 />
             );
 
-            return returnedupgrade;
+            return returnedAttachment;
         });
 
-        return upgrades;
+        return attachments;
     };
 
     const renderUnderneathCards = () => {

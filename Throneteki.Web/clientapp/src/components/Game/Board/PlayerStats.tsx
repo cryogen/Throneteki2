@@ -15,7 +15,6 @@ import {
     PopupChangeEventArgs,
     StatsIndexer
 } from '../../../types/game';
-import { ThronetekiUser } from '../../../types/user';
 
 import Minus from '../../../assets/img/Minus.png';
 import Plus from '../../../assets/img/Plus.png';
@@ -40,7 +39,7 @@ interface PlayerStatsProps {
     size: CardSize;
     spectating: boolean;
     stats: GamePlayerStats;
-    user: ThronetekiUser;
+    user: any;
 }
 
 const PlayerStats = ({
@@ -107,8 +106,8 @@ const PlayerStats = ({
 
     const playerAvatar = (
         <div className={`pr-1 player-info ${activePlayer ? 'active-player' : 'inactive-player'}`}>
-            <Avatar avatar={user?.picture} />
-            <b>{user?.name || (t('Noone') as any)}</b>
+            <Avatar avatar={user?.avatar} />
+            <b>{user?.username || (t('Noone') as any)}</b>
         </div>
     );
 

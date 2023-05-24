@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
+import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
 import classNames from 'classnames';
 import { useAppSelector } from '../../../redux/hooks';
 import { Alert } from 'react-bootstrap';
@@ -7,14 +7,20 @@ import CardImage from './CardImage';
 import Avatar from '../../Site/Avatar';
 import CardBackImage from '../../../assets/img/cardback.png';
 import GoldImage from '../../../assets/img/Gold.png';
+import AlertPanel, { AlertType } from '../../Site/AlertPanel';
 
 interface MessagesProps {
-    messages: any;
+    messages: ChatMessage[];
     onCardMouseOut: (card: GameCard) => void;
     onCardMouseOver?: (card: CardMouseOverEventArgs) => void;
 }
 
-const tokens: any = {
+interface ChatToken {
+    className: string;
+    imageSrc: string;
+}
+
+const tokens: { [key: string]: ChatToken } = {
     card: { className: 'icon-card', imageSrc: CardBackImage },
     cards: { className: 'icon-card', imageSrc: CardBackImage },
     gold: { className: 'icon-gold', imageSrc: GoldImage }
@@ -25,7 +31,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
 
     const owner = currentGame.players[currentGame.owner];
 
-    const processKeywords = (message: any) => {
+    const processKeywords = (message: string) => {
         const messages = [];
         let i = 0;
 
@@ -35,7 +41,6 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
             if (tokens[lowerToken]) {
                 const tokenEntry = tokens[lowerToken];
 
-                console.info(tokenEntry);
                 messages.push(` ${token} `);
                 messages.push(
                     <img
@@ -53,19 +58,19 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
         return messages;
     };
 
-    const formatMessageText = (message: { [key: string]: any }): any => {
+    const formatMessageText = (message: { [key: string]: ChatMessage }): JSX.Element[] => {
         let index = 0;
-        const messages = [];
+        const messages: JSX.Element[] = [];
 
         for (const [key, fragment] of Object.entries(message)) {
             if (fragment === null || fragment === undefined) {
-                messages.push('');
+                messages.push(null);
 
                 continue;
             }
 
             if (key === 'alert') {
-                const message: any = formatMessageText(fragment.message);
+                const message: JSX.Element[] = formatMessageText(fragment.message);
                 switch (fragment.type) {
                     case 'endofround':
                     case 'phasestart':
@@ -92,45 +97,45 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                         break;
                     case 'success':
                         messages.push(
-                            <Alert variant='success' key={index++}>
+                            <AlertPanel type={AlertType.Success} key={index++}>
                                 {message}
-                            </Alert>
+                            </AlertPanel>
                         );
                         break;
                     case 'info':
                         messages.push(
-                            <Alert variant='info' key={index++}>
+                            <AlertPanel type={AlertType.Info} key={index++}>
                                 {message}
-                            </Alert>
+                            </AlertPanel>
                         );
                         break;
                     case 'danger':
                         messages.push(
-                            <Alert variant='danger' key={index++}>
+                            <AlertPanel type={AlertType.Danger} key={index++}>
                                 {message}
-                            </Alert>
+                            </AlertPanel>
                         );
                         break;
                     case 'bell':
                         messages.push(
-                            <Alert variant='bell' key={index++}>
+                            <AlertPanel type={AlertType.Bell} key={index++}>
                                 {message}
-                            </Alert>
+                            </AlertPanel>
                         );
                         break;
                     case 'warning':
                         messages.push(
-                            <Alert variant='warning' key={index++}>
+                            <AlertPanel type={AlertType.Warning} key={index++}>
                                 {message}
-                            </Alert>
+                            </AlertPanel>
                         );
                         break;
                     default:
-                        messages.push(message);
+                        messages.concat(message);
                         break;
                 }
             } else if (fragment.message) {
-                messages.push(formatMessageText(fragment.message));
+                messages.concat(formatMessageText(fragment.message));
             } else if (fragment.link && fragment.label) {
                 messages.push(
                     <a href={fragment.link} target='_blank' rel='noopener noreferrer'>
@@ -143,10 +148,12 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                         key={index++}
                         className='card-link'
                         onMouseOver={onCardMouseOver.bind(this, {
-                            image: <CardImage card={fragment} />,
+                            image: <CardImage card={fragment as unknown as GameCard} />,
                             size: 'normal'
                         })}
-                        onMouseOut={() => onCardMouseOut && onCardMouseOut(fragment)}
+                        onMouseOut={() =>
+                            onCardMouseOut && onCardMouseOut(fragment as unknown as GameCard)
+                        }
                     >
                         {fragment.label}
                     </span>
@@ -156,8 +163,13 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                     <span
                         key={index++}
                         className='card-link'
-                        onMouseOver={onCardMouseOver.bind(this, fragment)}
-                        onMouseOut={() => onCardMouseOut && onCardMouseOut(fragment)}
+                        onMouseOver={onCardMouseOver.bind(this, {
+                            image: <CardImage card={fragment as unknown as GameCard} />,
+                            size: 'normal'
+                        })}
+                        onMouseOut={() =>
+                            onCardMouseOut && onCardMouseOut(fragment as unknown as GameCard)
+                        }
                     >
                         {fragment.label}
                     </span>
@@ -197,12 +209,12 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
     };
 
     const renderMessages = () => {
-        return messages.map((message: any, index: number) => {
+        return messages.map((message: ChatMessage, index: number) => {
             const className = classNames('message', 'mb-1', {
                 'this-player': message.activePlayer && message.activePlayer == owner.name,
                 'other-player': message.activePlayer && message.activePlayer !== owner.name,
                 'chat-bubble': Object.values(message.message).some(
-                    (m: any) => m.name && m.argType === 'player'
+                    (m: ChatMessage) => m.name && m.argType === 'player'
                 )
             });
             return (
