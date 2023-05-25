@@ -125,6 +125,8 @@ const gameNodeMiddleware: Middleware = (store) => {
                 cardDropped.source,
                 cardDropped.target
             );
+        } else if (gameNodeActions.sendShowDrawDeckMessage.match(action)) {
+            connection.emit('game', GameCommands.ShowDrawDeck, action.payload);
         }
 
         next(action);

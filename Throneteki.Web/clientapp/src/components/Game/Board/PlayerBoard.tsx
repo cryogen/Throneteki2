@@ -14,7 +14,7 @@ interface PlayerBoardProps {
     isSpectating: boolean;
     manualMode?: boolean;
     onCardClick: (card: GameCard) => void;
-    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
+    onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;

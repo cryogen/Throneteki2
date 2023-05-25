@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
 import { useAuth } from 'react-oidc-context';
-import { CardMenuItem, GameCard, GamePlayer } from '../../../types/game';
+import { CardMenuItem, CardMouseOverEventArgs, GameCard, GamePlayer } from '../../../types/game';
 import classNames from 'classnames';
 import PlayerStats from './PlayerStats';
 import PlayerBoard from './PlayerBoard';
@@ -13,6 +13,7 @@ import GameChat from './GameChat';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 import LoadingSpinner from '../../LoadingSpinner';
 import { BoardSide, CardLocation } from '../../../types/enums';
+import CardZoom from './CardZoom';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -38,6 +39,7 @@ const placeholderPlayer: GamePlayer = {
     numDrawCards: 0,
     numDeckCards: 0,
     plotSelected: false,
+    showDeck: false,
     stats: {
         claim: 0,
         gold: 0,
@@ -66,6 +68,7 @@ const GameBoard = () => {
     const user = auth.user?.profile as ThronetekiUser;
     const { isLoading, data: cards } = useGetCardsQuery({});
     const [showMessages, setShowMessages] = useState(true);
+    const [cardToZoom, setCardToZoom] = useState<CardMouseOverEventArgs | null>(null);
     const dispatch = useAppDispatch();
 
     const renderBoard = (thisPlayer: GamePlayer, otherPlayer: GamePlayer) => {
@@ -151,22 +154,29 @@ const GameBoard = () => {
 
     const onCardClick = (card: GameCard) =>
         dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
-    const onDragDrop = (card: GameCard, source: CardLocation, target: CardLocation) => {
+    const onDragDrop = (card: string, source: CardLocation, target: CardLocation) => {
         dispatch(
             gameNodeActions.sendCardDroppedMessage({
-                uuid: card.uuid,
+                uuid: card,
                 source: source,
                 target: target
             })
         );
     };
-    const handleDrawPopupChange = () => true;
+    const onToggleDrawDeckVisibleClick = (visible: boolean) => {
+        dispatch(gameNodeActions.sendShowDrawDeckMessage(visible));
+    };
     const onMenuItemClick = (card: GameCard, menuItem: CardMenuItem) => {
         dispatch(gameNodeActions.sendMenuItemClickMessage({ card: card.uuid, menuItem }));
     };
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const onMouseOut = (card: GameCard) => {};
-    const onMouseOver = () => true;
+    const onMouseOut = (_: GameCard) => {
+        setCardToZoom(null);
+    };
+    const onMouseOver = (arg: CardMouseOverEventArgs) => {
+        if (arg.image) {
+            setCardToZoom(arg);
+        }
+    };
     const onShuffleClick = () => true;
     const onCommand = (command: string, arg: string, method: string, promptId: string) => {
         dispatch(gameNodeActions.sendPromptClickedMessage({ arg, command, method, promptId }));
@@ -194,7 +204,7 @@ const GameBoard = () => {
                     numDeckCards={otherPlayer.numDeckCards}
                     onCardClick={onCardClick}
                     onDragDrop={onDragDrop}
-                    onDrawPopupChange={handleDrawPopupChange}
+                    onToggleVisibilityClick={onToggleDrawDeckVisibleClick}
                     onMenuItemClick={onMenuItemClick}
                     onMouseOut={onMouseOut}
                     onMouseOver={onMouseOver}
@@ -206,6 +216,7 @@ const GameBoard = () => {
             </div>
             <div className='main-window d-flex flex-row flex-grow-1 flex-shrink-1'>
                 {renderBoard(thisPlayer, otherPlayer)}
+                {cardToZoom && <CardZoom card={cardToZoom} />}
                 <div className='right-side d-flex flex-row'>
                     <div className='d-flex flex-column justify-content-around'>
                         <div className='h-50'></div>
@@ -250,13 +261,13 @@ const GameBoard = () => {
                 isMe={!isSpectating()}
                 manualMode={true}
                 //muteSpectators={activeGame.muteSpectators}
-                numDeckCards={thisPlayer.numDeckCards}
+                numDeckCards={thisPlayer.numDrawCards}
                 //     numMessages={newMessages}
                 //    onManualModeClick={onManualModeClick}
                 //     onMessagesClick={onMessagesClick}
                 onCardClick={onCardClick}
                 onDragDrop={onDragDrop}
-                onDrawPopupChange={handleDrawPopupChange}
+                onToggleVisibilityClick={onToggleDrawDeckVisibleClick}
                 onMenuItemClick={onMenuItemClick}
                 onShuffleClick={onShuffleClick}
                 onMouseOut={onMouseOut}
@@ -264,6 +275,7 @@ const GameBoard = () => {
                 //     onMuteClick={onMuteClick}
                 //     onSettingsClick={onSettingsClick}
                 showControls={!isSpectating() && true}
+                showDeck={thisPlayer.showDeck}
                 //        showManualMode={!isSpectating()}
                 //      showMessages
                 side={BoardSide.Bottom}

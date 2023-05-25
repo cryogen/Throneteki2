@@ -57,15 +57,18 @@ const Card = ({
 
     const [showMenu, setShowMenu] = useState(false);
 
-    const [{ dragOffset, isDragging }, drag, preview] = useDrag(() => ({
-        type: ItemTypes.CARD,
-        item: { card: card, source: source, type: ItemTypes.CARD },
-        canDrag: () => canDrag || (!card.unselectable && card.canPlay),
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-            dragOffset: monitor.getSourceClientOffset()
-        })
-    }));
+    const [{ dragOffset, isDragging }, drag, preview] = useDrag(
+        () => ({
+            type: ItemTypes.CARD,
+            item: { card: card.uuid, canPlay: card.canPlay, source: source, type: ItemTypes.CARD },
+            canDrag: () => canDrag || (!card.unselectable && card.canPlay),
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+                dragOffset: monitor.getSourceClientOffset()
+            })
+        }),
+        []
+    );
 
     const isAllowedMenuSource = () => {
         return source === CardLocation.PlayArea && !isSpectating;
@@ -279,7 +282,9 @@ const Card = ({
                                   })
                             : undefined
                     }
-                    onMouseOut={!disableMouseOver && !isFacedown() ? () => onMouseOut : undefined}
+                    onMouseOut={
+                        !disableMouseOver && !isFacedown() ? () => onMouseOut(card) : undefined
+                    }
                     onClick={(event) => onCardClicked(event, card)}
                 >
                     <div>

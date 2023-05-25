@@ -11,7 +11,7 @@ interface PlayerRowProps {
     isMe: boolean;
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
-    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
+    onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
 }

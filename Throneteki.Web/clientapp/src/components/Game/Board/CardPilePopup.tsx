@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 import CardTiledList from './CardTiledList';
@@ -13,7 +13,7 @@ interface CardPilePopupProps {
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
     onCloseClick: () => void;
-    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
+    onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     orientation: CardOrientation;
@@ -86,7 +86,7 @@ const CardPilePopup = ({
             {popupMenu.map((menuItem) => {
                 return (
                     <a
-                        className='btn btn-default'
+                        className='btn btn-primary'
                         key={linkIndex++}
                         onClick={() => {
                             menuItem.handler && menuItem.handler();

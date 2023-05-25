@@ -21,7 +21,8 @@ export enum GameCommands {
     Chat = 'chat',
     Drop = 'drop',
     MenuButton = 'menuButton',
-    MenuItemClicked = 'menuItemClick'
+    MenuItemClicked = 'menuItemClick',
+    ShowDrawDeck = 'showDrawDeck'
 }
 
 export enum Icon {

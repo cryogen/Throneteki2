@@ -2,9 +2,16 @@ import React from 'react';
 import Panel from '../../Site/Panel';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'react-bootstrap';
-import { GameCard, Prompt, PromptButton, PromptControl } from '../../../types/game';
+import {
+    CardMouseOverEventArgs,
+    GameCard,
+    Prompt,
+    PromptButton,
+    PromptControl
+} from '../../../types/game';
 import { Card } from '../../../types/data';
-import { GamePhase } from '../../../types/enums';
+import { CardLocation, GamePhase } from '../../../types/enums';
+import CardImage from './CardImage';
 
 interface ActivePlayerPromptProps {
     buttons: PromptButton[];
@@ -12,8 +19,8 @@ interface ActivePlayerPromptProps {
     controls: PromptControl[];
     onButtonClick: (command: string, arg: string, method: string, promptId: string) => void;
     onMouseOut: (card: GameCard) => void;
-    onMouseOver: (card: Card) => void;
-    onTitleClick: (card: Card) => void;
+    onMouseOver: (card: CardMouseOverEventArgs) => void;
+    onTitleClick: (card: GameCard) => void;
     phase: GamePhase;
     promptText?: string;
     promptTitle?: string;
@@ -111,7 +118,14 @@ const ActivePlayerPrompt = ({
                     onClick={() =>
                         onButtonClick(button.command, button.arg, button.method, button.promptId)
                     }
-                    onMouseOver={() => onMouseOver(button.card)}
+                    onMouseOver={() =>
+                        onMouseOver({
+                            image: (
+                                <CardImage card={{ ...button.card, location: CardLocation.Zoom }} />
+                            ),
+                            size: 'normal'
+                        })
+                    }
                     onMouseOut={() => onMouseOut(button.card)}
                     disabled={button.disabled}
                 >

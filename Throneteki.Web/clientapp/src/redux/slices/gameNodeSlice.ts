@@ -66,6 +66,9 @@ const gameNodeSlice = createSlice({
         sendMenuItemClickMessage: (state, _: PayloadAction<CardMenuItemClicked>) => {
             state.isWaitingForResponse = true;
         },
+        sendShowDrawDeckMessage: (state, _: PayloadAction<boolean>) => {
+            state.isWaitingForResponse = true;
+        },
         setRootState: (state, action: PayloadAction<string>) => {
             state.rootGameState = action.payload;
         }

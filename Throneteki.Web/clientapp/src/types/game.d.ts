@@ -32,6 +32,7 @@ export interface GamePlayer {
     firstPlayer: boolean;
     numDrawCards: number;
     plotSelected: boolean;
+    showDeck: boolean;
     stats: GamePlayerStats;
     title?: string;
     user?: any;

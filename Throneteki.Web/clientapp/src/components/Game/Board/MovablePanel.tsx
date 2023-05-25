@@ -106,22 +106,25 @@ const MovablePanel = ({ children, name, onCloseClick, side, title, size }: Movab
         return style;
     };
 
-    const [{ isDragging, dragOffset }, drag] = useDrag(() => ({
-        type: ItemTypes.CARD,
-        item: { name: key, type: ItemTypes.PANEL },
-        collect: (monitor) => {
-            return {
-                isDragging: monitor.isDragging(),
-                dragOffset: monitor.getSourceClientOffset()
-            };
-        },
-        end: (_, monitor) => {
-            const offset = monitor.getSourceClientOffset();
-            const style = getStyle(offset);
+    const [{ isDragging, dragOffset }, drag] = useDrag(
+        () => ({
+            type: ItemTypes.CARD,
+            item: { name: key, type: ItemTypes.PANEL },
+            collect: (monitor) => {
+                return {
+                    isDragging: monitor.isDragging(),
+                    dragOffset: monitor.getSourceClientOffset()
+                };
+            },
+            end: (_, monitor) => {
+                const offset = monitor.getSourceClientOffset();
+                const style = getStyle(offset);
 
-            localStorage.setItem(`${key}`, JSON.stringify(style));
-        }
-    }));
+                localStorage.setItem(`${key}`, JSON.stringify(style));
+            }
+        }),
+        []
+    );
 
     useEffect(() => {
         if (isDragging) {

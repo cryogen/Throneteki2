@@ -17,12 +17,13 @@ interface DrawDeckProps {
     manualMode: boolean;
     numDeckCards: number;
     onCardClick: (card: GameCard) => void;
-    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
+    onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (arg: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
     onShuffleClick: () => void;
+    onToggleVisibilityClick: (visible: boolean) => void;
     popupLocation: BoardSide;
     showDeck?: boolean;
     size: CardSize;
@@ -38,13 +39,21 @@ const DrawDeck = (props: DrawDeckProps) => {
         onDragDrop,
         onPopupChange,
         onShuffleClick,
+        onToggleVisibilityClick,
         showDeck = false,
         spectating
     } = props;
 
     const drawDeckPopupMenu = showDeck
         ? [{ text: 'Close and Shuffle', handler: () => onShuffleClick && onShuffleClick() }]
-        : undefined;
+        : [
+              {
+                  text: 'View Hidden',
+                  handler: () => {
+                      onToggleVisibilityClick && onToggleVisibilityClick(true);
+                  }
+              }
+          ];
 
     const hasCards = cards?.length !== 0;
 

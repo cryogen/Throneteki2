@@ -3,7 +3,6 @@ import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
 import { ItemTypes } from '../../../constants';
 import { CardLocation } from '../../../types/enums';
-import { GameCard } from '../../../types/game';
 
 const validTargets: { [key: string]: CardLocation[] } = {
     [CardLocation.Hand]: [
@@ -92,12 +91,13 @@ const validTargets: { [key: string]: CardLocation[] } = {
 interface DroppableProps {
     children?: ReactNode | ReactNode[];
     manualMode: boolean;
-    onDragDrop: any;
+    onDragDrop: (card: string, source: CardLocation, target: CardLocation) => void;
     source: CardLocation;
 }
 
 interface DraggingCard {
-    card: GameCard;
+    canPlay: boolean;
+    card: string;
     source: CardLocation;
 }
 
@@ -118,7 +118,7 @@ const Droppable = ({ children, manualMode, onDragDrop, source }: DroppableProps)
                 (item.source === CardLocation.Hand && source === CardLocation.PlayArea) ||
                 (item.source === CardLocation.Hand && source === CardLocation.Discard)
             ) {
-                return item.card.canPlay;
+                return item.canPlay;
             }
 
             return false;

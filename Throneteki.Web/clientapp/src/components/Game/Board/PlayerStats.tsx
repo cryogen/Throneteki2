@@ -29,14 +29,15 @@ interface PlayerStatsProps {
     manualMode?: boolean;
     numDeckCards: number;
     onCardClick: (card: GameCard) => void;
-    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
-    onDrawPopupChange: (args: PopupChangeEventArgs) => void;
+    onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
+    onToggleVisibilityClick: (visible: boolean) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
     onShuffleClick: () => void;
     showControls: boolean;
+    showDeck?: boolean;
     side: BoardSide;
     size: CardSize;
     spectating: boolean;
@@ -52,13 +53,14 @@ const PlayerStats = ({
     numDeckCards,
     onCardClick,
     onDragDrop,
-    onDrawPopupChange,
+    onToggleVisibilityClick,
     onMenuItemClick,
     onMouseOut,
     onMouseOver,
     onPopupChange,
     onShuffleClick,
     showControls,
+    showDeck = false,
     side,
     size,
     spectating,
@@ -164,8 +166,9 @@ const PlayerStats = ({
             cards={cardPiles.drawDeck}
             isMe={isMe}
             numDeckCards={numDeckCards}
-            onPopupChange={onDrawPopupChange}
+            onToggleVisibilityClick={onToggleVisibilityClick}
             onShuffleClick={onShuffleClick}
+            showDeck={showDeck}
             spectating={spectating}
         />
     );
