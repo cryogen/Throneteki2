@@ -13,7 +13,7 @@ interface CardPilePopupProps {
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
     onCloseClick: () => void;
-    onDragDrop: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     orientation: CardOrientation;

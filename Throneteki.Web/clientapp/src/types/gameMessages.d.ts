@@ -1,3 +1,4 @@
+import { CardLocation } from './enums';
 import { CardMenuItem } from './game';
 
 export interface PromptClicked {
@@ -10,4 +11,15 @@ export interface PromptClicked {
 export interface CardMenuItemClicked {
     card: string;
     menuItem: CardMenuItem;
+}
+
+export interface GameStatChange {
+    statToChange: string;
+    amount: number;
+}
+
+export interface CardDropped {
+    uuid: string;
+    source: CardLocation;
+    target: CardLocation;
 }

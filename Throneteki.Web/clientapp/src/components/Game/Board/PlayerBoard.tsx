@@ -14,7 +14,7 @@ interface PlayerBoardProps {
     isSpectating: boolean;
     manualMode?: boolean;
     onCardClick: (card: GameCard) => void;
-    onDragDrop?: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onMenuItemClick?: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
@@ -114,7 +114,11 @@ const PlayerBoard = ({
 
     return (
         <div className={className}>
-            <Droppable onDragDrop={onDragDrop} source='play area' manualMode={manualMode}>
+            <Droppable
+                onDragDrop={onDragDrop}
+                source={CardLocation.PlayArea}
+                manualMode={manualMode}
+            >
                 {renderRows(rows)}
             </Droppable>
             {isMe && (

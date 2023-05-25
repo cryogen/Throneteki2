@@ -18,6 +18,8 @@ import {
 
 import Minus from '../../../assets/img/Minus.png';
 import Plus from '../../../assets/img/Plus.png';
+import { useAppDispatch } from '../../../redux/hooks';
+import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
 interface PlayerStatsProps {
     activePlayer: boolean;
@@ -27,7 +29,7 @@ interface PlayerStatsProps {
     manualMode?: boolean;
     numDeckCards: number;
     onCardClick: (card: GameCard) => void;
-    onDragDrop: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onDrawPopupChange: (args: PopupChangeEventArgs) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
@@ -63,6 +65,9 @@ const PlayerStats = ({
     stats,
     user
 }: PlayerStatsProps) => {
+    const dispatch = useAppDispatch();
+    const { t } = useTranslation();
+
     const getStatValueOrDefault = (stat: StatsIndexer) => {
         if (!stats) {
             return 0;
@@ -79,7 +84,12 @@ const PlayerStats = ({
                         href='#'
                         className='btn-stat'
                         onClick={() => {
-                            // dispatch(sendGameMessage('changeStat', statToSet, -1));
+                            dispatch(
+                                gameNodeActions.sendChangeStatMessage({
+                                    statToChange: statToSet,
+                                    amount: -1
+                                })
+                            );
                         }}
                     >
                         <img src={Minus} title='-' alt='-' />
@@ -92,7 +102,12 @@ const PlayerStats = ({
                         href='#'
                         className='btn-stat'
                         onClick={() => {
-                            //    dispatch(sendGameMessage('changeStat', statToSet, 1));
+                            dispatch(
+                                gameNodeActions.sendChangeStatMessage({
+                                    statToChange: statToSet,
+                                    amount: 1
+                                })
+                            );
                         }}
                     >
                         <img src={Plus} title='+' alt='+' />
@@ -101,8 +116,6 @@ const PlayerStats = ({
             </div>
         );
     };
-
-    const { t } = useTranslation();
 
     const playerAvatar = (
         <div className={`pr-1 player-info ${activePlayer ? 'active-player' : 'inactive-player'}`}>
@@ -194,7 +207,8 @@ const PlayerStats = ({
             cards={cardPiles.plotDiscard}
             className='used-plots'
             title={t('Used Plots')}
-            source={CardLocation.UsedPlots}
+            source={CardLocation.RevealedPlots}
+            orientation={CardOrientation.Horizontal}
         />
     );
 
@@ -216,7 +230,7 @@ const PlayerStats = ({
                 <div className='state'>{renderDroppableList(CardLocation.Dead, dead)}</div>
                 <div className='state'>{renderDroppableList(CardLocation.Plots, plots)}</div>
                 <div className='state'>
-                    {renderDroppableList(CardLocation.UsedPlots, usedPlots)}
+                    {renderDroppableList(CardLocation.RevealedPlots, usedPlots)}
                 </div>
             </div>
         </div>

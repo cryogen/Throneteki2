@@ -2,92 +2,110 @@ import React, { ReactNode } from 'react';
 import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
 import { ItemTypes } from '../../../constants';
+import { CardLocation } from '../../../types/enums';
+import { GameCard } from '../../../types/game';
 
-const validTargets = {
-    hand: [
-        'play area',
-        'discard pile',
-        'draw deck',
-        'dead pile',
-        'out of game',
-        'conclave',
-        'shadows'
+const validTargets: { [key: string]: CardLocation[] } = {
+    [CardLocation.Hand]: [
+        CardLocation.PlayArea,
+        CardLocation.Discard,
+        CardLocation.Draw,
+        CardLocation.Dead,
+        CardLocation.OutOfGame,
+        CardLocation.Conclave,
+        CardLocation.Shadows
     ],
-    'play area': [
-        'discard pile',
-        'hand',
-        'draw deck',
-        'dead pile',
-        'out of game',
-        'conclave',
-        'shadows'
+    [CardLocation.PlayArea]: [
+        CardLocation.Discard,
+        CardLocation.Hand,
+        CardLocation.Draw,
+        CardLocation.Dead,
+        CardLocation.OutOfGame,
+        CardLocation.Conclave,
+        CardLocation.Shadows
     ],
-    'discard pile': [
-        'dead pile',
-        'hand',
-        'draw deck',
-        'play area',
-        'out of game',
-        'conclave',
-        'shadows'
+    [CardLocation.Discard]: [
+        CardLocation.Dead,
+        CardLocation.Hand,
+        CardLocation.Draw,
+        CardLocation.PlayArea,
+        CardLocation.OutOfGame,
+        CardLocation.Conclave,
+        CardLocation.Shadows
     ],
-    'dead pile': [
-        'hand',
-        'draw deck',
-        'play area',
-        'discard pile',
-        'out of game',
-        'conclave',
-        'shadows'
+    [CardLocation.Dead]: [
+        CardLocation.Hand,
+        CardLocation.Draw,
+        CardLocation.Discard,
+        CardLocation.PlayArea,
+        CardLocation.OutOfGame,
+        CardLocation.Conclave,
+        CardLocation.Shadows
     ],
-    'draw deck': [
-        'hand',
-        'discard pile',
-        'dead pile',
-        'play area',
-        'out of game',
-        'conclave',
-        'rookery',
-        'shadows'
+    [CardLocation.Draw]: [
+        CardLocation.Hand,
+        CardLocation.Discard,
+        CardLocation.Dead,
+        CardLocation.PlayArea,
+        CardLocation.OutOfGame,
+        CardLocation.Conclave,
+        CardLocation.Rookery,
+        CardLocation.Shadows
     ],
-    'plot deck': ['revealed plots', 'out of game', 'rookery'],
-    'revealed plots': ['plot deck', 'out of game'],
-    'out of game': [
-        'plot deck',
-        'revealed plots',
-        'draw deck',
-        'play area',
-        'discard pile',
-        'hand',
-        'dead pile',
-        'shadows'
+    [CardLocation.Plots]: [
+        CardLocation.RevealedPlots,
+        CardLocation.OutOfGame,
+        CardLocation.Rookery
     ],
-    conclave: [
-        'hand',
-        'play area',
-        'draw deck',
-        'discard pile',
-        'dead pile',
-        'out of game',
-        'shadows'
+    [CardLocation.RevealedPlots]: [CardLocation.Plots, CardLocation.OutOfGame],
+    [CardLocation.OutOfGame]: [
+        CardLocation.Plots,
+        CardLocation.RevealedPlots,
+        CardLocation.Draw,
+        CardLocation.PlayArea,
+        CardLocation.Discard,
+        CardLocation.Hand,
+        CardLocation.Dead,
+        CardLocation.Shadows
     ],
-    shadows: ['dead pile', 'discard pile', 'draw deck', 'hand', 'out of game', 'play area'],
-    'full deck': ['rookery'],
-    rookery: ['full deck']
+    [CardLocation.Conclave]: [
+        CardLocation.Hand,
+        CardLocation.PlayArea,
+        CardLocation.Draw,
+        CardLocation.Discard,
+        CardLocation.Dead,
+        CardLocation.OutOfGame,
+        CardLocation.Shadows
+    ],
+    [CardLocation.Shadows]: [
+        CardLocation.Dead,
+        CardLocation.Discard,
+        CardLocation.Draw,
+        CardLocation.Hand,
+        CardLocation.OutOfGame,
+        CardLocation.PlayArea
+    ],
+    [CardLocation.FullDeck]: [CardLocation.Rookery],
+    [CardLocation.Rookery]: [CardLocation.FullDeck]
 };
 
 interface DroppableProps {
     children?: ReactNode | ReactNode[];
     manualMode: boolean;
     onDragDrop: any;
-    source: any;
+    source: CardLocation;
+}
+
+interface DraggingCard {
+    card: GameCard;
+    source: CardLocation;
 }
 
 const Droppable = ({ children, manualMode, onDragDrop, source }: DroppableProps) => {
-    const [{ canDrop, isOver }, drop] = useDrop({
+    const [{ canDrop, isOver, itemSource }, drop] = useDrop({
         accept: ItemTypes.CARD,
         canDrop: (_, monitor) => {
-            /*           const item = monitor.getItem();
+            const item = monitor.getItem<DraggingCard>();
 
             if (manualMode) {
                 return (
@@ -97,34 +115,32 @@ const Droppable = ({ children, manualMode, onDragDrop, source }: DroppableProps)
             }
 
             if (
-                (item.source === 'hand' && source === 'play area') ||
-                (item.source === 'hand' && source === 'discard')
+                (item.source === CardLocation.Hand && source === CardLocation.PlayArea) ||
+                (item.source === CardLocation.Hand && source === CardLocation.Discard)
             ) {
                 return item.card.canPlay;
             }
-*/
+
             return false;
         },
         collect: (monitor) => {
-            //   let item = monitor.getItem();
+            const item = monitor.getItem<DraggingCard>();
 
             return {
                 isOver: monitor.isOver(),
-                canDrop: monitor.canDrop()
-                //           itemSource: item && item.source
+                canDrop: monitor.canDrop(),
+                itemSource: item && item.source
             };
         },
         drop: (_, monitor) => {
-            /*     let item = monitor.getItem();
+            const item = monitor.getItem<DraggingCard>();
 
-            if (onDragDrop) {
-                onDragDrop(item.card, item.source, source);
-            }*/
+            onDragDrop && onDragDrop(item.card, item.source, source);
         }
     });
     const className = classNames('overlay', {
         'drop-ok': isOver && canDrop,
-        //     'no-drop': isOver && !canDrop && source !== itemSource,
+        'no-drop': isOver && !canDrop && source !== itemSource,
         'can-drop': !isOver && canDrop,
         [source]: true
     });

@@ -2,19 +2,21 @@ import React from 'react';
 import classNames from 'classnames';
 import Card from './Card';
 import { useTranslation } from 'react-i18next';
+import { CardLocation, CardSize } from '../../../types/enums';
+import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 interface SquishableCardPanelProps {
-    cardSize: any;
-    cards: any;
+    cardSize: CardSize;
+    cards: GameCard[];
     className: string;
     groupVisibleCards?: boolean;
     manualMode?: boolean;
-    onCardClick: any;
-    onMouseOut: any;
-    onMouseOver: any;
-    source: any;
+    onCardClick: (card: GameCard) => void;
+    onMouseOut: (card: GameCard) => void;
+    onMouseOver: (args: CardMouseOverEventArgs) => void;
+    source: CardLocation;
     title?: string;
-    maxCards: any;
+    maxCards: number;
 }
 
 const SquishableCardPanel = ({
@@ -49,7 +51,7 @@ const SquishableCardPanel = ({
             cardsToRender = [...cards].sort((a, b) => (a.facedown && !b.facedown ? -1 : 1));
         }
 
-        const hand = cardsToRender.map((card: any) => {
+        const hand = cardsToRender.map((card: GameCard) => {
             const left = (cardWidth - offset) * cardIndex++;
 
             let style = {};
@@ -80,7 +82,10 @@ const SquishableCardPanel = ({
     };
 
     const hasMixOfVisibleCards = () => {
-        return cards.some((card: any) => !!card.code) && cards.some((card: any) => !card.code);
+        return (
+            cards.some((card: GameCard) => !!card.code) &&
+            cards.some((card: GameCard) => !card.code)
+        );
     };
 
     const getCardSizeMultiplier = () => {

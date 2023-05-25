@@ -15,40 +15,49 @@ interface MovablePanelProps {
 }
 
 const PopupDefaults: any = {
-    'draw-bottom': {
+    'plot deck-bottom': {
+        left: '100px',
+        bottom: '155px'
+    },
+    'revealed plots-bottom': {
+        left: '100px',
+        bottom: '230px'
+    },
+    'revealed plots-top': {
+        left: '100px',
+        top: '155px'
+    },
+    'draw deck-bottom': {
         bottom: '140px'
     },
-    'discard-bottom': {
+    'discard pile-bottom': {
         bottom: '155px'
     },
-    'discard-top': {
+    'discard pile-top': {
         top: '185px'
     },
-    'dead-bottom': {
-        bottom: '155px'
+    'dead pile-bottom': {
+        bottom: '140px'
     },
-    'hand-top': {
-        top: '185px'
+    'dead pile-top': {
+        top: '165px'
     },
-    'hand-bottom': {
-        bottom: '155px'
+    'out of game-top': {
+        top: '155px',
+        left: '20px'
     },
-    'dead-top': {
-        top: '185px'
-    },
-    'plots-top': {
-        top: '155px'
-    },
-    'plots-bottom': {
+    'out of game-bottom': {
         bottom: '155px',
         right: '0'
     },
-    'usedPlots-bottom': {
-        bottom: '155px',
-        right: '0'
+    'agenda-bottom': {
+        bottom: '155px'
     },
-    'usedPlots-top': {
-        top: '155px'
+    'agenda-top': {
+        top: '185px'
+    },
+    'conclave-bottom': {
+        bottom: '155px'
     }
 };
 

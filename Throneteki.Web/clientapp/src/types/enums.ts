@@ -17,6 +17,9 @@ export enum RestrictedListCardSet {
 
 export enum GameCommands {
     CardClicked = 'cardClicked',
+    ChangeStat = 'changeStat',
+    Chat = 'chat',
+    Drop = 'drop',
     MenuButton = 'menuButton',
     MenuItemClicked = 'menuItemClick'
 }
@@ -44,15 +47,19 @@ export enum GamePhase {
 }
 
 export enum CardLocation {
-    Dead = 'dead',
-    Discard = 'discard',
-    Draw = 'draw',
+    Conclave = 'conclave',
+    Dead = 'dead pile',
+    Discard = 'discard pile',
+    Draw = 'draw deck',
     FullDeck = 'full deck',
     Hand = 'hand',
+    OutOfGame = 'out of game',
     PlayArea = 'play area',
-    Plots = 'plots',
+    Plots = 'plot deck',
+    RevealedPlots = 'revealed plots',
+    Rookery = 'rookery',
     Shadows = 'shadows',
-    UsedPlots = 'usedPlots',
+    Underneath = 'underneath',
     Zoom = 'zoom'
 }
 

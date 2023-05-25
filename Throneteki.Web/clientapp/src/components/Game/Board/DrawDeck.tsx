@@ -17,7 +17,7 @@ interface DrawDeckProps {
     manualMode: boolean;
     numDeckCards: number;
     onCardClick: (card: GameCard) => void;
-    onDragDrop: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (arg: CardMouseOverEventArgs) => void;
@@ -65,7 +65,7 @@ const DrawDeck = (props: DrawDeckProps) => {
     );
 
     return isMe ? (
-        <Droppable onDragDrop={onDragDrop} source='deck' manualMode={manualMode}>
+        <Droppable onDragDrop={onDragDrop} source={CardLocation.Draw} manualMode={manualMode}>
             {drawDeck}
         </Droppable>
     ) : (

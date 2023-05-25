@@ -12,7 +12,7 @@ import ActivePlayerPrompt from './ActivePlayerPrompt';
 import GameChat from './GameChat';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 import LoadingSpinner from '../../LoadingSpinner';
-import { BoardSide } from '../../../types/enums';
+import { BoardSide, CardLocation } from '../../../types/enums';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -151,7 +151,15 @@ const GameBoard = () => {
 
     const onCardClick = (card: GameCard) =>
         dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
-    const onDragDrop = () => true;
+    const onDragDrop = (card: GameCard, source: CardLocation, target: CardLocation) => {
+        dispatch(
+            gameNodeActions.sendCardDroppedMessage({
+                uuid: card.uuid,
+                source: source,
+                target: target
+            })
+        );
+    };
     const handleDrawPopupChange = () => true;
     const onMenuItemClick = (card: GameCard, menuItem: CardMenuItem) => {
         dispatch(gameNodeActions.sendMenuItemClickMessage({ card: card.uuid, menuItem }));
@@ -164,7 +172,9 @@ const GameBoard = () => {
         dispatch(gameNodeActions.sendPromptClickedMessage({ arg, command, method, promptId }));
     };
     const onTitleClick = () => true;
-    const sendChatMessage = () => true;
+    const sendChatMessage = (message: string) => {
+        dispatch(gameNodeActions.sendGameChatMessage(message));
+    };
 
     const isSpectating = () => !activeGame.players[user.name as string];
 

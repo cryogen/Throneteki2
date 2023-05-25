@@ -20,7 +20,7 @@ interface CardPileLinkProps {
     manualMode: boolean;
     numDeckCards?: number;
     onCardClick: (card: GameCard) => void;
-    onDragDrop: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     onPopupChange?: (args: PopupChangeEventArgs) => void;

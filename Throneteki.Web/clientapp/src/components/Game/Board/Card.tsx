@@ -150,7 +150,7 @@ const Card = ({
                 onCardClick={onClick}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
-                source='underneath'
+                source={CardLocation.Underneath}
             />
         );
     };

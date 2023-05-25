@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Droppable from './Droppable';
 import SquishableCardPanel from './SquishableCardPanel';
-import { CardSize } from '../../../types/enums';
+import { CardLocation, CardSize } from '../../../types/enums';
 import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 interface PlayerRowProps {
@@ -11,7 +11,7 @@ interface PlayerRowProps {
     isMe: boolean;
     manualMode: boolean;
     onCardClick: (card: GameCard) => void;
-    onDragDrop: (card: GameCard) => void;
+    onDragDrop?: (card: GameCard, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
 }
@@ -38,7 +38,7 @@ const PlayerRow = ({
             onCardClick={onCardClick}
             onMouseOut={onMouseOut}
             onMouseOver={onMouseOver}
-            source='hand'
+            source={CardLocation.Hand}
             title={t('Hand')}
             cardSize={cardSize}
         />
@@ -46,7 +46,7 @@ const PlayerRow = ({
 
     return isMe ? (
         <div className='d-flex pt-1'>
-            <Droppable onDragDrop={onDragDrop} source='hand' manualMode={manualMode}>
+            <Droppable onDragDrop={onDragDrop} source={CardLocation.Hand} manualMode={manualMode}>
                 {handToRender}
             </Droppable>
         </div>
