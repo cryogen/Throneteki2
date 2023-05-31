@@ -10,7 +10,7 @@ import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 import ProfileDropdown from './ProfileMenu';
 import ServerStatus from './ServerStatus';
 import { ThronetekiUser } from '../../types/user';
-// import GameContextMenu from './GameContextMenu';
+import GameContextMenu from './GameContextMenu';
 
 export interface UserSettings {
     customBackground: string | undefined;
@@ -123,12 +123,9 @@ const Navigation = (props: NavigationProps) => {
                 <Navbar.Toggle aria-controls='navbar' />
                 <Nav>{renderMenuItems(LeftMenu)}</Nav>
                 <Navbar.Collapse id='navbar' className='justify-content-end'>
-                    <Nav className='ml-auto pr-md-5'>
-                        {
-                            /* <GameContextMenu />*/
-                            numGames
-                        }
-
+                    <Nav className='ml-auto pr-md-5 align-items-center'>
+                        <GameContextMenu />
+                        {numGames}
                         <ServerStatus
                             connected={lobbyConnected}
                             connecting={lobbyConnecting}

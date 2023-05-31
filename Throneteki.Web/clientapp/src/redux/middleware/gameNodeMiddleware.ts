@@ -159,6 +159,10 @@ const gameNodeMiddleware: Middleware = (store) => {
                 optionValue.option,
                 optionValue.value
             );
+        } else if (gameNodeActions.sendConcedeMessage.match(action)) {
+            connection.emit('game', GameCommands.Concede);
+        } else if (gameNodeActions.sendLeaveGameMessage.match(action)) {
+            connection.emit('game', GameCommands.LeaveGame);
         }
 
         next(action);

@@ -58,7 +58,13 @@ const gameNodeSlice = createSlice({
         sendChangeStatMessage: (state, _: PayloadAction<GameStatChange>) => {
             state.isWaitingForResponse = true;
         },
+        sendConcedeMessage: (state, _: PayloadAction) => {
+            state.isWaitingForResponse = true;
+        },
         sendGameChatMessage: (state, _: PayloadAction<string>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendLeaveGameMessage: (state, _: PayloadAction) => {
             state.isWaitingForResponse = true;
         },
         sendPromptClickedMessage: (state, _: PayloadAction<PromptClicked>) => {

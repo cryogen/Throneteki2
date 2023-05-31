@@ -23,9 +23,11 @@ export interface GamePlayer {
     cardPiles: CardPiles;
     controls: PromptControl[];
     deckData: any;
+    disconnected?: boolean;
     faction?: Faction;
     firstPlayer: boolean;
     keywordSettings?: KeywordSettings;
+    left?: boolean;
     menuTitle?: string;
     name: string;
     numDeckCards: number;
@@ -76,6 +78,7 @@ export interface Game {
     started: boolean;
     useChessClocks: boolean;
     useGameTimeLimit: boolean;
+    winner?: string;
 }
 
 export interface GamePlayerStats {
