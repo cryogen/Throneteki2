@@ -14,6 +14,7 @@ import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 import LoadingSpinner from '../../LoadingSpinner';
 import { BoardSide, CardLocation } from '../../../types/enums';
 import CardZoom from './CardZoom';
+import GameConfigurationModal from './GameConfigurationModal';
 
 const placeholderPlayer: GamePlayer = {
     activePlayer: false,
@@ -68,6 +69,9 @@ const GameBoard = () => {
     const user = auth.user?.profile as ThronetekiUser;
     const { isLoading, data: cards } = useGetCardsQuery({});
     const [showMessages, setShowMessages] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newMessages, setNewMessages] = useState(0);
+    const [lastMessageCount, setLastMessageCount] = useState(0);
     const [cardToZoom, setCardToZoom] = useState<CardMouseOverEventArgs | null>(null);
     const dispatch = useAppDispatch();
 
@@ -185,6 +189,34 @@ const GameBoard = () => {
     const sendChatMessage = (message: string) => {
         dispatch(gameNodeActions.sendGameChatMessage(message));
     };
+    const onMuteClick = () => {
+        dispatch(gameNodeActions.sendToggleMuteSpectatorsMessage());
+    };
+    const onMessagesClick = () => {
+        const showState = !showMessages;
+
+        if (showState) {
+            setNewMessages(0);
+            setLastMessageCount(activeGame.messages.length);
+        }
+
+        setShowMessages(showState);
+    };
+    const onKeywordSettingToggle = (option: string, value: string | boolean) => {
+        dispatch(gameNodeActions.sendToggleKeywordSettingMessage({ option: option, value: value }));
+    };
+    const onPromptDupesToggle = (value: boolean) => {
+        dispatch(gameNodeActions.sendTogglePromptDupesMessage(value));
+    };
+    const onPromptedActionWindowToggle = (option: string, value: string | boolean) => {
+        console.info(option, value);
+        dispatch(
+            gameNodeActions.sendTogglePromptedActionWindowMessage({ option: option, value: value })
+        );
+    };
+    const onTimerSettingToggle = (option: string, value: string | boolean) => {
+        dispatch(gameNodeActions.sendToggleTimerSettingMessage({ option: option, value: value }));
+    };
 
     const isSpectating = () => !activeGame.players[user.name as string];
 
@@ -192,6 +224,19 @@ const GameBoard = () => {
 
     return (
         <div className={boardClass}>
+            {showModal && (
+                <GameConfigurationModal
+                    onClose={() => setShowModal(false)}
+                    keywordSettings={thisPlayer.keywordSettings}
+                    onKeywordSettingToggle={onKeywordSettingToggle}
+                    onPromptDupesToggle={onPromptDupesToggle}
+                    onPromptedActionWindowToggle={onPromptedActionWindowToggle}
+                    onTimerSettingToggle={onTimerSettingToggle}
+                    promptDupes={thisPlayer.promptDupes}
+                    promptedActionWindows={thisPlayer.promptedActionWindows}
+                    timerSettings={thisPlayer.timerSettings}
+                />
+            )}
             <div className='stats-top'>
                 <PlayerStats
                     activePlayer={otherPlayer.activePlayer}
@@ -260,11 +305,11 @@ const GameBoard = () => {
                 cardPiles={thisPlayer.cardPiles}
                 isMe={!isSpectating()}
                 manualMode={true}
-                //muteSpectators={activeGame.muteSpectators}
+                muteSpectators={activeGame.muteSpectators}
                 numDeckCards={thisPlayer.numDrawCards}
-                //     numMessages={newMessages}
+                numMessages={newMessages}
                 //    onManualModeClick={onManualModeClick}
-                //     onMessagesClick={onMessagesClick}
+                onMessagesClick={onMessagesClick}
                 onCardClick={onCardClick}
                 onDragDrop={onDragDrop}
                 onToggleVisibilityClick={onToggleDrawDeckVisibleClick}
@@ -272,12 +317,12 @@ const GameBoard = () => {
                 onShuffleClick={onShuffleClick}
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
-                //     onMuteClick={onMuteClick}
-                //     onSettingsClick={onSettingsClick}
+                onMuteClick={onMuteClick}
+                onSettingsClick={() => setShowModal(true)}
                 showControls={!isSpectating() && true}
                 showDeck={thisPlayer.showDeck}
                 //        showManualMode={!isSpectating()}
-                //      showMessages
+                showMessages
                 side={BoardSide.Bottom}
                 size={settings.cardSize}
                 spectating={isSpectating()}

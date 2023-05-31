@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toastr } from 'react-redux-toastr';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCogs, faComment, faCopy, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { Badge } from 'react-bootstrap';
 
 import Avatar from '../../Site/Avatar';
 import Droppable from './Droppable';
@@ -15,11 +19,11 @@ import {
     PopupChangeEventArgs,
     StatsIndexer
 } from '../../../types/game';
+import { useAppDispatch } from '../../../redux/hooks';
+import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
 import Minus from '../../../assets/img/Minus.png';
 import Plus from '../../../assets/img/Plus.png';
-import { useAppDispatch } from '../../../redux/hooks';
-import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
 interface PlayerStatsProps {
     activePlayer: boolean;
@@ -27,17 +31,23 @@ interface PlayerStatsProps {
     firstPlayer: boolean;
     isMe: boolean;
     manualMode?: boolean;
+    muteSpectators?: boolean;
     numDeckCards: number;
+    numMessages?: number;
     onCardClick: (card: GameCard) => void;
     onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onToggleVisibilityClick: (visible: boolean) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
+    onMessagesClick?: () => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
+    onMuteClick?: MouseEventHandler;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
+    onSettingsClick?: MouseEventHandler;
     onShuffleClick: () => void;
     showControls: boolean;
     showDeck?: boolean;
+    showMessages?: boolean;
     side: BoardSide;
     size: CardSize;
     spectating: boolean;
@@ -50,17 +60,23 @@ const PlayerStats = ({
     cardPiles,
     isMe,
     manualMode = false,
+    muteSpectators = false,
     numDeckCards,
+    numMessages = 0,
     onCardClick,
     onDragDrop,
     onToggleVisibilityClick,
     onMenuItemClick,
+    onMessagesClick,
     onMouseOut,
     onMouseOver,
+    onMuteClick,
     onPopupChange,
+    onSettingsClick,
     onShuffleClick,
     showControls,
     showDeck = false,
+    showMessages = false,
     side,
     size,
     spectating,
@@ -147,6 +163,17 @@ const PlayerStats = ({
         ) : (
             child
         );
+    };
+
+    const writeChatToClipboard = (event: React.MouseEvent<SVGSVGElement>) => {
+        event.preventDefault();
+        const messagePanel = document.getElementsByClassName('messages panel')[0] as HTMLDivElement;
+        if (messagePanel) {
+            navigator.clipboard
+                .writeText(messagePanel.innerText)
+                .then(() => toastr.success('Copied game chat to clipboard', null))
+                .catch((err) => toastr.error(`Could not copy game chat: ${err}`, null));
+        }
     };
 
     const hand = (
@@ -236,6 +263,39 @@ const PlayerStats = ({
                     {renderDroppableList(CardLocation.RevealedPlots, usedPlots)}
                 </div>
             </div>
+
+            {showMessages && (
+                <div className='state'>
+                    <div className='state'>
+                        <a href='#' className='pr-1 pl-1'>
+                            <FontAwesomeIcon
+                                icon={muteSpectators ? faEyeSlash : faEye}
+                                onClick={onMuteClick}
+                            ></FontAwesomeIcon>
+                        </a>
+                    </div>
+                    <div className='state'>
+                        <a href='#' className='pr-1 pl-1'>
+                            <FontAwesomeIcon
+                                icon={faCopy}
+                                onClick={writeChatToClipboard}
+                            ></FontAwesomeIcon>
+                        </a>
+                    </div>
+                    <div className='state'>
+                        <a href='#' onClick={onSettingsClick} className='pr-1 pl-1'>
+                            <FontAwesomeIcon icon={faCogs}></FontAwesomeIcon>
+                            <span className='ml-1'>{t('Settings')}</span>
+                        </a>
+                    </div>
+                    <div className='state'>
+                        <a href='#' onClick={onMessagesClick} className='pl-1'>
+                            <FontAwesomeIcon icon={faComment}></FontAwesomeIcon>
+                            {numMessages > 0 && <Badge bg='danger'>{numMessages}</Badge>}
+                        </a>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

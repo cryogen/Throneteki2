@@ -16,27 +16,31 @@ export interface CardPiles {
 }
 
 export interface GamePlayer {
-    controls: PromptControl[];
-    menuTitle?: string;
-    promptTitle?: string;
-    phase: GamePhase;
-    buttons: PromptButton[];
-    deckData: any;
-    numDeckCards: number;
     activePlayer: boolean;
-    selectCard?: boolean;
     activePlot?: Card | null;
     agenda?: Card | null;
+    buttons: PromptButton[];
     cardPiles: CardPiles;
+    controls: PromptControl[];
+    deckData: any;
     faction?: Faction;
     firstPlayer: boolean;
+    keywordSettings?: KeywordSettings;
+    menuTitle?: string;
+    name: string;
+    numDeckCards: number;
     numDrawCards: number;
     plotSelected: boolean;
+    promptDupes?: boolean;
+    promptedActionWindows?: PromptedActionWindows;
+    promptTitle?: string;
+    phase: GamePhase;
+    selectCard?: boolean;
     showDeck: boolean;
     stats: GamePlayerStats;
+    timerSettings?: TimerSettings;
     title?: string;
     user?: any;
-    name: string;
 }
 
 interface ChatMessage {
@@ -145,3 +149,25 @@ export interface CardMenuItem {
 }
 
 export type StatsIndexer = 'claim' | 'initiative' | 'gold' | 'reserve' | 'totalPower';
+
+export interface KeywordSettings {
+    chooseCards: boolean;
+    chooseOrder: boolean;
+}
+
+export interface TimerSettings {
+    windowTimer: number;
+    events: boolean;
+    abilities: boolean;
+}
+
+export interface PromptedActionWindows {
+    plot: boolean;
+    draw: boolean;
+    challengeBegin: boolean;
+    attackersDeclared: boolean;
+    defendersDeclared: boolean;
+    dominance: boolean;
+    standing: boolean;
+    taxation: boolean;
+}

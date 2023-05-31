@@ -4,6 +4,9 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from 'react-oidc-context';
 import { WebStorageStateStore } from 'oidc-client-ts';
+import { DndProvider } from 'react-dnd';
+import { TouchBackend } from 'react-dnd-touch-backend';
+import ReduxToastr from 'react-redux-toastr';
 
 import { store } from './redux/store';
 import App from './App';
@@ -11,8 +14,6 @@ import reportWebVitals from './reportWebVitals';
 
 import './i18n';
 import './custom.scss';
-import { DndProvider } from 'react-dnd';
-import { TouchBackend } from 'react-dnd-touch-backend';
 
 const oidcConfig = {
     authority: 'https://localhost:7000/',
@@ -34,6 +35,14 @@ function AppWrapper() {
             <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
                 <Router>
                     <AuthProvider {...oidcConfig}>
+                        <ReduxToastr
+                            timeOut={4000}
+                            newestOnTop
+                            preventDuplicates
+                            position='top-right'
+                            transitionIn='fadeIn'
+                            transitionOut='fadeOut'
+                        />
                         <App />
                     </AuthProvider>
                 </Router>

@@ -23,3 +23,8 @@ export interface CardDropped {
     source: CardLocation;
     target: CardLocation;
 }
+
+export interface OptionAndValue {
+    option: string;
+    value: string | boolean;
+}

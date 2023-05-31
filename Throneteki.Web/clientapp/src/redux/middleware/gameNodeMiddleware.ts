@@ -9,6 +9,7 @@ import {
     CardDropped,
     CardMenuItemClicked,
     GameStatChange,
+    OptionAndValue,
     PromptClicked
 } from '../../types/gameMessages';
 import { GameCommands } from '../../types/enums';
@@ -127,6 +128,37 @@ const gameNodeMiddleware: Middleware = (store) => {
             );
         } else if (gameNodeActions.sendShowDrawDeckMessage.match(action)) {
             connection.emit('game', GameCommands.ShowDrawDeck, action.payload);
+        } else if (gameNodeActions.sendToggleMuteSpectatorsMessage.match(action)) {
+            connection.emit('game', GameCommands.ToggleMuteSpectators);
+        } else if (gameNodeActions.sendToggleKeywordSettingMessage.match(action)) {
+            const optionValue = action.payload as OptionAndValue;
+
+            connection.emit(
+                'game',
+                GameCommands.ToggleKeywordSetting,
+                optionValue.option,
+                optionValue.value
+            );
+        } else if (gameNodeActions.sendTogglePromptDupesMessage.match(action)) {
+            connection.emit('game', GameCommands.TogglePromptDupes, action.payload);
+        } else if (gameNodeActions.sendTogglePromptedActionWindowMessage.match(action)) {
+            const optionValue = action.payload as OptionAndValue;
+
+            connection.emit(
+                'game',
+                GameCommands.TogglePromptedActionWindow,
+                optionValue.option,
+                optionValue.value
+            );
+        } else if (gameNodeActions.sendToggleTimerSettingMessage.match(action)) {
+            const optionValue = action.payload as OptionAndValue;
+
+            connection.emit(
+                'game',
+                GameCommands.ToggleTimerSetting,
+                optionValue.option,
+                optionValue.value
+            );
         }
 
         next(action);

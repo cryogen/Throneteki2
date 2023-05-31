@@ -27,7 +27,12 @@ public class GrpcMappingProfile : Profile
         CreateMap<Data.Models.DeckCard, DeckCard>();
         CreateMap<Data.Models.Faction, Faction>();
         CreateMap<Data.Models.ThronetekiUserSettings, ThronetekiUserSettings>()
-            .ForMember(s => s.CustomBackgroundUrl, cfg => cfg.MapFrom(s => s.CustomBackgroundUrl ?? string.Empty));
+            .ForMember(s => s.CustomBackgroundUrl, cfg => cfg.MapFrom(s => s.CustomBackgroundUrl ?? string.Empty))
+            .ForMember(s => s.KeywordSettings, cfg => cfg.MapFrom(s => new KeywordSettings
+            {
+                ChooseCards = s.ChooseCards,
+                ChooseOrder = s.ChooseOrder
+            }));
 
         CreateMap<Data.Models.Pack, Pack>()
             .ForMember(p => p.ReleaseDate,

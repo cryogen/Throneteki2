@@ -1,4 +1,6 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { reducer as toastrReducer } from 'react-redux-toastr';
+
 import { apiSlice } from './api/apiSlice';
 import lobbyReducer from './slices/lobbySlice';
 import lobbyMiddleware from './middleware/lobbyMiddleware';
@@ -9,7 +11,8 @@ export const store = configureStore({
     reducer: {
         lobby: lobbyReducer,
         [apiSlice.reducerPath]: apiSlice.reducer,
-        gameNode: gameNodeReducer
+        gameNode: gameNodeReducer,
+        toastr: toastrReducer
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()

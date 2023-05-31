@@ -90,6 +90,11 @@ message Pack {
     google.protobuf.Timestamp ReleaseDate = 4;
 }
 
+message KeywordSettings {
+    bool ChooseOrder = 1;
+    bool ChooseCards = 2;
+}
+
 message ThronetekiUserSettings {
 	map<string, bool> ActionWindows = 1;
 	string Background = 2;
@@ -101,6 +106,7 @@ message ThronetekiUserSettings {
 	bool TimerAbilities = 8;
 	bool TimerEvents = 9;
 	int32 WindowTimer = 10;
+    KeywordSettings KeywordSettings = 11;
 }
 
 message ThronetekiUser {

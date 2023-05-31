@@ -22,7 +22,12 @@ export enum GameCommands {
     Drop = 'drop',
     MenuButton = 'menuButton',
     MenuItemClicked = 'menuItemClick',
-    ShowDrawDeck = 'showDrawDeck'
+    ShowDrawDeck = 'showDrawDeck',
+    ToggleKeywordSetting = 'toggleKeywordSetting',
+    ToggleMuteSpectators = 'toggleMuteSpectators',
+    TogglePromptDupes = 'toggleDupes',
+    TogglePromptedActionWindow = 'togglePromptedActionWindow',
+    ToggleTimerSetting = 'toggleTimerSetting'
 }
 
 export enum Icon {

@@ -5,6 +5,7 @@ import {
     CardDropped,
     CardMenuItemClicked,
     GameStatChange,
+    OptionAndValue,
     PromptClicked
 } from '../../types/gameMessages';
 
@@ -67,6 +68,21 @@ const gameNodeSlice = createSlice({
             state.isWaitingForResponse = true;
         },
         sendShowDrawDeckMessage: (state, _: PayloadAction<boolean>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendToggleKeywordSettingMessage: (state, _: PayloadAction<OptionAndValue>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendToggleMuteSpectatorsMessage: (state, _: PayloadAction) => {
+            state.isWaitingForResponse = true;
+        },
+        sendTogglePromptDupesMessage: (state, _: PayloadAction<boolean>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendTogglePromptedActionWindowMessage: (state, _: PayloadAction<OptionAndValue>) => {
+            state.isWaitingForResponse = true;
+        },
+        sendToggleTimerSettingMessage: (state, _: PayloadAction<OptionAndValue>) => {
             state.isWaitingForResponse = true;
         },
         setRootState: (state, action: PayloadAction<string>) => {

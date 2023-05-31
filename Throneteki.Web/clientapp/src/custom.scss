@@ -33,6 +33,7 @@ $utilities: map-merge(
     )
 );
 
+@import '~bootstrap/scss/close';
 @import '~bootstrap/scss/reboot';
 @import '~bootstrap/scss/type';
 @import '~bootstrap/scss/images';
@@ -96,6 +97,9 @@ $utilities: map-merge(
 @import './components/Game/Board/Icons';
 @import './components/Game/Board/CardMenu';
 @import './components/Game/Board/CardZoom';
+@import './components/Game/Board/GameConfigurationModal';
 
 @import 'pages/Admin/UserAdminPage';
 @import 'pages/Lobby';
+
+@import '~react-redux-toastr/src/styles/index';
