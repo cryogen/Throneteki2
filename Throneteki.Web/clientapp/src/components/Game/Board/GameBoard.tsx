@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
@@ -74,6 +74,17 @@ const GameBoard = () => {
     const [lastMessageCount, setLastMessageCount] = useState(0);
     const [cardToZoom, setCardToZoom] = useState<CardMouseOverEventArgs | null>(null);
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        const currentMessageCount = activeGame?.messages.length || 0;
+
+        if (showMessages) {
+            setLastMessageCount(currentMessageCount);
+            setNewMessages(0);
+        } else {
+            setNewMessages(currentMessageCount - lastMessageCount);
+        }
+    }, [activeGame?.messages.length, lastMessageCount, showMessages]);
 
     const renderBoard = (thisPlayer: GamePlayer, otherPlayer: GamePlayer) => {
         return (
@@ -308,7 +319,6 @@ const GameBoard = () => {
                 muteSpectators={activeGame.muteSpectators}
                 numDeckCards={thisPlayer.numDrawCards}
                 numMessages={newMessages}
-                //    onManualModeClick={onManualModeClick}
                 onMessagesClick={onMessagesClick}
                 onCardClick={onCardClick}
                 onDragDrop={onDragDrop}
@@ -321,7 +331,6 @@ const GameBoard = () => {
                 onSettingsClick={() => setShowModal(true)}
                 showControls={!isSpectating() && true}
                 showDeck={thisPlayer.showDeck}
-                //        showManualMode={!isSpectating()}
                 showMessages
                 side={BoardSide.Bottom}
                 size={settings.cardSize}
