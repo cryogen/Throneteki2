@@ -3,13 +3,15 @@
 public class LobbyDeck
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Owner { get; set; }
-    public LobbyFaction Faction { get; set; }
+    public string? Name { get; set; }
+    public string? Owner { get; set; }
+    public LobbyFaction Faction { get; set; } = null!;
     public IReadOnlyCollection<LobbyCard> Agendas { get; set; } = new List<LobbyCard>();
     public IReadOnlyCollection<LobbyDeckCard> DrawCards { get; set; } = new List<LobbyDeckCard>();
     public IReadOnlyCollection<LobbyDeckCard> PlotCards { get; set; } = new List<LobbyDeckCard>();
-    public DeckValidationStatus ValidationStatus { get; set; }
+    public DeckValidationStatus? ValidationStatus { get; set; }
+
+    public LobbyCard? Agenda => Agendas.SingleOrDefault(a => !a.Traits.Contains("banner", StringComparer.OrdinalIgnoreCase));
 
     public LobbyCard[] BannerCards =>
         Agendas.Where(a => a.Traits.Contains("banner", StringComparer.OrdinalIgnoreCase)).ToArray();

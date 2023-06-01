@@ -39,6 +39,7 @@ public class LobbyGame
     public bool ShowHand { get; set; }
     public bool IsEmpty => !Players.Any();
     public LobbyRestrictedList? RestrictedList { get; }
+    public LobbyNode Node { get; set; }
 
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)

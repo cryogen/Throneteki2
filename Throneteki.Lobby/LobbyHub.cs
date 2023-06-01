@@ -1,6 +1,8 @@
 ﻿
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Sockets;
+using System.Xml.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -98,6 +100,16 @@ public class LobbyHub : Hub
                 Avatar = user.Avatar,
                 Username = user.Username
             });
+
+            if (GamesByUsername.TryGetValue(user.Username, out var game) && game.IsStarted)
+            {
+                await Clients.Caller.SendAsync(LobbyMethods.HandOff, new
+                {
+                    url = game.Node.Url,
+                    name = game.Node.Name,
+                    gameId = game.Id.ToString()
+                });
+            }
         }
 
         await base.OnConnectedAsync();
@@ -282,6 +294,7 @@ public class LobbyHub : Hub
         }
 
         game.IsStarted = true;
+        game.Node = node;
 
         await BroadcastGameMessage(LobbyMethods.UpdateGame, game);
         await _gameNodesService.StartGame(node, game.GetStartGameDetails());
