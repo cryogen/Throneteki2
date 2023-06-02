@@ -4,9 +4,9 @@ namespace Throneteki.Lobby.Models;
 
 public static class LobbyCommands
 {
-    public const string Hello = "HELLO";
-    public const string LobbyHello = "LOBBYHELLO";
-    public const string StartGame = "STARTGAME";
-    public const string GameWin = "GAMEWIN";
-    public const string GameClosed = "GAMECLOSED";
+    public const string Hello = "HELLO2";
+    public const string LobbyHello = "LOBBYHELLO2";
+    public const string StartGame = "STARTGAME2";
+    public const string GameWin = "GAMEWIN2";
+    public const string GameClosed = "GAMECLOSED2";
 }
