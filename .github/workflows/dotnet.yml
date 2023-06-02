@@ -37,3 +37,11 @@ jobs:
       run: dotnet build --no-restore --configuration Release Throneteki.Lobby
     - name: Publish Lobby
       run: dotnet dotnet publish Throneteki.Lobby -c Release -o ${{env.DOTNET_ROOT}}/Throneteki.Lobby
+    - name: Build Web
+      run: dotnet build --no-restore --configuration Release Throneteki.Web
+    - name: Publish Web
+      run: dotnet dotnet publish Throneteki.Web -c Release -o ${{env.DOTNET_ROOT}}/Throneteki.Web
+    - name: Build Web Service
+      run: dotnet build --no-restore --configuration Release Throneteki.WebService
+    - name: Publish Web Service
+      run: dotnet dotnet publish Throneteki.WebService -c Release -o ${{env.DOTNET_ROOT}}/Throneteki.WebService
