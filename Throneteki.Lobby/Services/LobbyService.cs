@@ -30,7 +30,7 @@ public class LobbyService
     private static readonly ConcurrentDictionary<Guid, LobbyGame> GamesById = new();
 
     public LobbyService(ThronetekiService.ThronetekiServiceClient thronetekiService, IHubContext<LobbyHub> hubContext,
-        CardService cardService, IMapper mapper, GameNodeManager nodeManager, ILogger<LobbyService>? logger, IOptions<LobbyOptions> lobbyOptions)
+        CardService cardService, IMapper mapper, GameNodeManager nodeManager, ILogger<LobbyService> logger, IOptions<LobbyOptions> lobbyOptions)
     {
         _thronetekiService = thronetekiService;
         _hubContext = hubContext;

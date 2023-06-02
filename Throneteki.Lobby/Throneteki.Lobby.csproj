@@ -29,6 +29,5 @@
     <ProjectReference Include="..\Throneteki.DeckValidation\Throneteki.DeckValidation.csproj" />
     <ProjectReference Include="..\Throneteki.Grpc\Throneteki.Grpc.csproj" />
     <ProjectReference Include="..\Throneteki.Models\Throneteki.Models.csproj" />
-    <ProjectReference Include="..\Throneteki.WebService\Throneteki.WebService.csproj" />
   </ItemGroup>
 </Project>
