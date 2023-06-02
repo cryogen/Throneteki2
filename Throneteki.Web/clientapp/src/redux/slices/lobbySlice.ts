@@ -63,8 +63,8 @@ const lobbySlice = createSlice({
         receiveNewGame(state, action: PayloadAction<LobbyGame>) {
             state.games.push(action.payload);
         },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        receiveUpdateGame() {},
+        // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+        receiveUpdateGame(state, action: PayloadAction<LobbyGame>) {},
         receiveRemoveGame(state, action: PayloadAction<LobbyGame>) {
             state.games = state.games.filter((g) => g.id !== action.payload.id);
         },
