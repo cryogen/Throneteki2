@@ -26,3 +26,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release Throneteki.Auth
     - name: Publish Auth
       run: dotnet dotnet publish Throneteki.Auth -c Release -o ${{env.DOTNET_ROOT}}/Throneteki.Auth
+    - name: Build Lobby
+      run: dotnet build --no-restore --configuration Release Throneteki.Lobby
+    - name: Publish Lobby
+      run: dotnet dotnet publish Throneteki.Lobby -c Release -o ${{env.DOTNET_ROOT}}/Throneteki.Lobby
