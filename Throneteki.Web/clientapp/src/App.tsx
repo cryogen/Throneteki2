@@ -69,7 +69,7 @@ function App() {
             <main role='main'>
                 <div className='wrapper'>
                     <Container className='content'>
-                        <Breadcrumbs breadcrumbs={breadcrumbs} />
+                        {/*      <Breadcrumbs breadcrumbs={breadcrumbs} />*/}
 
                         <RouteElement />
                     </Container>

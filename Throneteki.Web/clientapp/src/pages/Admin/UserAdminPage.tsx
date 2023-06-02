@@ -255,18 +255,21 @@ const UserAdminPage = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {currentUser.tokens.map((token: any) => {
-                                                    return (
-                                                        <tr key={token.ip}>
-                                                            <td>{token.ip}</td>
-                                                            <td>
-                                                                {moment(token.lastUsed).format(
-                                                                    'YYYY-MM-DD HH:MM'
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
+                                                {
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                    currentUser.tokens.map((token: any) => {
+                                                        return (
+                                                            <tr key={token.ip}>
+                                                                <td>{token.ip}</td>
+                                                                <td>
+                                                                    {moment(token.lastUsed).format(
+                                                                        'YYYY-MM-DD HH:MM'
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })
+                                                }
                                             </tbody>
                                         </Table>
                                     </Panel>

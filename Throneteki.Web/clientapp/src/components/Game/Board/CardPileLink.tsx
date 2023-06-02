@@ -38,7 +38,6 @@ const CardPileLink = ({
     closeOnClick = false,
     disableMouseOver = false,
     disablePopup,
-    hiddenTopCard = false,
     manualMode,
     numDeckCards = 0,
     onCardClick,

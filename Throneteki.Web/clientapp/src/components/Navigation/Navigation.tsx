@@ -17,14 +17,7 @@ export interface UserSettings {
     background: string;
 }
 
-interface NavigationProps {
-    appName: string;
-}
-
-/**
- * @param {NavigationProps} props
- */
-const Navigation = (props: NavigationProps) => {
+const Navigation = () => {
     const { t } = useTranslation();
     const auth = useAuth();
     const {

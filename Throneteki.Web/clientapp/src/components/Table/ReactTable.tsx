@@ -35,6 +35,7 @@ interface ReactTableProps<T> {
     columns: ColumnDef<T>[];
     defaultColumnFilters?: Record<string, string[]>;
     defaultSort?: ColumnSort;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataLoadFn: (options: DataLoadOptions | unknown) => any;
     dataLoadArg?: unknown;
     dataProperty?: string;
@@ -209,7 +210,12 @@ function ReactTable<T>({
                 <div className='d-flex align-items-center'>
                     <span className='me-1'>
                         <Trans>
-                            Page {{ currPage }} of {{ pageCount }} ({{ totalCount } as any} items)
+                            Page {{ currPage }} of {{ pageCount }} (
+                            {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                { totalCount } as any
+                            }{' '}
+                            items)
                         </Trans>
                     </span>
                     <TablePagination

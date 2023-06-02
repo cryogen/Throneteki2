@@ -72,7 +72,7 @@ export function deckStatusLabel(status: DeckValidationStatus) {
     return 'Legal';
 }
 
-export function cardSetLabel(cardSet: any) {
+export function cardSetLabel(cardSet: string) {
     switch (cardSet) {
         case 'redesign':
             return 'Standard';

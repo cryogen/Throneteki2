@@ -29,10 +29,12 @@ const Game = ({ game, isAdmin, showJoinButton, showWatchButton }: GameProps) => 
     }
     const formattedTime = moment.utc(timeDifference).format('H:mm');
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const watchGame = (game: LobbyGame) => {
         console.info('watchy watchy');
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const removeGame = (game: LobbyGame) => {
         console.info('removey removey');
     };

@@ -4,9 +4,12 @@ import { Form, Button } from 'react-bootstrap';
 import LoadingSpinner from '../LoadingSpinner';
 
 interface TableGroupFilterProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     args?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fetchData: any;
     filter: ColumnFilter;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onOkClick: (filter: any) => void;
 }
 

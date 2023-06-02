@@ -27,6 +27,7 @@ interface ActivePlayerPromptProps {
     stopAbilityTimer?: boolean;
     timerLimit?: number;
     timerStartTime?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user: any;
 }
 
@@ -44,6 +45,7 @@ const ActivePlayerPrompt = ({
 }: ActivePlayerPromptProps) => {
     const { i18n, t } = useTranslation();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const localizedText = (source: Card | null, text: string | null, values?: any): string => {
         if (!isNaN(Number(text))) {
             // text is just a plain number, avoid translation

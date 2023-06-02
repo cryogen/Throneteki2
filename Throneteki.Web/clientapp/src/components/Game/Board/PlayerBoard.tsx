@@ -19,6 +19,7 @@ interface PlayerBoardProps {
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     rowDirection: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user: any;
 }
 
@@ -39,8 +40,7 @@ const PlayerBoard = ({
     onMenuItemClick,
     onMouseOut,
     onMouseOver,
-    rowDirection,
-    user
+    rowDirection
 }: PlayerBoardProps) => {
     const getCardRows = () => {
         const groupedCards = cardsInPlay.reduce((group: { [key: string]: GameCard[] }, card) => {

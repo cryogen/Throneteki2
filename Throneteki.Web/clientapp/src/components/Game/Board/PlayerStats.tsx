@@ -52,6 +52,7 @@ interface PlayerStatsProps {
     size: CardSize;
     spectating: boolean;
     stats: GamePlayerStats;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     user: any;
 }
 
@@ -138,7 +139,13 @@ const PlayerStats = ({
     const playerAvatar = (
         <div className={`pr-1 player-info ${activePlayer ? 'active-player' : 'inactive-player'}`}>
             <Avatar avatar={user?.avatar} />
-            <b>{user?.username || (t('Noone') as any)}</b>
+
+            <b>
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    user?.username || (t('Noone') as any)
+                }
+            </b>
         </div>
     );
 

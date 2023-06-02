@@ -25,11 +25,11 @@ export const Login = (props: LoginProps) => {
         window.location.replace(redirectUrl);
     };
 
-    const navigateToReturnUrl = (returnUrl: string) => {
-        // It's important that we do a replace here so that we remove the callback uri with the
-        // fragment containing the tokens from the browser history.
-        window.location.replace(returnUrl);
-    };
+    // const navigateToReturnUrl = (returnUrl: string) => {
+    //     // It's important that we do a replace here so that we remove the callback uri with the
+    //     // fragment containing the tokens from the browser history.
+    //     window.location.replace(returnUrl);
+    // };
 
     useEffect(() => {
         const login = async () => {
@@ -85,6 +85,7 @@ export const Login = (props: LoginProps) => {
             default:
                 throw new Error(`Invalid action '${action}'`);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [action]);
 
     if (!!message) {

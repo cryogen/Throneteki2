@@ -2,7 +2,6 @@ import React from 'react';
 import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
 import classNames from 'classnames';
 import { useAppSelector } from '../../../redux/hooks';
-import { Alert } from 'react-bootstrap';
 import CardImage from './CardImage';
 import Avatar from '../../Site/Avatar';
 import CardBackImage from '../../../assets/img/cardback.png';

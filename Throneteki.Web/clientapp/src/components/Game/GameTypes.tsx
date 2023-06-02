@@ -5,6 +5,7 @@ import { GameType } from '../../types/enums';
 import GameTypeInfo from './GameTypeInfo';
 
 interface GameTypesProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formProps: any;
 }
 

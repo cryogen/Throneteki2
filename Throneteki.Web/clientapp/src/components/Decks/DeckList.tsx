@@ -37,7 +37,7 @@ interface DeckListProps {
 
 const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
     const { t } = useTranslation();
-    const [toggleFavourite, { isLoading: isToggleLoading }] = useToggleDeckFavouriteMutation();
+    const [toggleFavourite] = useToggleDeckFavouriteMutation();
 
     const columns = useMemo<ColumnDef<Deck>[]>(
         () => [

@@ -15,6 +15,7 @@ import {
 import { GameCommands } from '../../types/enums';
 
 const patcher = jsondiffpatch.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     objectHash: (obj: any, index: number) => {
         return obj.uuid || obj.name || obj.id || obj._id || '$$index:' + index;
     }

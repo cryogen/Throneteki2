@@ -1,19 +1,20 @@
 import React, { MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useDrag } from 'react-dnd';
+import { XYCoord, useDrag } from 'react-dnd';
 import { ItemTypes } from '../../../constants';
-import { CardSize } from '../../../types/enums';
+import { BoardSide, CardSize } from '../../../types/enums';
 
 interface MovablePanelProps {
     children: ReactNode | ReactNode[];
     name: string;
     onCloseClick: MouseEventHandler;
-    side: any;
+    side: BoardSide;
     title: string;
     size: CardSize;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PopupDefaults: any = {
     'plot deck-bottom': {
         left: '100px',
@@ -77,7 +78,7 @@ const MovablePanel = ({ children, name, onCloseClick, side, title, size }: Movab
     const [position, setPosition] = useState(Object.assign({}, style));
     const popupRef = useRef<HTMLDivElement>(null);
 
-    const getStyle = (offset: any) => {
+    const getStyle = (offset: XYCoord) => {
         const style = {
             left: Math.max(offset.x, 10),
             top: Math.max(offset.y, 50),

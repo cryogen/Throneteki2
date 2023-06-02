@@ -3,6 +3,7 @@ import { Form, Row, Col } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 
 interface GameOptionsProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     formProps: any;
 }
 

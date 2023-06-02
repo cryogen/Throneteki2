@@ -28,7 +28,7 @@ interface CardProps {
     orientation?: CardOrientation;
     size: CardSize;
     source: CardLocation;
-    style?: any;
+    style?: React.CSSProperties;
     wrapped?: boolean;
 }
 

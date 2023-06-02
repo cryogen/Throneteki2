@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 
 import { DeckValidationStatus } from '../../types/lobby';
 import { deckStatusLabel } from '../../helpers/DeckHelper';

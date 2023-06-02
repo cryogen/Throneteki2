@@ -4,7 +4,6 @@ import { Alert, Button, Col } from 'react-bootstrap';
 
 import Panel from '../../components/Site/Panel';
 import {
-    ApiError,
     useGetThronesDbStatusQuery,
     useLinkThronesDbAccountMutation
 } from '../../redux/api/apiSlice';
@@ -51,7 +50,7 @@ const ThronesDbDecksPage = () => {
                                 // setSuccess(t('Settings saved successfully.'));
                             }
                         } catch (err) {
-                            const apiError = err as ApiError;
+                            // const apiError = err as ApiError;
                             // setError(
                             //     t(
                             //         apiError.data.message ||

@@ -2,10 +2,10 @@ import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import Messages from './Messages';
-import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
+import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
 
 interface GameChatProps {
-    messages: any;
+    messages: ChatMessage[];
     muted: boolean;
     onCardMouseOut: (card: GameCard) => void;
     onCardMouseOver?: (card: CardMouseOverEventArgs) => void;

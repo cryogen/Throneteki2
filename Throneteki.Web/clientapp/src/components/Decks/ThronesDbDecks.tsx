@@ -3,7 +3,6 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Alert, Button, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faRefresh,
     faDownload,
     faCloudArrowUp,
     faCircleCheck,

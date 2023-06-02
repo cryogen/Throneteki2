@@ -163,7 +163,7 @@ const Lobby = () => {
                     <LobbyChat
                         messages={lobbyMessages}
                         isModerator={user?.role?.includes(Permission.CanModerateChat)}
-                        onRemoveMessageClick={(messageId) => {
+                        onRemoveMessageClick={() => {
                             //   dispatch(removeLobbyMessage(messageId))
                         }}
                     />

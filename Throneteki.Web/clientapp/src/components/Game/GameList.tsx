@@ -3,7 +3,7 @@ import { Alert, Col } from 'react-bootstrap';
 import { Trans } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { GameType } from '../../types/enums';
-import { LobbyGame } from '../../types/lobby';
+import { Filter, LobbyGame } from '../../types/lobby';
 import { ThronetekiUser } from '../../types/user';
 import { Permission } from '../Navigation/menus';
 import GameTypeGroup from './GameTypeGroup';
@@ -11,7 +11,7 @@ import GameTypeGroup from './GameTypeGroup';
 interface GameListProps {
     currentGame?: LobbyGame;
     games: LobbyGame[];
-    gameFilter: any;
+    gameFilter: Filter;
     onJoinOrWatchClick: () => void;
 }
 

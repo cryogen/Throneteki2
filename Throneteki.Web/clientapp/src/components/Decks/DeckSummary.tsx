@@ -2,18 +2,14 @@ import React, { useMemo } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useGetCardsQuery } from '../../redux/api/apiSlice';
 import { Card } from '../../types/data';
-import { Deck, DeckCard, SaveDeck, SaveDeckCard } from '../../types/decks';
+import { Deck, DeckCard, SaveDeckCard } from '../../types/decks';
 
 interface DeckSummaryProps {
     deck: Deck;
 }
 
 const DeckSummary = ({ deck }: DeckSummaryProps) => {
-    const {
-        data: cardsResponse,
-        isLoading: isCardsLoading,
-        isError: isCardsError
-    } = useGetCardsQuery({});
+    const { data: cardsResponse } = useGetCardsQuery({});
 
     const cardsByCode = useMemo(() => {
         return (

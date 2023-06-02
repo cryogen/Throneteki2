@@ -34,7 +34,7 @@ const NewGame = ({
     const { t } = useTranslation();
     const auth = useAuth();
     const dispatch = useAppDispatch();
-    const { isLoading, data: restrictedLists } = useGetRestrictedListQuery({});
+    const { data: restrictedLists } = useGetRestrictedListQuery({});
 
     const { isConnected } = useAppSelector((state) => state.lobby);
 

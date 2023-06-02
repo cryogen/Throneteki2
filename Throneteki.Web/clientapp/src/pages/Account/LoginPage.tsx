@@ -11,6 +11,7 @@ const LoginPage = () => {
 
     useEffect(() => {
         auth.signinRedirect();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

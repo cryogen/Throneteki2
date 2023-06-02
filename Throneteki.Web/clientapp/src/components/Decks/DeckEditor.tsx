@@ -81,6 +81,10 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
         return saveDeck;
     };
 
+    const cardsByCode = useMemo(() => {
+        return cards && Object.assign({}, ...cards.map((card: Card) => ({ [card.code]: card })));
+    }, [cards]);
+
     const columns = useMemo<ColumnDef<Card>[]>(
         () => [
             {
@@ -200,12 +204,8 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 }
             }
         ],
-        [t]
+        [t, deckCards, cardsByCode]
     );
-
-    const cardsByCode = useMemo(() => {
-        return cards && Object.assign({}, ...cards.map((card: Card) => ({ [card.code]: card })));
-    }, [cards]);
 
     const factionsByCode = useMemo(() => {
         return (

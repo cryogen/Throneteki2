@@ -11,7 +11,7 @@ interface CardImageProps {
     size?: CardSize;
 }
 
-const CardImage = ({ card, halfSize, orientation, size }: CardImageProps) => {
+const CardImage = ({ card, orientation }: CardImageProps) => {
     const zoomClass = classNames('card-large', {
         vertical: orientation === CardOrientation.Vertical,
         horizontal: orientation === CardOrientation.Horizontal
