@@ -2,14 +2,14 @@ import React, { useEffect } from 'react';
 import { useRoutes } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
-import useBreadcrumbs from 'use-react-router-breadcrumbs';
+// import useBreadcrumbs from 'use-react-router-breadcrumbs';
 
 import { useAppDispatch } from './redux/hooks';
 import Navigation from './components/Navigation/Navigation';
 import AuthorisationRoutes from './authorisation/AuthorisationRoutes';
 import routes from './routes';
 import { lobbyActions } from './redux/slices/lobbySlice';
-import Breadcrumbs from './components/Site/Breadcrumbs';
+// import Breadcrumbs from './components/Site/Breadcrumbs';
 
 function RouteElement() {
     const routeArray = routes();
@@ -20,7 +20,7 @@ function RouteElement() {
 function App() {
     const dispatch = useAppDispatch();
     const auth = useAuth();
-    const breadcrumbs = useBreadcrumbs(routes());
+    // const breadcrumbs = useBreadcrumbs(routes());
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -64,7 +64,7 @@ function App() {
 
     return (
         <>
-            <Navigation appName='The Iron Throne' />
+            <Navigation />
 
             <main role='main'>
                 <div className='wrapper'>
