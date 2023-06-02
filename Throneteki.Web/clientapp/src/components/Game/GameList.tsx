@@ -20,7 +20,7 @@ const GameList = ({ currentGame, games, gameFilter }: GameListProps) => {
     const auth = useAuth();
 
     const user = auth.user?.profile as ThronetekiUser;
-    const isAdmin = user && user.role.includes(Permission.CanManageGames);
+    const isAdmin = user && user.role && user.role.includes(Permission.CanManageGames);
 
     const groupedGames = useMemo(() => {
         const grouping: Record<GameType, LobbyGame[]> = {
