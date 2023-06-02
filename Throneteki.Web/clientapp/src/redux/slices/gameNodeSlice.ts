@@ -37,10 +37,14 @@ const gameNodeSlice = createSlice({
         },
         connectionEstablished: (state) => {
             state.isConnected = true;
-            state.isEstablishingConnection = true;
+            state.isEstablishingConnection = false;
         },
         disconnect: (state) => {
             state.isConnected = false;
+        },
+        receiveClearGameState: (state) => {
+            state.currentGame = null;
+            state.isWaitingForResponse = false;
         },
         receieveGameState: (state, action: PayloadAction<Game>) => {
             state.currentGame = action.payload;

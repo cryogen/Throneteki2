@@ -5,18 +5,12 @@ namespace Throneteki.Lobby.Models;
 
 public class LobbyGamePlayer
 {
-    private readonly ThronetekiUser _user;
-    private LobbyDeck? _selectedDeck;
-
-    public LobbyGamePlayer(ThronetekiUser user)
-    {
-        _user = user;
-    }
-
-    public string Avatar => _user.Avatar;
-    public bool DeckSelected => _selectedDeck != null;
-    public string Name => _user.Username;
-    public string Role => _user.Role;
+    public string Avatar => User.Avatar;
+    public bool DeckSelected => Deck != null;
+    public string Name => User.Username;
+    public string Role => User.Role;
+    public LobbyDeck? Deck { get; set; }
+    public ThronetekiUser User { get; set; } = null!;
 
     public object GetSummary(LobbyGamePlayer? player = null)
     {
@@ -24,8 +18,8 @@ public class LobbyGamePlayer
         {
             Avatar,
             DeckSelected,
-            DeckStatus = _selectedDeck?.ValidationStatus,
-            DeckName = player != null && player.Name == _user.Username ? _selectedDeck?.Name : null,
+            DeckStatus = Deck?.ValidationStatus,
+            DeckName = player != null && player.Name == User.Username ? Deck?.Name : null,
             Name,
             Role
         };
@@ -36,16 +30,11 @@ public class LobbyGamePlayer
         return new
         {
             Avatar,
-            Deck = _selectedDeck,
+            Deck,
             Name,
             Role,
-            _user.Settings,
-            PromptedActionWindows = _user.Settings.ActionWindows
+            User.Settings,
+            PromptedActionWindows = User.Settings.ActionWindows
         };
-    }
-
-    public void SelectDeck(LobbyDeck deck)
-    {
-        _selectedDeck = deck;
     }
 }

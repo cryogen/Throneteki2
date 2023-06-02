@@ -77,6 +77,14 @@ const gameNodeMiddleware: Middleware = (store) => {
 
                 store.dispatch(gameNodeActions.receieveGameState(gameState));
             });
+
+            connection.on('cleargamestate', () => {
+                connection.close();
+                connection = null;
+
+                store.dispatch(gameNodeActions.receiveClearGameState());
+                store.dispatch(gameNodeActions.disconnect());
+            });
         }
 
         if (!isConnectionEstablished || !connection) {

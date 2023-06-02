@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Throneteki.Data.Models;
 using Throneteki.Data.Models.RestrictedList;
 using Throneteki.Models.Models;
 

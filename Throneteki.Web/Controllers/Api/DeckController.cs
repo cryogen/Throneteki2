@@ -134,8 +134,10 @@ public class DeckController : ControllerBase
 
         baseQuery = baseQuery.Include(d => d.Faction)
             .Include(d => d.Agenda)
+            .ThenInclude(a => a.Faction)
             .Include(d => d.DeckCards)
-            .ThenInclude(dc => dc.Card);
+            .ThenInclude(dc => dc.Card)
+            .ThenInclude(c => c.Faction);
 
         if (options.Sorting != null && options.Sorting.Any())
         {

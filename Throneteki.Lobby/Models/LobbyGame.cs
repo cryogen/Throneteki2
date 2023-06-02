@@ -40,7 +40,10 @@ public class LobbyGame
     public bool IsEmpty => !Players.Any();
     public LobbyRestrictedList? RestrictedList { get; }
     public LobbyNode Node { get; set; }
-
+    public int SavedGameId { get; set; }
+    public ThronetekiUser? Winner { get; set; }
+    public string WinReason { get; set; }
+    public DateTime? FinishedAt { get; set; }
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)
     {
@@ -173,7 +176,7 @@ public class LobbyGame
     {
         var player = _gameUsers[username];
 
-        player.User.SelectDeck(deck);
+        player.User.Deck = deck;
     }
 
     public void UserDisconnect(string username)
@@ -249,4 +252,38 @@ public class LobbyGame
             }
         }
     }
+
+    public LobbySavedGame GetSaveState()
+    {
+        return new LobbySavedGame
+        {
+            SavedGameId = SavedGameId, GameId = Id, StartedAt = CreatedAt,
+            Winner = Winner?.Username,
+            WinReason = WinReason,
+            FinishedAt = FinishedAt,
+            Players = Players.Select(p => new LobbySavedGamePlayer
+            {
+                Name = p.User.Name, Faction = p.User.Deck.Faction.Code, Agenda = p.User.Deck.Agenda?.Code, Power = 0
+            })
+        };
+    }
+}
+
+public class LobbySavedGame
+{
+    public int SavedGameId { get; set; }
+    public Guid GameId { get; set; }
+    public DateTime StartedAt { get; set; }
+    public string? Winner { get; set; }
+    public string? WinReason { get; set; }
+    public DateTime? FinishedAt { get; set; }
+    public IEnumerable<LobbySavedGamePlayer> Players { get; set; } = new List<LobbySavedGamePlayer>();
+}
+
+public class LobbySavedGamePlayer
+{
+    public string Name { get; set; } = null!;
+    public string Faction { get; set; } = null!;
+    public string? Agenda { get; set; }
+    public int Power { get; set; }
 }

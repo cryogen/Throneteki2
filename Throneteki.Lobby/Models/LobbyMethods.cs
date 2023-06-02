@@ -17,4 +17,5 @@ public static class LobbyMethods
     public const string UpdateGame = "updategame";
     public const string UserLeft = "userleft";
     public const string Users = "users";
+    public const string Pong = "pong";
 }

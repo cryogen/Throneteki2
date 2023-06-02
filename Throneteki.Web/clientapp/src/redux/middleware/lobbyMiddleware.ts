@@ -36,6 +36,7 @@ const lobbyMiddleware: Middleware = (store) => {
                 .withUrl('/lobbyhub', {
                     accessTokenFactory: () => {
                         const user = getUser();
+                        console.info(user, user.expires_at, user.expires_in);
                         return user?.access_token || '';
                     }
                 })
@@ -64,6 +65,7 @@ const lobbyMiddleware: Middleware = (store) => {
 
             connection.on(LobbyEvent.HandOff, (handOffDetails: HandOff) => {
                 store.dispatch(gameNodeActions.startConnecting(handOffDetails));
+                store.dispatch(lobbyActions.receiveClearGameState());
             });
 
             connection.on(LobbyEvent.NewUserMessage, (user: UserSummary) => {

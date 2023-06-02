@@ -25,7 +25,7 @@ message Card {
     string Type = 2;
     string Name = 3;
     bool Unique = 4;
-    string Faction = 5;
+    Faction Faction = 5;
     bool Loyal = 6;
     int32 Cost = 7;
     int32 Strength = 8;
@@ -117,4 +117,22 @@ message ThronetekiUser {
 	google.protobuf.Timestamp Registered = 5;
 	string Role = 6;
 	ThronetekiUserSettings Settings = 7;
+}
+
+message ThronetekiGamePlayer {
+    int32 Id = 1;
+    string Player = 2;
+    string FactionCode = 3;
+    string AgendaCode = 4;
+    int32 TotalPower = 5;
+}
+
+message ThronetekiGame {
+    int32 Id = 1;
+    string GameId = 2;
+    google.protobuf.Timestamp StartedAt = 3;
+    repeated ThronetekiGamePlayer Players = 4;
+    string Winner = 5;
+    string WinReason = 6;
+    google.protobuf.Timestamp FinishedAt = 7;
 }

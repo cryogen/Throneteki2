@@ -50,14 +50,16 @@ builder.Services.AddOpenIddict()
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 builder.Services.AddSingleton(provider =>
-    new LobbyServiceFactory(provider.GetRequiredService<HttpClient>(),
+    new ThronetekiServiceFactory(provider.GetRequiredService<HttpClient>(),
         provider.GetRequiredService<IOptions<LobbyOptions>>()).GetLobbyServiceClient());
-builder.Services.AddSingleton<GameNodesService>();
+builder.Services.AddSingleton<LobbyService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
     ConnectionMultiplexer.Connect(lobbyOptions.RedisUrl ?? throw new InvalidOperationException()));
 builder.Services.AddSingleton<RedisCommandHandlerFactory>();
 builder.Services.AddSingleton<GameNodeManager>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<HelloMessage>>, HelloMessageHandler>();
+builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameWonMessage>>, GameWonMessageHandler>();
+builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameClosedMessage>>, GameClosedMessageHandler>();
 builder.Services.AddTransient<CardService>();
 
 var app = builder.Build();
@@ -82,8 +84,8 @@ app.UseCors("DontCare");
 
 app.MapHub<LobbyHub>("/lobbyhub");
 
-var gameNodesService = app.Services.GetRequiredService<GameNodesService>();
+var gameNodeManager = app.Services.GetRequiredService<GameNodeManager>();
 
-await gameNodesService.Initialise();
+await gameNodeManager.Initialise();
 
 app.Run();

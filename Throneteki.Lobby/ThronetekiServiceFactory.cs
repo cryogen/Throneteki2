@@ -7,13 +7,13 @@ using Throneteki.WebService;
 
 namespace Throneteki.Lobby;
 
-public class LobbyServiceFactory
+public class ThronetekiServiceFactory
 {
     private readonly HttpClient _httpClient;
     private readonly LobbyOptions _lobbyOptions;
-    private LobbyService.LobbyServiceClient? _lobbyServiceClient;
+    private ThronetekiService.ThronetekiServiceClient? _thronetekiServiceClient;
 
-    public LobbyServiceFactory(HttpClient httpClient, IOptions<LobbyOptions> lobbyOptions)
+    public ThronetekiServiceFactory(HttpClient httpClient, IOptions<LobbyOptions> lobbyOptions)
     {
         _httpClient = httpClient;
         _lobbyOptions = lobbyOptions.Value;
@@ -21,13 +21,13 @@ public class LobbyServiceFactory
         httpClient.BaseAddress = new Uri(_lobbyOptions.AuthServerUrl);
     }
 
-    public LobbyService.LobbyServiceClient GetLobbyServiceClient()
+    public ThronetekiService.ThronetekiServiceClient GetLobbyServiceClient()
     {
         var address = _lobbyOptions.LobbyServiceUrl;
 
-        if (_lobbyServiceClient != null)
+        if (_thronetekiServiceClient != null)
         {
-            return _lobbyServiceClient;
+            return _thronetekiServiceClient;
         }
 
         var credentials = CallCredentials.FromInterceptor(async (_, metadata) =>
@@ -45,9 +45,9 @@ public class LobbyServiceFactory
             Credentials = ChannelCredentials.Create(new SslCredentials(), credentials)
         });
 
-        _lobbyServiceClient = new LobbyService.LobbyServiceClient(channel);
+        _thronetekiServiceClient = new ThronetekiService.ThronetekiServiceClient(channel);
 
-        return _lobbyServiceClient;
+        return _thronetekiServiceClient;
     }
 
     private async Task<string> GetAccessToken()

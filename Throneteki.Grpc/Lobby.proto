@@ -4,12 +4,14 @@ package Throneteki.WebService;
 
 import "Messages.proto";
 
-service LobbyService {
+service ThronetekiService {
 	rpc AddLobbyMessage(AddLobbyMessageRequest) returns (AddLobbyMessageResponse);
+	rpc CreateGame(CreateGameRequest) returns (CreateGameResponse);
 	rpc GetAllPacks(GetAllPacksRequest) returns (GetAllPacksResponse);
 	rpc GetDeckById(GetDeckByIdRequest) returns (GetDeckByIdResponse);
 	rpc GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest) returns (GetLobbyMessagesForUserResponse);
 	rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+	rpc UpdateGame(UpdateGameRequest) returns (UpdateGameResponse);
 }
 
 message AddLobbyMessageRequest {
@@ -19,6 +21,13 @@ message AddLobbyMessageRequest {
 
 message AddLobbyMessageResponse {
 	LobbyMessage Message = 1;
+}
+
+message CreateGameRequest {
+	ThronetekiGame Game = 1;
+}
+
+message CreateGameResponse {
 }
 
 message GetAllPacksRequest {
@@ -50,4 +59,11 @@ message GetUserByUsernameRequest {
 
 message GetUserByUsernameResponse {
 	ThronetekiUser User = 1;
+}
+
+message UpdateGameRequest {
+	ThronetekiGame Game = 1;
+}
+
+message UpdateGameResponse {
 }

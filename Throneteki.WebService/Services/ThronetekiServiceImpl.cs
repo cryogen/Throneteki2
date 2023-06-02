@@ -13,7 +13,7 @@ using DbThronetekiUser = Throneteki.Data.Models.ThronetekiUser;
 namespace Throneteki.WebService.Services;
 
 [Authorize]
-public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
+public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
 {
     private readonly ThronetekiDbContext _dbContext;
     private readonly IMapper _mapper;
@@ -175,6 +175,96 @@ public class ThronetekiServiceImpl : LobbyService.LobbyServiceBase
         ret.Packs.AddRange(packs);
 
         return ret;
+    }
+
+    public override async Task<CreateGameResponse> CreateGame(CreateGameRequest request, ServerCallContext context)
+    {
+        var cardsByCode = await _dbContext.Cards.ToDictionaryAsync(k => k.Code, v => v);
+        var factionsByCode = await _dbContext.Factions.ToDictionaryAsync(k => k.Code, v => v);
+
+        var dbGame = _mapper.Map<Game>(request.Game);
+
+        if (request.Game.Winner != string.Empty)
+        {
+            dbGame.Winner = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == request.Game.Winner);
+        }
+
+        dbGame.Players = new List<GamePlayer>();
+
+        foreach (var player in request.Game.Players)
+        {
+            var dbPlayer = new GamePlayer();
+
+            if (player.AgendaCode != string.Empty)
+            {
+                dbPlayer.Agenda = cardsByCode[player.AgendaCode];
+                dbPlayer.AgendaId = dbPlayer.Agenda.Id;
+            }
+
+            dbPlayer.Faction = factionsByCode[player.FactionCode];
+            dbPlayer.FactionId = dbPlayer.Faction.Id;
+
+            dbPlayer.Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player);
+
+            dbGame.Players.Add(dbPlayer);
+        }
+
+        if (dbGame.WinReason == string.Empty)
+        {
+            dbGame.WinReason = null;
+        }
+
+        _dbContext.Games.Add(dbGame);
+
+        await _dbContext.SaveChangesAsync();
+
+        return new CreateGameResponse();
+    }
+
+    public override async Task<UpdateGameResponse> UpdateGame(UpdateGameRequest request, ServerCallContext context)
+    {
+        var cardsByCode = await _dbContext.Cards.ToDictionaryAsync(k => k.Code, v => v);
+        var factionsByCode = await _dbContext.Factions.ToDictionaryAsync(k => k.Code, v => v);
+        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.GameId.ToString() == request.Game.GameId);
+
+        if (game == null)
+        {
+            return new UpdateGameResponse();
+        }
+
+        if (request.Game.Winner != string.Empty)
+        {
+            game.Winner = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == request.Game.Winner);
+        }
+
+        game.Players = new List<GamePlayer>();
+
+        foreach (var player in request.Game.Players)
+        {
+            var dbPlayer = new GamePlayer();
+
+            if (player.AgendaCode != string.Empty)
+            {
+                dbPlayer.Agenda = cardsByCode[player.AgendaCode];
+                dbPlayer.AgendaId = dbPlayer.Agenda.Id;
+            }
+
+            dbPlayer.Faction = factionsByCode[player.FactionCode];
+            dbPlayer.FactionId = dbPlayer.Faction.Id;
+
+            dbPlayer.Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player);
+
+            game.Players.Add(dbPlayer);
+        }
+
+        game.WinReason = game.WinReason == string.Empty ? null : request.Game.WinReason;
+        game.FinishedAt = request.Game.FinishedAt.Nanos == 0 && request.Game.FinishedAt.Seconds == 0
+            ? null
+            : request.Game.FinishedAt.ToDateTime();
+
+        await _dbContext.SaveChangesAsync();
+
+        return new UpdateGameResponse();
     }
 
     private static LobbyMessage MapMessage(DbLobbyMessage message)

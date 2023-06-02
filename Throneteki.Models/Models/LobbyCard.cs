@@ -6,7 +6,7 @@ public class LobbyCard
     public string? Type { get; set; }
     public string? Name { get; set; }
     public bool Unique { get; set; }
-    public string? Faction { get; set; }
+    public string Faction { get; set; } = null!;
     public bool Loyal { get; set; }
     public int Cost { get; set; }
     public int? Strength { get; set; }
