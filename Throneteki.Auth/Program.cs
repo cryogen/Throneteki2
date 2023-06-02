@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string corsPolicy = "AllowLocal";
 
+var settingsSection = builder.Configuration.GetSection("Settings");
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicy,
-        policyBuilder => policyBuilder.WithOrigins("http://localhost:44460", "https://localhost:44460").SetIsOriginAllowedToAllowWildcardSubdomains().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+        policyBuilder =>
+            policyBuilder.WithOrigins(settingsSection["CorsOrigins"].Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
 });
 
 // Add services to the container.
@@ -66,7 +74,18 @@ builder.Services.AddOpenIddict()
 
         options.AddEncryptionKey(new SymmetricSecurityKey(Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
 
-        options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
+        if (builder.Environment.IsDevelopment())
+        {
+            Console.WriteLine("dev");
+
+            options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
+        }
+        else
+        {
+            options.AddEncryptionCertificate(new X509Certificate2(settingsSection["EncryptionCertificatePath"]))
+                .AddSigningCertificate(new X509Certificate2(settingsSection["SigningCertificatePath"]));
+        }
+
         options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
 
         options.UseAspNetCore()
@@ -90,8 +109,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseHttpsRedirection();
-    app.UseHsts();
 }
 
 app.UseCors(corsPolicy);
