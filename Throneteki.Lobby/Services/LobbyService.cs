@@ -121,7 +121,7 @@ public class LobbyService
                 new GetUserByUsernameRequest
                 {
                     Username = context.User.Identity.Name
-                }, cancellationToken: context.ConnectionAborted)).User;
+                })).User;
 
             ConnectionsByUsername.TryRemove(context.User.Identity.Name, out _);
             UsersByName.TryRemove(context.User.Identity.Name, out _);
@@ -132,8 +132,7 @@ public class LobbyService
                 u.BlockList.Any(bl => bl.UserId == user.Id) &&
                 user.BlockList.Any(bl => bl.UserId == u.Id)).Select(u => Connections[ConnectionsByUsername[u.Username]]));
 
-            await _hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync(LobbyMethods.UserLeft, user.Username,
-                cancellationToken: context.ConnectionAborted);
+            await _hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync(LobbyMethods.UserLeft, user.Username);
 
             if (GamesByUsername.TryGetValue(user.Username, out var game))
             {

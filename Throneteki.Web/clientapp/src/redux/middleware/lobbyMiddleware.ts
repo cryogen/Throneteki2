@@ -36,7 +36,6 @@ const lobbyMiddleware: Middleware = (store) => {
                 .withUrl('/lobbyhub', {
                     accessTokenFactory: () => {
                         const user = getUser();
-                        console.info(user, user.expires_at, user.expires_in);
                         return user?.access_token || '';
                     }
                 })
