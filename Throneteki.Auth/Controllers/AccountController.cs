@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -131,6 +132,29 @@ public class AccountController : Controller
             };
 
             user.ProfileImage = profileImage;
+
+            user.Settings = JsonSerializer.Serialize(new ThronetekiUserSettings
+            {
+                ActionWindows = new Dictionary<string, bool>
+                {
+                    { "plot", false },
+                    { "draw", false },
+                    { "challengeBegin", false },
+                    { "attackersDeclared", true },
+                    { "defendersDeclared", true },
+                    { "dominance", false },
+                    { "standing", false },
+                    { "taxation", false }
+                },
+                Background = "standard",
+                CardSize = "normal",
+                ChooseCards = false,
+                ChooseOrder = false,
+                PromptDupes = false,
+                TimerAbilities = false,
+                TimerEvents = true,
+                WindowTimer = 10
+            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             await _userManager.UpdateAsync(user);
 
