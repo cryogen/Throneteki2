@@ -68,7 +68,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
     });
 
-builder.Services.AddIdentity<ThronetekiUser, IdentityRole>()
+builder.Services.AddIdentity<ThronetekiUser, ThronetekiRole>()
     .AddEntityFrameworkStores<ThronetekiDbContext>()
     .AddDefaultTokenProviders();
 
