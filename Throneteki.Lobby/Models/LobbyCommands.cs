@@ -1,6 +1,4 @@
-﻿using StackExchange.Redis;
-
-namespace Throneteki.Lobby.Models;
+﻿namespace Throneteki.Lobby.Models;
 
 public static class LobbyCommands
 {

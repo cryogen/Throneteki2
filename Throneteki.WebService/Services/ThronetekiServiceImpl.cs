@@ -158,7 +158,7 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             Username = bl.BlockedUser?.UserName
         }));
 
-        var settings = JsonSerializer.Deserialize<Data.Models.ThronetekiUserSettings>(user.Settings,
+        var settings = JsonSerializer.Deserialize<Data.Models.ThronetekiUserSettings>(user.Settings ?? "{}",
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
         ret.User.Settings = _mapper.Map<ThronetekiUserSettings>(settings);
