@@ -35,6 +35,7 @@ public class AdminController : ControllerBase
 
         return Ok(new
         {
+            user.Id,
             Username = user.UserName,
             user.Email,
             user.RegisteredDateTime,
@@ -47,6 +48,11 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> SaveUser(string userId, AdminSaveUserRequest request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
 
         user.EmailConfirmed = request.Verified;
 

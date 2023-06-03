@@ -302,7 +302,7 @@ const UserAdminPage = () => {
 
                                             try {
                                                 const response = await saveUserAdmin({
-                                                    userId: auth.user?.profile.sub,
+                                                    userId: saveUser.id,
                                                     userDetails: saveUser
                                                 }).unwrap();
 
