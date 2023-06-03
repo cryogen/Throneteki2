@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useGetCardsQuery } from '../../redux/api/apiSlice';
 import { Card } from '../../types/data';
 import { Deck, DeckCard, SaveDeckCard } from '../../types/decks';
+import CardImage from '../Images/CardImage';
 
 interface DeckSummaryProps {
     deck: Deck;
@@ -10,6 +11,8 @@ interface DeckSummaryProps {
 
 const DeckSummary = ({ deck }: DeckSummaryProps) => {
     const { data: cardsResponse } = useGetCardsQuery({});
+    const [mousePos, setMousePosition] = useState({ x: 0, y: 0 });
+    const [zoomCard, setZoomCard] = useState(null);
 
     const cardsByCode = useMemo(() => {
         return (
@@ -48,7 +51,20 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
         for (const deckCard of cards) {
             currentContainer.push(
                 <React.Fragment key={deckCard.card.code}>
-                    <div>
+                    <div
+                        onMouseOver={() => setZoomCard(deckCard.card.code)}
+                        onMouseMove={(event) => {
+                            let y = event.clientY;
+                            const yPlusHeight = y + 420;
+
+                            if (yPlusHeight >= window.innerHeight) {
+                                y -= yPlusHeight - window.innerHeight;
+                            }
+
+                            setMousePosition({ x: event.clientX, y: y });
+                        }}
+                        onMouseOut={() => setZoomCard(null)}
+                    >
                         {deckCard.count}x{' '}
                         <span
                             className={`me-1 icon icon-${type} text-${deckCard.card.faction.code}`}
@@ -69,6 +85,14 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
 
     return (
         <Row className='mt-3'>
+            {zoomCard && (
+                <div
+                    className='decklist-card-zoom'
+                    style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
+                >
+                    <CardImage card={zoomCard} size='lg' />
+                </div>
+            )}
             <Col sm={4}>{splitCards[0]}</Col>
             <Col sm={4}>{splitCards[1]}</Col>
             <Col sm={4}>{splitCards[2]}</Col>

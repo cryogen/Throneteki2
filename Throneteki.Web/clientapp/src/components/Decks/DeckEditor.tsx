@@ -336,7 +336,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 </ButtonToolbar>
                 <ReactTable
                     dataLoadFn={() => ({
-                        data: cards,
+                        data: { data: cards },
                         isLoading: false,
                         isError: false
                     })}
