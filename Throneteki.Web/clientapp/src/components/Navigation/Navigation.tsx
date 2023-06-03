@@ -12,6 +12,7 @@ import ServerStatus from './ServerStatus';
 import { ThronetekiUser } from '../../types/user';
 import GameContextMenu from './GameContextMenu';
 
+import HeaderIcon from '../../assets/img/header_icon.png';
 export interface UserSettings {
     customBackground: string | undefined;
     background: string;
@@ -110,13 +111,23 @@ const Navigation = () => {
     );
 
     return (
-        <Navbar bg='dark' variant='dark' className='navbar-sm' fixed='top'>
+        <Navbar bg='dark' variant='dark' className='navbar-sm' fixed='top' expand='md'>
             <Container>
-                <Navbar.Brand className='navbar-brand' as={Link} to='/'></Navbar.Brand>
                 <Navbar.Toggle aria-controls='navbar' />
-                <Nav>{renderMenuItems(LeftMenu)}</Nav>
-                <Navbar.Collapse id='navbar' className='justify-content-end'>
-                    <Nav className='ml-auto pr-md-5 align-items-center'>
+                <Navbar.Collapse id='navbar'>
+                    <Navbar.Brand className='navbar-brand bg-dark' as={Link} to='/'>
+                        <img
+                            src={HeaderIcon}
+                            width='32'
+                            height='32'
+                            className='d-inline-block align-top'
+                            alt='The Iron Throne Logo'
+                        />
+                    </Navbar.Brand>
+
+                    <Nav className='me-auto mb-2 mb-lg-0 bg-dark'>{renderMenuItems(LeftMenu)}</Nav>
+
+                    <Nav className='ml-auto pr-md-5 bg-dark'>
                         <GameContextMenu />
                         {numGames}
                         <ServerStatus

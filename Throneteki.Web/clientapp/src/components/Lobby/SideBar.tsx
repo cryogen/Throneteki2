@@ -11,7 +11,7 @@ interface SidebarProps {
 const SideBar = ({ children }: SidebarProps) => {
     const [expanded, setExpanded] = useState(false);
 
-    const sidebarClass = classNames('sidebar', {
+    const sidebarClass = classNames('d-none d-md-block sidebar', {
         expanded: expanded,
         collapsed: !expanded
     });
