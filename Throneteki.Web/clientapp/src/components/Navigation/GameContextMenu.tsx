@@ -82,13 +82,15 @@ const GameContextMenu = () => {
     return (
         <>
             <li onMouseOver={() => setShowPopup(true)} onMouseOut={() => setShowPopup(false)}>
-                {t('{{users}} spectators', { users: activeGame.spectators.length })}
+                <span>{t('{{users}} spectators', { users: activeGame.spectators.length })}</span>
             </li>
             {showPopup && spectators.length > 0 && spectatorPopup}
             {!isSpectating && (
                 <li>
                     <Nav.Link onClick={() => dispatch(gameNodeActions.sendConcedeMessage())}>
-                        <Trans>Concede</Trans>
+                        <span>
+                            <Trans>Concede</Trans>
+                        </span>
                     </Nav.Link>
                 </li>
             )}

@@ -111,7 +111,7 @@ const Navigation = () => {
     );
 
     return (
-        <Navbar bg='dark' variant='dark' className='navbar-sm' fixed='top' expand='md'>
+        <Navbar bg='dark' variant='dark' className='navbar-sm' fixed='top' expand='lg'>
             <Container>
                 <Navbar.Toggle aria-controls='navbar' />
                 <Navbar.Collapse id='navbar'>
