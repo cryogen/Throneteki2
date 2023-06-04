@@ -59,6 +59,15 @@ export const apiSlice = createApi({
                 body: deck
             })
         }),
+        deleteDecks: builder.mutation({
+            query: (deckIds) => ({
+                url: '/decks',
+                method: 'DELETE',
+                body: {
+                    deckIds: deckIds
+                }
+            })
+        }),
         getBlockList: builder.query({
             query: (userId) => `/user/${userId}/blocklist`
         }),
@@ -144,6 +153,7 @@ export const apiSlice = createApi({
 export const {
     useAddBlockListEntryMutation,
     useAddDeckMutation,
+    useDeleteDecksMutation,
     useGetBlockListQuery,
     useGetCardsQuery,
     useGetDeckQuery,

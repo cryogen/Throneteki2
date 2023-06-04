@@ -260,6 +260,23 @@ public class DeckController : ControllerBase
         });
     }
 
+    [HttpDelete]
+    public async Task<IActionResult> DeleteDecks(DeleteDecksRequest request)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var decksToDelete = _context.Decks.Where(d => d.UserId == user.Id && request.DeckIds.Contains(d.Id));
+        _context.Decks.RemoveRange(decksToDelete);
+
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
     [HttpGet("groupFilter")]
     public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
     {
@@ -614,4 +631,9 @@ public class DeckController : ControllerBase
 
         return deckCards;
     }
+}
+
+public class DeleteDecksRequest
+{
+    public IReadOnlyCollection<int> DeckIds { get; set; } = new List<int>();
 }

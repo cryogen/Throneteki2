@@ -100,11 +100,13 @@ function ReactTable<T>({
             onPaginationChange: setPagination,
             onSortingChange: setSorting,
             onColumnFiltersChange: setColumnFilters,
-            pageCount: Math.ceil(response?.paginationInfo?.totalCount / pageSize) ?? -1,
+            onRowSelectionChange: setRowSelection,
+            pageCount: Math.ceil(response?.totalCount / pageSize) ?? -1,
             state: {
                 sorting,
                 pagination: pagination,
-                columnFilters: columnFilters
+                columnFilters: columnFilters,
+                rowSelection
             }
         };
     } else {
@@ -133,10 +135,13 @@ function ReactTable<T>({
     }, [defaultColumnFilters, table]);
 
     useEffect(() => {
-        if (onRowSelectionChange) {
-            onRowSelectionChange(table.getSelectedRowModel().flatRows);
+        if (Object.values(rowSelection).length > 0) {
+            onRowSelectionChange && onRowSelectionChange(table.getSelectedRowModel().flatRows);
+        } else {
+            onRowSelectionChange && onRowSelectionChange([]);
         }
-    }, [rowSelection, onRowSelectionChange, table]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rowSelection]);
 
     if (isLoading) {
         return <LoadingSpinner text='Loading data, please wait...' />;
@@ -148,9 +153,7 @@ function ReactTable<T>({
 
     const currPage = table.getState().pagination.pageIndex + 1;
     const pageCount = table.getPageCount();
-    const totalCount = remote
-        ? response?.paginationInfo.totalCount
-        : response[dataProperty]?.length || 0;
+    const totalCount = remote ? response?.totalCount : response[dataProperty]?.length || 0;
 
     return (
         <>
@@ -170,9 +173,7 @@ function ReactTable<T>({
                             <tr
                                 key={row.id}
                                 onClick={() => {
-                                    if (onRowClick) {
-                                        onRowClick(row);
-                                    }
+                                    onRowClick && onRowClick(row);
                                 }}
                             >
                                 {row.getVisibleCells().map((cell) => (

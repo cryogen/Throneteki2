@@ -21,6 +21,7 @@ import FactionImage from '../Images/FactionImage';
 import ReactTable from '../Table/ReactTable';
 import TableGroupFilter from '../Table/TableGroupFilter';
 import DeckStatusLabel from './DeckStatusLabel';
+import IndeterminateCheckbox from '../Table/InterderminateCheckBox';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,15 +33,47 @@ declare module '@tanstack/table-core' {
 
 interface DeckListProps {
     onDeckSelected: (deck: Deck) => void;
+    onDeckSelectionChange?: (selectedIds: number[]) => void;
     readOnly?: boolean;
 }
 
-const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
+const DeckList = ({ onDeckSelected, onDeckSelectionChange, readOnly = false }: DeckListProps) => {
     const { t } = useTranslation();
     const [toggleFavourite] = useToggleDeckFavouriteMutation();
 
     const columns = useMemo<ColumnDef<Deck>[]>(
         () => [
+            {
+                id: 'select',
+                header: ({ table }) => (
+                    <label className='text-center'>
+                        <IndeterminateCheckbox
+                            {...{
+                                className: 'mb-1',
+                                checked: table.getIsAllRowsSelected(),
+                                indeterminate: table.getIsSomeRowsSelected(),
+                                onChange: table.getToggleAllRowsSelectedHandler()
+                            }}
+                        />
+                    </label>
+                ),
+                cell: ({ row }) => (
+                    <label className='text-center' onClick={(event) => event.stopPropagation()}>
+                        <IndeterminateCheckbox
+                            {...{
+                                className: 'mt-1',
+                                checked: row.getIsSelected(),
+                                indeterminate: row.getIsSomeSelected(),
+                                onChange: row.getToggleSelectedHandler()
+                            }}
+                        />
+                    </label>
+                ),
+                enableSorting: false,
+                meta: {
+                    colWidth: 1
+                }
+            },
             {
                 accessorKey: 'name',
                 header: t('Name') as string,
@@ -213,8 +246,12 @@ const DeckList = ({ onDeckSelected, readOnly = false }: DeckListProps) => {
                     id: 'updated',
                     desc: true
                 }}
+                remote
                 columns={columns}
                 onRowClick={(row) => onDeckSelected && onDeckSelected(row.original)}
+                onRowSelectionChange={(rows) =>
+                    onDeckSelectionChange && onDeckSelectionChange(rows.map((r) => r.original.id))
+                }
             />
         </div>
     );
