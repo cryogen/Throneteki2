@@ -10,6 +10,7 @@ interface PlayerBoardProps {
     cardsInPlay: GameCard[];
     cardSize?: CardSize;
     hand?: GameCard[];
+    shadows?: GameCard[];
     isMe?: boolean;
     isSpectating: boolean;
     manualMode?: boolean;
@@ -40,6 +41,7 @@ const PlayerBoard = ({
     onMenuItemClick,
     onMouseOut,
     onMouseOver,
+    shadows,
     rowDirection
 }: PlayerBoardProps) => {
     const getCardRows = () => {
@@ -131,6 +133,7 @@ const PlayerBoard = ({
                     onDragDrop={onDragDrop}
                     onMouseOut={onMouseOut}
                     onMouseOver={onMouseOver}
+                    shadows={shadows}
                 />
             )}
         </div>

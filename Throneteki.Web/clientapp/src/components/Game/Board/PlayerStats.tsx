@@ -193,6 +193,16 @@ const PlayerStats = ({
         />
     );
 
+    const shadows = (
+        <CardPileLink
+            {...pileProps}
+            cards={cardPiles.shadows}
+            className='shadows'
+            title={t('Shadows')}
+            source={CardLocation.Shadows}
+        />
+    );
+
     const draw = (
         <DrawDeck
             {...pileProps}
@@ -261,6 +271,11 @@ const PlayerStats = ({
 
                 {!isMe && (
                     <div className='state'>{renderDroppableList(CardLocation.Hand, hand)}</div>
+                )}
+                {!isMe && cardPiles.shadows.length > 0 && (
+                    <div className='state'>
+                        {renderDroppableList(CardLocation.Shadows, shadows)}
+                    </div>
                 )}
                 <div className='state'>{renderDroppableList(CardLocation.Draw, draw)}</div>
                 <div className='state'>{renderDroppableList(CardLocation.Discard, discard)}</div>

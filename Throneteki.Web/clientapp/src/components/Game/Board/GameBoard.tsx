@@ -116,6 +116,7 @@ const GameBoard = () => {
                                     onMouseOut={onMouseOut}
                                     onMouseOver={onMouseOver}
                                     rowDirection='default'
+                                    shadows={thisPlayer.cardPiles.shadows}
                                     user={user}
                                 />
                             </>

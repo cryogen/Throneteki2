@@ -9,7 +9,7 @@ import Panel from '../../components/Site/Panel';
 import FaIconButton from '../Site/FaIconButton';
 
 import DeckList from './DeckList';
-import { ApiError, useDeleteDecksMutation } from '../../redux/api/apiSlice';
+import { useDeleteDecksMutation } from '../../redux/api/apiSlice';
 import { toastr } from 'react-redux-toastr';
 
 const Decks = () => {

@@ -14,6 +14,7 @@ interface PlayerRowProps {
     onDragDrop?: (card: string, source: CardLocation, target: CardLocation) => void;
     onMouseOut: (card: GameCard) => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
+    shadows: GameCard[];
 }
 
 const PlayerRow = ({
@@ -24,7 +25,8 @@ const PlayerRow = ({
     onCardClick,
     onDragDrop,
     onMouseOut,
-    onMouseOver
+    onMouseOver,
+    shadows
 }: PlayerRowProps) => {
     const { t } = useTranslation();
 
@@ -44,10 +46,33 @@ const PlayerRow = ({
         />
     );
 
+    const shadowsToRender = shadows && shadows.length > 0 && (
+        <SquishableCardPanel
+            cards={shadows}
+            className='panel shadows'
+            groupVisibleCards
+            manualMode={manualMode}
+            maxCards={5}
+            onCardClick={onCardClick}
+            onMouseOut={onMouseOut}
+            onMouseOver={onMouseOver}
+            source={CardLocation.Shadows}
+            title={t('Shadows')}
+            cardSize={cardSize}
+        />
+    );
+
     return isMe ? (
         <div className='d-flex pt-1'>
             <Droppable onDragDrop={onDragDrop} source={CardLocation.Hand} manualMode={manualMode}>
                 {handToRender}
+            </Droppable>
+            <Droppable
+                onDragDrop={onDragDrop}
+                source={CardLocation.Shadows}
+                manualMode={manualMode}
+            >
+                {shadowsToRender}
             </Droppable>
         </div>
     ) : null;
