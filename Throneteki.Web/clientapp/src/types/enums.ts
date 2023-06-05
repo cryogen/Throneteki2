@@ -89,3 +89,7 @@ export enum CardSize {
     ExtraLarge = 'x-large',
     Icon = 'icon'
 }
+
+export enum TagTypes {
+    Deck = 'Deck'
+}

@@ -1,6 +1,8 @@
 import { BaseQueryFn, createApi, FetchArgs, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { getUser } from '../../helpers/UserHelper';
+import { TagTypes } from '../../types/enums';
+import { Deck } from '../../types/decks';
 export interface ApiError {
     data: {
         message: string;
@@ -44,6 +46,7 @@ export const apiSlice = createApi({
             return queryStr.toString();
         }
     }) as BaseQueryFn<string | FetchArgs, unknown, ApiError, unknown>,
+    tagTypes: Object.values(TagTypes),
     endpoints: (builder) => ({
         addBlockListEntry: builder.mutation({
             query: (entry) => ({
@@ -57,7 +60,8 @@ export const apiSlice = createApi({
                 url: '/decks/',
                 method: 'POST',
                 body: deck
-            })
+            }),
+            invalidatesTags: [TagTypes.Deck]
         }),
         deleteDecks: builder.mutation({
             query: (deckIds) => ({
@@ -66,7 +70,8 @@ export const apiSlice = createApi({
                 body: {
                     deckIds: deckIds
                 }
-            })
+            }),
+            invalidatesTags: [TagTypes.Deck]
         }),
         getBlockList: builder.query({
             query: (userId) => `/user/${userId}/blocklist`
@@ -75,7 +80,8 @@ export const apiSlice = createApi({
             query: () => '/data/cards'
         }),
         getDeck: builder.query({
-            query: (deckId) => `/decks/${deckId}`
+            query: (deckId) => `/decks/${deckId}`,
+            providesTags: (result, error, arg) => [{ type: TagTypes.Deck, id: arg }]
         }),
         getDecks: builder.query({
             query: (loadOptions) => {
@@ -88,7 +94,11 @@ export const apiSlice = createApi({
                         filters: loadOptions.columnFilters
                     }
                 };
-            }
+            },
+            providesTags: (result = { data: [] }) => [
+                TagTypes.Deck,
+                ...result.data.map(({ id }: Deck) => ({ type: TagTypes.Deck, id }))
+            ]
         }),
         getFactions: builder.query({
             query: () => '/data/factions'

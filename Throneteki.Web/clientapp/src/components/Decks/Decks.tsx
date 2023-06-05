@@ -45,13 +45,14 @@ const Decks = () => {
                             onOk: async () => {
                                 try {
                                     const response = await deleteDecks(selectedIds).unwrap();
+
                                     if (!response.success) {
                                         //    setError(response.message);
                                     } else {
                                         //   setSuccess(t('Deck added successfully.'));
                                     }
                                 } catch (err) {
-                                    const apiError = err as ApiError;
+                                    //   const apiError = err as ApiError;
                                     /* setError(
                                             t(
                                                 apiError.data.message ||

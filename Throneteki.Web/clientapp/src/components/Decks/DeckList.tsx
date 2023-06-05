@@ -46,16 +46,14 @@ const DeckList = ({ onDeckSelected, onDeckSelectionChange, readOnly = false }: D
             {
                 id: 'select',
                 header: ({ table }) => (
-                    <label className='text-center'>
-                        <IndeterminateCheckbox
-                            {...{
-                                className: 'mb-1',
-                                checked: table.getIsAllRowsSelected(),
-                                indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler()
-                            }}
-                        />
-                    </label>
+                    <IndeterminateCheckbox
+                        {...{
+                            className: 'mb-1',
+                            checked: table.getIsAllRowsSelected(),
+                            indeterminate: table.getIsSomeRowsSelected(),
+                            onChange: table.getToggleAllRowsSelectedHandler()
+                        }}
+                    />
                 ),
                 cell: ({ row }) => (
                     <label className='text-center' onClick={(event) => event.stopPropagation()}>

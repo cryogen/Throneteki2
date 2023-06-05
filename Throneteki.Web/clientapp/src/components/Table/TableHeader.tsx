@@ -40,16 +40,23 @@ const TableHeader: <T>({ headerGroups }: TableHeaderProps<T>) => JSX.Element = (
                                                 : 'justify-content-between'
                                         }`}
                                     >
-                                        <span
-                                            className='flex-grow-1'
-                                            role={header.column.getCanSort() ? 'button' : ''}
-                                            onClick={header.column.getToggleSortingHandler()}
-                                        >
-                                            {flexRender(
+                                        {header.column.id === 'select' ? (
+                                            flexRender(
                                                 header.column.columnDef.header,
                                                 header.getContext()
-                                            )}
-                                        </span>
+                                            )
+                                        ) : (
+                                            <span
+                                                className='flex-grow-1'
+                                                role={header.column.getCanSort() ? 'button' : ''}
+                                                onClick={header.column.getToggleSortingHandler()}
+                                            >
+                                                {flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                            </span>
+                                        )}
                                         {{
                                             asc: (
                                                 <div>
