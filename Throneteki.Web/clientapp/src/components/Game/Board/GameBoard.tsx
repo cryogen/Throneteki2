@@ -34,7 +34,7 @@ const placeholderPlayer: GamePlayer = {
         shadows: []
     },
     deckData: {},
-    faction: null,
+    faction: {},
     firstPlayer: false,
     name: 'Placeholder',
     numDrawCards: 0,
@@ -185,7 +185,7 @@ const GameBoard = () => {
     const onMenuItemClick = (card: GameCard, menuItem: CardMenuItem) => {
         dispatch(gameNodeActions.sendMenuItemClickMessage({ card: card.uuid, menuItem }));
     };
-    const onMouseOut = (_: GameCard) => {
+    const onMouseOut = () => {
         setCardToZoom(null);
     };
     const onMouseOver = (arg: CardMouseOverEventArgs) => {
@@ -221,7 +221,6 @@ const GameBoard = () => {
         dispatch(gameNodeActions.sendTogglePromptDupesMessage(value));
     };
     const onPromptedActionWindowToggle = (option: string, value: string | boolean) => {
-        console.info(option, value);
         dispatch(
             gameNodeActions.sendTogglePromptedActionWindowMessage({ option: option, value: value })
         );
@@ -251,6 +250,8 @@ const GameBoard = () => {
             )}
             <div className='stats-top'>
                 <PlayerStats
+                    agenda={otherPlayer.agenda}
+                    faction={otherPlayer.faction}
                     activePlayer={otherPlayer.activePlayer}
                     firstPlayer={otherPlayer.firstPlayer}
                     showControls={false}
@@ -312,6 +313,8 @@ const GameBoard = () => {
                 </div>
             </div>
             <PlayerStats
+                agenda={thisPlayer.agenda}
+                faction={thisPlayer.faction}
                 firstPlayer={thisPlayer.firstPlayer}
                 activePlayer={thisPlayer.activePlayer}
                 cardPiles={thisPlayer.cardPiles}

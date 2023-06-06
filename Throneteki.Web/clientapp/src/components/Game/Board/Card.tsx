@@ -4,7 +4,7 @@ import { useDrag } from 'react-dnd';
 import { useTranslation } from 'react-i18next';
 
 import CardMenu from './CardMenu';
-import CardImage from './CardImage';
+import ZoomCardImage from './ZoomCardImage';
 import { ItemTypes } from '../../../constants';
 import SquishableCardPanel from './SquishableCardPanel';
 import { CardLocation, CardOrientation, CardSize } from '../../../types/enums';
@@ -274,9 +274,7 @@ const Card = ({
                             ? () =>
                                   onMouseOver({
                                       image: (
-                                          <CardImage
-                                              card={{ ...card, location: CardLocation.Zoom }}
-                                          />
+                                          <ZoomCardImage imageUrl={`/img/cards/${card.code}.png`} />
                                       ),
                                       size: 'normal'
                                   })

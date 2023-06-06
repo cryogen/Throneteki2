@@ -4,12 +4,12 @@ import classNames from 'classnames';
 
 interface CardImageProps {
     className?: string;
-    card: string;
+    imageUrl: string;
     size?: 'sm' | 'md' | 'lg';
     selected?: boolean;
 }
 
-const CardImage = ({ card, className, size = 'sm', selected = false }: CardImageProps) => {
+const CardImage = ({ imageUrl, className, size = 'sm', selected = false }: CardImageProps) => {
     const imageClass = classNames(className, size);
     const containerClass = classNames('game-card-image', {
         selected: selected
@@ -17,7 +17,7 @@ const CardImage = ({ card, className, size = 'sm', selected = false }: CardImage
 
     return (
         <div className={containerClass}>
-            <Image className={imageClass} fluid src={`/img/cards/${card}.png`} />
+            <Image className={imageClass} fluid src={imageUrl} />
         </div>
     );
 };

@@ -10,8 +10,8 @@ import {
     PromptControl
 } from '../../../types/game';
 import { Card } from '../../../types/data';
-import { CardLocation, GamePhase } from '../../../types/enums';
-import CardImage from './CardImage';
+import { GamePhase } from '../../../types/enums';
+import ZoomCardImage from './ZoomCardImage';
 
 interface ActivePlayerPromptProps {
     buttons: PromptButton[];
@@ -123,7 +123,7 @@ const ActivePlayerPrompt = ({
                     onMouseOver={() =>
                         onMouseOver({
                             image: (
-                                <CardImage card={{ ...button.card, location: CardLocation.Zoom }} />
+                                <ZoomCardImage imageUrl={`/img/cards/${button.card.code}.png`} />
                             ),
                             size: 'normal'
                         })

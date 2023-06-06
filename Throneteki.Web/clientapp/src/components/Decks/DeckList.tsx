@@ -149,7 +149,13 @@ const DeckList = ({ onDeckSelected, onDeckSelectionChange, readOnly = false }: D
                             <Trans>None</Trans>
                         ) : (
                             agendas.map((agenda: string) => {
-                                return <CardImage className='me-1' key={agenda} card={agenda} />;
+                                return (
+                                    <CardImage
+                                        className='me-1'
+                                        key={agenda}
+                                        imageUrl={`/img/cards/${agenda}.png`}
+                                    />
+                                );
                             })
                         );
 

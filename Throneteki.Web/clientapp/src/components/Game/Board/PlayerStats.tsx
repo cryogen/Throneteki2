@@ -24,10 +24,16 @@ import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
 import Minus from '../../../assets/img/Minus.png';
 import Plus from '../../../assets/img/Plus.png';
+import { Faction } from '../../../types/data';
+import CardImage from '../../Images/CardImage';
+import { Constants } from '../../../constants';
+import ZoomCardImage from './ZoomCardImage';
 
 interface PlayerStatsProps {
     activePlayer: boolean;
+    agenda?: GameCard;
     cardPiles: CardPiles;
+    faction: Faction;
     firstPlayer: boolean;
     isMe: boolean;
     manualMode?: boolean;
@@ -39,7 +45,7 @@ interface PlayerStatsProps {
     onToggleVisibilityClick: (visible: boolean) => void;
     onMenuItemClick: (card: GameCard, menuItem: CardMenuItem) => void;
     onMessagesClick?: () => void;
-    onMouseOut: (card: GameCard) => void;
+    onMouseOut: () => void;
     onMouseOver: (args: CardMouseOverEventArgs) => void;
     onMuteClick?: MouseEventHandler;
     onPopupChange?: (args: PopupChangeEventArgs) => void;
@@ -58,7 +64,9 @@ interface PlayerStatsProps {
 
 const PlayerStats = ({
     activePlayer,
+    agenda,
     cardPiles,
+    faction,
     isMe,
     manualMode = false,
     muteSpectators = false,
@@ -259,6 +267,57 @@ const PlayerStats = ({
         />
     );
 
+    const factionAndAgenda = (
+        <>
+            <div className='state'>
+                <div
+                    className='icon'
+                    onMouseOver={() =>
+                        onMouseOver({
+                            image: (
+                                <ZoomCardImage
+                                    imageUrl={Constants.FactionsImagePaths[faction.code]}
+                                />
+                            ),
+                            size: 'normal'
+                        })
+                    }
+                    onMouseOut={() => onMouseOut()}
+                >
+                    <CardImage imageUrl={Constants.FactionsImagePaths[faction.code]} size={'sm'} />
+                </div>
+            </div>
+            {agenda && (
+                <div className='state'>
+                    <div
+                        className='icon'
+                        onMouseOver={() =>
+                            onMouseOver({
+                                image: <ZoomCardImage imageUrl={`/img/cards/${agenda.code}.png`} />,
+                                size: 'normal'
+                            })
+                        }
+                        onMouseOut={() => onMouseOut()}
+                    >
+                        <CardImage imageUrl={`/img/cards/${agenda.code}.png`} size={'sm'} />
+                    </div>
+                </div>
+            )}
+            {cardPiles.bannerCards.length > 0 && (
+                <div className='state'>
+                    <CardPileLink
+                        {...pileProps}
+                        hiddenTopCard={true}
+                        cards={cardPiles.bannerCards}
+                        className='banners'
+                        title={t('Banners')}
+                        source={CardLocation.Banners}
+                    />
+                </div>
+            )}
+        </>
+    );
+
     return (
         <div className='panel player-stats d-flex justify-content-between align-items-center'>
             <div className='state'>
@@ -268,7 +327,7 @@ const PlayerStats = ({
                 {getButton('initiative', 'Initiative')}
                 {getButton('claim', 'Claim')}
                 {getButton('reserve', 'Reserve')}
-
+                {factionAndAgenda}
                 {!isMe && (
                     <div className='state'>{renderDroppableList(CardLocation.Hand, hand)}</div>
                 )}

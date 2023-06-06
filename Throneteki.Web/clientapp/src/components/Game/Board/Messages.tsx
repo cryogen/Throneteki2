@@ -2,7 +2,7 @@ import React from 'react';
 import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
 import classNames from 'classnames';
 import { useAppSelector } from '../../../redux/hooks';
-import CardImage from './CardImage';
+import ZoomCardImage from './ZoomCardImage';
 import Avatar from '../../Site/Avatar';
 import CardBackImage from '../../../assets/img/cardback.png';
 import GoldImage from '../../../assets/img/Gold.png';
@@ -147,7 +147,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                         key={index++}
                         className='card-link'
                         onMouseOver={onCardMouseOver.bind(this, {
-                            image: <CardImage card={fragment as unknown as GameCard} />,
+                            image: <ZoomCardImage imageUrl={`/img/cards/${fragment.code}.png`} />,
                             size: 'normal'
                         })}
                         onMouseOut={() =>
@@ -163,7 +163,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                         key={index++}
                         className='card-link'
                         onMouseOver={onCardMouseOver.bind(this, {
-                            image: <CardImage card={fragment as unknown as GameCard} />,
+                            image: <ZoomCardImage imageUrl={`/img/cards/${fragment.code}.png`} />,
                             size: 'normal'
                         })}
                         onMouseOut={() =>

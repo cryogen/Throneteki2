@@ -87,7 +87,6 @@ function App() {
         if (bgRef.current && background === 'custom' && settings.customBackgroundUrl) {
             bgRef.current.style.backgroundImage = `url('/img/bgs/${settings.customBackgroundUrl}')`;
         } else if (bgRef.current) {
-            console.info(background, backgrounds[background]);
             bgRef.current.style.backgroundImage = `url('${backgrounds[background]}')`;
         }
     } else if (bgRef.current) {

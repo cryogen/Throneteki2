@@ -17,8 +17,8 @@ export interface CardPiles {
 
 export interface GamePlayer {
     activePlayer: boolean;
-    activePlot?: Card | null;
-    agenda?: Card | null;
+    activePlot?: GameCard;
+    agenda?: GameCard;
     buttons: PromptButton[];
     cardPiles: CardPiles;
     controls: PromptControl[];

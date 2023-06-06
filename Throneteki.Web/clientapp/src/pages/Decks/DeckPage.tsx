@@ -65,7 +65,14 @@ const DeckPage = () => {
         }
 
         const agendaContent = agendas.map((agenda: string) => {
-            return <CardImage className='me-1' key={agenda} card={agenda} size='md' />;
+            return (
+                <CardImage
+                    className='me-1'
+                    key={agenda}
+                    imageUrl={`/img/cards/${agenda}.png`}
+                    size='md'
+                />
+            );
         });
 
         content = (

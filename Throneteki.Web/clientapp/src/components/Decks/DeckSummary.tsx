@@ -90,7 +90,7 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
                     className='decklist-card-zoom'
                     style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
                 >
-                    <CardImage card={zoomCard} size='lg' />
+                    <CardImage imageUrl={`/img/cards/${zoomCard}.png`} size='lg' />
                 </div>
             )}
             <Col sm={4}>{splitCards[0]}</Col>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import CardImage from './CardImage';
+import ZoomCardImage from './ZoomCardImage';
 import CardPilePopup from './CardPilePopup';
 import {
     CardMouseOverEventArgs,
@@ -38,6 +38,7 @@ const CardPileLink = ({
     closeOnClick = false,
     disableMouseOver = false,
     disablePopup,
+    hiddenTopCard,
     manualMode,
     numDeckCards = 0,
     onCardClick,
@@ -81,7 +82,7 @@ const CardPileLink = ({
     });
 
     const topCard = () => {
-        if (cards.length === 0) {
+        if (hiddenTopCard || cards.length === 0) {
             return;
         }
         const card = cards[0];
@@ -107,20 +108,20 @@ const CardPileLink = ({
                     className='icon'
                     onMouseOver={() =>
                         onMouseOver({
-                            image: <CardImage card={{ ...card, location: CardLocation.Zoom }} />,
+                            image: <ZoomCardImage imageUrl={`/img/cards/${card.code}.png`} />,
                             size: 'normal'
                         })
                     }
                     onMouseOut={() => onMouseOut(card)}
                 >
-                    <CardImage
-                        card={card}
+                    <ZoomCardImage
+                        imageUrl={`/img/cards/${card.code}.png`}
                         orientation={CardOrientation.Vertical}
                         size={CardSize.Icon}
                     />
                 </div>
             )}
-            <div className={'text ' + title.toLowerCase()}>{title}:</div>&nbsp;
+            <div className={'text ' + title.toLowerCase()}>{title}:</div>
             <div className={'counter ' + title.toLowerCase()}>
                 {source === CardLocation.Draw ? numDeckCards : cards.length}
             </div>

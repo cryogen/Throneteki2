@@ -90,7 +90,7 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
                         >
                             <div className='text-center'>
                                 <CardImage
-                                    card={agenda.code}
+                                    imageUrl={`/img/cards/${agenda.code}.png`}
                                     size='lg'
                                     selected={selectedAgendas.some((a) => a === agenda.code)}
                                 />
