@@ -84,7 +84,7 @@ function ReactTable<T>({
         isLoading,
         isError,
         refetch
-    } = dataLoadFn(dataLoadArg || fetchDataOptions);
+    } = dataLoadFn(dataLoadArg ? Object.assign(fetchDataOptions, dataLoadArg) : fetchDataOptions);
 
     let tableOptions: TableOptions<T>;
 

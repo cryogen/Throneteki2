@@ -35,9 +35,15 @@ interface DeckListProps {
     onDeckSelected: (deck: Deck) => void;
     onDeckSelectionChange?: (selectedIds: number[]) => void;
     readOnly?: boolean;
+    restrictedList?: string;
 }
 
-const DeckList = ({ onDeckSelected, onDeckSelectionChange, readOnly = false }: DeckListProps) => {
+const DeckList = ({
+    onDeckSelected,
+    onDeckSelectionChange,
+    readOnly = false,
+    restrictedList
+}: DeckListProps) => {
     const { t } = useTranslation();
     const [toggleFavourite] = useToggleDeckFavouriteMutation();
 
@@ -246,6 +252,7 @@ const DeckList = ({ onDeckSelected, onDeckSelectionChange, readOnly = false }: D
         <div>
             <ReactTable
                 dataLoadFn={useGetDecksQuery}
+                dataLoadArg={restrictedList ? { restrictedList: restrictedList } : null}
                 defaultSort={{
                     id: 'updated',
                     desc: true

@@ -99,7 +99,7 @@ public class DeckController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetDecks([FromQuery] DataLoadOptions options)
+    public async Task<IActionResult> GetDecks([FromQuery] string? restrictedList, [FromQuery] DataLoadOptions options)
     {
         var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
@@ -150,7 +150,14 @@ public class DeckController : ControllerBase
             .ToListAsync();
 
         var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
-        var validator = new DeckValidator(packs, await _cardService.GetRestrictedLists());
+        var restrictedLists = await _cardService.GetRestrictedLists();
+
+        if (restrictedList != null)
+        {
+            restrictedLists = restrictedLists.Where(rl => rl.Id == restrictedList).ToList();
+        }
+        var validator = new DeckValidator(packs, restrictedLists);
+
 
         var apiDecks = decks.Select(d => new ApiDeck
         {
@@ -194,7 +201,7 @@ public class DeckController : ControllerBase
     }
 
     [HttpGet("{deckId}")]
-    public async Task<IActionResult> GetDeck(int deckId)
+    public async Task<IActionResult> GetDeck(int deckId, [FromQuery] string? restrictedList)
     {
         var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
@@ -220,7 +227,13 @@ public class DeckController : ControllerBase
         }
 
         var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
-        var validator = new DeckValidator(packs, await _cardService.GetRestrictedLists());
+        var restrictedLists = await _cardService.GetRestrictedLists();
+
+        if (restrictedList != null)
+        {
+            restrictedLists = restrictedLists.Where(rl => rl.Id == restrictedList).ToList();
+        }
+        var validator = new DeckValidator(packs, restrictedLists);
 
         return Ok(new
         {
@@ -271,6 +284,28 @@ public class DeckController : ControllerBase
 
         var decksToDelete = _context.Decks.Where(d => d.UserId == user.Id && request.DeckIds.Contains(d.Id));
         _context.Decks.RemoveRange(decksToDelete);
+
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpDelete("{deckId}")]
+    public async Task<IActionResult> DeleteDeck(int deckId)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var deck = await _context.Decks.FirstOrDefaultAsync(d => d.Id == deckId && d.UserId == user.Id);
+        if (deck == null)
+        {
+            return NotFound();
+        }
+
+        _context.Decks.Remove(deck);
 
         await _context.SaveChangesAsync();
 

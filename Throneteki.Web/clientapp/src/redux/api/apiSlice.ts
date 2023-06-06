@@ -28,15 +28,19 @@ export const apiSlice = createApi({
 
             for (const param in params) {
                 if (!Array.isArray(params[param])) {
-                    queryStr.append(param, params[param] as string);
+                    if (params[param]) {
+                        queryStr.append(param, params[param] as string);
+                    }
                 } else {
                     let index = 0;
                     for (const arrayVal of params[param] as Array<Record<string, unknown>>) {
                         for (const arrayParam in arrayVal) {
-                            queryStr.append(
-                                `${param}[${index}].${arrayParam}`,
-                                arrayVal[arrayParam] as string
-                            );
+                            if (arrayVal[arrayParam]) {
+                                queryStr.append(
+                                    `${param}[${index}].${arrayParam}`,
+                                    arrayVal[arrayParam] as string
+                                );
+                            }
                         }
 
                         index++;
@@ -63,6 +67,13 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: [TagTypes.Deck]
         }),
+        deleteDeck: builder.mutation({
+            query: (deckId) => ({
+                url: `/decks/${deckId}`,
+                method: 'DELETE'
+            }),
+            invalidatesTags: [TagTypes.Deck]
+        }),
         deleteDecks: builder.mutation({
             query: (deckIds) => ({
                 url: '/decks',
@@ -80,7 +91,12 @@ export const apiSlice = createApi({
             query: () => '/data/cards'
         }),
         getDeck: builder.query({
-            query: (deckId) => `/decks/${deckId}`,
+            query: (options) => {
+                return {
+                    url: `/decks/${options.deckId}`,
+                    params: { restrictedList: options.restrictedList }
+                };
+            },
             providesTags: (result, error, arg) => [{ type: TagTypes.Deck, id: arg }]
         }),
         getDecks: builder.query({
@@ -91,7 +107,8 @@ export const apiSlice = createApi({
                         pageSize: loadOptions.pageSize,
                         pageNumber: loadOptions.pageIndex,
                         sorting: loadOptions.sorting,
-                        filters: loadOptions.columnFilters
+                        filters: loadOptions.columnFilters,
+                        restrictedList: loadOptions.restrictedList
                     }
                 };
             },
@@ -163,6 +180,7 @@ export const apiSlice = createApi({
 export const {
     useAddBlockListEntryMutation,
     useAddDeckMutation,
+    useDeleteDeckMutation,
     useDeleteDecksMutation,
     useGetBlockListQuery,
     useGetCardsQuery,
