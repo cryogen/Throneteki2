@@ -55,7 +55,7 @@ export enum GamePhase {
 }
 
 export enum CardLocation {
-    Banners = 'banners',
+    Banners = 'agenda',
     Conclave = 'conclave',
     Dead = 'dead pile',
     Discard = 'discard pile',

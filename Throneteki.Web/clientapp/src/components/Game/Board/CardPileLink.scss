@@ -159,6 +159,17 @@
     }
 }
 
+.agenda {
+    .panel {
+        @include calculate-tiled-card-prop(width, 2, width, $scrollbar-width + 10);
+
+        .inner {
+            @include calculate-tiled-card-prop(width, 2, width, $scrollbar-width);
+            @include calculate-tiled-card-prop(height, 1, height);
+        }
+    }
+}
+
 .additional-cards {
     .panel {
         .inner {

@@ -309,7 +309,7 @@ const PlayerStats = ({
                         {...pileProps}
                         hiddenTopCard={true}
                         cards={cardPiles.bannerCards}
-                        className='banners'
+                        className='agenda'
                         title={t('Banners')}
                         source={CardLocation.Banners}
                     />
