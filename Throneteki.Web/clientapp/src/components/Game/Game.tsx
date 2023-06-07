@@ -11,15 +11,15 @@ import GamePlayerRow from './GamePlayerRow';
 
 interface GameProps {
     game: LobbyGame;
+    onJoinGame: (game: LobbyGame) => void;
     showJoinButton: boolean;
     showWatchButton: boolean;
-    // onJoinGame={}
     // onRemoveGame={}
     // onWatchGame={}
     isAdmin: boolean;
 }
 
-const Game = ({ game, isAdmin, showJoinButton, showWatchButton }: GameProps) => {
+const Game = ({ game, isAdmin, onJoinGame, showJoinButton, showWatchButton }: GameProps) => {
     const rowClass = classNames('game-row', {
         [game.node]: game.node && isAdmin
     });
@@ -59,7 +59,7 @@ const Game = ({ game, isAdmin, showJoinButton, showWatchButton }: GameProps) => 
                         game={game}
                         allowJoin={showJoinButton}
                         onJoinGame={() => {
-                            console.info('on join');
+                            onJoinGame(game);
                         }}
                     />
                 </div>

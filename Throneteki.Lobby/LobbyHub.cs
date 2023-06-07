@@ -44,6 +44,12 @@ public class LobbyHub : Hub
     }
 
     [Authorize]
+    public Task JoinGame(Guid gameId)
+    {
+        return _lobbyService.HandleJoinGame(Context, gameId);
+    }
+
+    [Authorize]
     public Task SelectDeck(int deckId)
     {
         return _lobbyService.HandleSelectDeck(Context, deckId);

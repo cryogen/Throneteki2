@@ -152,6 +152,25 @@ public class ThronetekiDataImporter : IHostedService
             dbCard.Unique = card.IsUnique;
             dbCard.Claim = card.Claim;
             dbCard.Reserve = card.Reserve;
+
+            var icons = new List<string>();
+
+            if (card.IsMilitary)
+            {
+                icons.Add("military");
+            }
+
+            if (card.IsPower)
+            {
+                icons.Add("power");
+            }
+
+            if (card.IsIntrigue)
+            {
+                icons.Add("intrigue");
+            }
+
+            dbCard.Icons = string.Join(",", icons);
         }
 
         await context.SaveChangesAsync(cancellationToken);

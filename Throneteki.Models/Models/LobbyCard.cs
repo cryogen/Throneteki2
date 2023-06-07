@@ -16,14 +16,11 @@ public class LobbyCard
     public string? Illustrator { get; set; }
     public string? PackCode { get; set; }
     public string? Label { get; set; }
-    public string? Icons { get; set; }
+    public string[] Icons { get; set; } = Array.Empty<string>();
     public string[] Traits { get; set; } = Array.Empty<string>();
     public int? Income { get; set; }
     public int? Claim { get; set; }
     public int? Reserve { get; set; }
-    public int? Initiative { get; set; }
-    public bool Military { get; set; }
-    public bool Intrigue { get; set; }
     public bool Power { get; set; }
     public string? ImageUrl { get; set; }
 }

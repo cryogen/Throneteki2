@@ -21,7 +21,9 @@ enum LobbyEvent {
     UsersMessage = 'users',
     RemoveGame = 'removegame',
     SelectDeck = 'selectdeck',
-    StartGame = 'startgame'
+    StartGame = 'startgame',
+    JoinGame = 'joingame',
+    Games = 'games'
 }
 
 const lobbyMiddleware: Middleware = (store) => {
@@ -99,6 +101,10 @@ const lobbyMiddleware: Middleware = (store) => {
                 store.dispatch(lobbyActions.receiveGameError(error));
             });
 
+            connection.on(LobbyEvent.Games, (games: LobbyGame[]) => {
+                store.dispatch(lobbyActions.receiveGames(games));
+            });
+
             connection.on(LobbyEvent.PongMessage, () => {
                 store.dispatch(
                     lobbyActions.receivePing({
@@ -138,6 +144,8 @@ const lobbyMiddleware: Middleware = (store) => {
             connection.send(LobbyEvent.SelectDeck, action.payload);
         } else if (lobbyActions.sendStartGame.match(action)) {
             connection.send(LobbyEvent.StartGame, '');
+        } else if (lobbyActions.sendJoinGame.match(action)) {
+            connection.send(LobbyEvent.JoinGame, action.payload);
         }
 
         next(action);

@@ -19,6 +19,7 @@ const GamePlayerRow = ({ allowJoin, game, onJoinGame }: GamePlayerRow) => {
         return row;
     });
 
+    console.info(game, players.length, allowJoin);
     if (players.length === 1 && allowJoin) {
         players.push(
             <div key='join' className={'game-player-row other-player'}>

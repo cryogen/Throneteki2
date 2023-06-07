@@ -22,6 +22,7 @@ public class GrpcMappingProfile : Profile
             .ForMember(c => c.PackCode, cfg => cfg.MapFrom(s => s.Pack.Code))
             .ForMember(c => c.Icons, cfg => cfg.MapFrom(s => s.Icons ?? string.Empty))
             .ForMember(c => c.Traits, cfg => cfg.Ignore())
+            .ForMember(c => c.Illustrator, cfg => cfg.MapFrom(s => s.Illustrator ?? string.Empty))
             .AfterMap((card, lobbyCard) =>
             {
                 if (card.Traits != null)
@@ -56,6 +57,10 @@ public class GrpcMappingProfile : Profile
         CreateMap<Faction, LobbyFaction>();
         CreateMap<DeckCard, LobbyDeckCard>();
         CreateMap<Card, LobbyCard>()
+            .ForMember(c => c.Icons,
+                cfg => cfg.MapFrom(s =>
+                    (s.Icons ?? string.Empty).Split(",",
+                        StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)))
             .ForMember(c => c.Faction, cfg => cfg.MapFrom(s => s.Faction.Code));
 
         CreateMap<ThronetekiGame, Game>()

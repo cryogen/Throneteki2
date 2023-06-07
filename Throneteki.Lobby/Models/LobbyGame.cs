@@ -17,7 +17,7 @@ public class LobbyGame
         IsPrivate = request.GamePrivate;
         Name = request.Name;
         Password = string.IsNullOrEmpty(request.Password) ? null : HashPassword(request.Password);
-        Owner = owner.Username;
+        Owner = owner;
         GameType = request.GameType;
         ShowHand = request.ShowHands;
         IsGameTimeLimited = request.UseGameTimeLimit;
@@ -34,15 +34,15 @@ public class LobbyGame
     public bool IsPrivate { get; set; }
     public bool IsStarted { get; set; }
     public string? Name { get; set; }
-    public string Owner { get; set; }
+    public ThronetekiUser Owner { get; set; }
     public string? Password { get; set; }
     public bool ShowHand { get; set; }
     public bool IsEmpty => !Players.Any();
     public LobbyRestrictedList? RestrictedList { get; }
-    public LobbyNode Node { get; set; }
+    public LobbyNode? Node { get; set; }
     public int SavedGameId { get; set; }
     public ThronetekiUser? Winner { get; set; }
-    public string WinReason { get; set; }
+    public string? WinReason { get; set; }
     public DateTime? FinishedAt { get; set; }
 
     public void AddUser(LobbyGamePlayer user, GameUserType userType)
@@ -131,7 +131,7 @@ public class LobbyGame
             Id,
             Name,
             NeedsPassword = !string.IsNullOrEmpty(Password),
-            Owner,
+            Owner = Owner.Username,
             Players = GameUsers.Where(gu => gu.GameUserType == GameUserType.Player).Select(gu => gu.User.GetSummary(player)),
             ShowHand,
             Spectators = GameUsers.Where(gu => gu.GameUserType == GameUserType.Spectator).Select(gu => gu.User.GetSummary()),
@@ -192,14 +192,14 @@ public class LobbyGame
 
         if (user.GameUserType == GameUserType.Player)
         {
-            if (Owner == username)
+            if (Owner.Username == username)
             {
                 var otherPlayer = GameUsers
                     .FirstOrDefault(gu => gu.GameUserType == GameUserType.Player && gu.User.Name != username);
 
                 if (otherPlayer != null)
                 {
-                    Owner = otherPlayer.User.Name;
+                    Owner = otherPlayer.User.User;
                 }
             }
         }
@@ -209,6 +209,45 @@ public class LobbyGame
 
     private void AddMessage(string format, params object[] args)
     {
+    }
+
+    public string? PlayerJoin(ThronetekiUser user, string? password = null)
+    {
+        if (Players.Count == 2 || IsStarted)
+        {
+            return "Cannot join a full or started game";
+        }
+
+        if (IsUserBlocked(user))
+        {
+            return "You cannot join this game";
+        }
+
+        AddUser(new LobbyGamePlayer { User = user }, GameUserType.Player);
+
+        return null;
+        /*
+
+        if (this.password) {
+            if (crypto.createHash('md5').update(password).digest('hex') !== this.password) {
+                return 'Incorrect game password';
+            }
+        }
+
+        this.addMessage('{0} has joined the game', user.username);
+
+        if (!this.isOwner(this.owner.username)) {
+            let otherPlayer = Object.values(this.players).find(
+                (player) => player.name !== this.owner.username
+            );
+
+            if (otherPlayer) {
+                this.owner = otherPlayer.user;
+                otherPlayer.owner = true;
+            }
+        }
+
+        return undefined;*/
     }
 
     public void PlayerLeave(string username)
@@ -239,16 +278,22 @@ public class LobbyGame
         }
     }
 
+    private bool IsUserBlocked(ThronetekiUser user)
+    {
+        return Players.Any(p =>
+            p.User.User.BlockList.Any(bl => bl.UserId == user.Id) ||
+            user.BlockList.Any(bl => Players.Any(p2 => bl.UserId == p2.User.User.Id)));
+    }
+
     private void RemoveAndResetOwner(GameUser player)
     {
-        if (player.Name == Owner)
+        if (player.Name == Owner.Username)
         {
             var otherPlayer = Players.FirstOrDefault(gu => gu.Name != player.Name);
 
             if (otherPlayer != null)
             {
-                Owner = otherPlayer.Name;
-//                otherPlayer.Owner = true;
+                Owner = otherPlayer.User.User;
             }
         }
     }

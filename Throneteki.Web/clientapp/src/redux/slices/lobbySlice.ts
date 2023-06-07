@@ -47,6 +47,9 @@ const lobbySlice = createSlice({
         receiveGameError: (state, action: PayloadAction<string>) => {
             state.gameError = action.payload;
         },
+        receiveGames: (state, action: PayloadAction<LobbyGame[]>) => {
+            state.games = action.payload;
+        },
         receiveGameState: (state, action: PayloadAction<LobbyGame>) => {
             state.currentGame = action.payload;
         },
@@ -101,6 +104,9 @@ const lobbySlice = createSlice({
             }>
         ) => {
             state.users = action.payload.users;
+        },
+        sendJoinGame: (state, _: PayloadAction<string>) => {
+            state.isMessagePending = true;
         },
         sendLeaveGame: (state) => {
             state.isMessagePending = true;

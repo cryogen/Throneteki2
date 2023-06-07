@@ -10,6 +10,7 @@ public class LobbyMappingProfile : Profile
     {
         CreateMap<Card, LobbyCard>()
             .ForMember(c => c.PackCode, cfg => cfg.MapFrom(s => s.Pack.Code))
+            .ForMember(c => c.Icons, cfg => cfg.MapFrom(s => (s.Icons ?? string.Empty).Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)))
             .ForMember(c => c.Traits,
                 cfg => cfg.MapFrom(s =>
                     (s.Traits ?? string.Empty).Split(',',

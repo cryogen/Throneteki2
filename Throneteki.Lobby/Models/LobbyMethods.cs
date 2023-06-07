@@ -18,4 +18,6 @@ public static class LobbyMethods
     public const string UserLeft = "userleft";
     public const string Users = "users";
     public const string Pong = "pong";
+    public const string JoinFailed = "joinfailed";
+    public const string Games = "games";
 }

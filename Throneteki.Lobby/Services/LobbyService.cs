@@ -84,6 +84,12 @@ public class LobbyService
             }
         }), cancellationToken: context.ConnectionAborted);
 
+        var gamesToSend = GamesById.Values.Where(g => user == null || g.IsVisibleFor(user))
+            .OrderByDescending(g => new { g.IsStarted, g.CreatedAt })
+            .Select(g => g.GetState(null));
+
+        await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.Games, gamesToSend);
+
         if (user != null)
         {
             var excludedConnectionIds = new List<string> { context.ConnectionId };
@@ -268,7 +274,7 @@ public class LobbyService
         }
 
         var game = GamesByUsername[user.Username];
-        if (game.Owner != user.Username || !game.Players.All(p => p.User.DeckSelected))
+        if (game.Owner.Username != user.Username || !game.Players.All(p => p.User.DeckSelected))
         {
             return;
         }
@@ -416,5 +422,52 @@ public class LobbyService
         return userList.Where(u =>
             !u.BlockList.Any(bl => bl.UserId == sourceUser.Id) &&
             !sourceUser.BlockList.Any(bl => bl.UserId == u.Id));
+    }
+
+    public async Task HandleJoinGame(HubCallerContext context, Guid gameId)
+    {
+        var user = (await _thronetekiService.GetUserByUsernameAsync(
+            new GetUserByUsernameRequest
+            {
+                Username = context.User!.Identity!.Name
+            }, cancellationToken: context.ConnectionAborted)).User;
+
+        /*
+
+        socket.joinChannel(game.id);
+
+        this.sendGameState(game);
+        this.broadcastGameMessage('updategame', game);
+         */
+        if (GamesByUsername.ContainsKey(user.Username))
+        {
+            await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.JoinFailed,
+                "You are already in a game, leave that one first.");
+
+            return;
+        }
+
+        if (!GamesById.TryGetValue(gameId, out var game))
+        {
+            await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.JoinFailed,
+                "Game not found.");
+
+            return;
+        }
+
+        var message = game.PlayerJoin(user);
+        if (message != null)
+        {
+            await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.JoinFailed, message);
+
+            return;
+        }
+
+        GamesByUsername[user.Username] = game;
+        await _hubContext.Groups.AddToGroupAsync(context.ConnectionId, game.Id.ToString());
+
+        await SendGameState(game);
+
+        await BroadcastGameMessage(LobbyMethods.UpdateGame, game);
     }
 }

@@ -28,6 +28,9 @@ const PopupDefaults: any = {
         left: '100px',
         top: '155px'
     },
+    'draw deck-top': {
+        top: '185px;'
+    },
     'draw deck-bottom': {
         bottom: '140px'
     },
