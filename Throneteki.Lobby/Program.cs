@@ -29,10 +29,15 @@ builder.Services.AddDeckValidation();
 
 var authServerUrl = lobbyOptions.AuthServerUrl;
 
-builder.Services.AddCors(options =>
+if (authServerUrl != null)
 {
-    options.AddPolicy("DontCare", policyBuilder => policyBuilder.WithOrigins(authServerUrl).AllowAnyHeader().AllowAnyMethod().AllowCredentials());
-});
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("DontCare",
+            policyBuilder => policyBuilder.WithOrigins(authServerUrl).AllowAnyHeader().AllowAnyMethod()
+                .AllowCredentials());
+    });
+}
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>

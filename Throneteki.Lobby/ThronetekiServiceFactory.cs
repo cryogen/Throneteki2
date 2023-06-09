@@ -18,12 +18,22 @@ public class ThronetekiServiceFactory
         _httpClient = httpClient;
         _lobbyOptions = lobbyOptions.Value;
 
+        if (_lobbyOptions.AuthServerUrl == null)
+        {
+            throw new InvalidOperationException("Cannot have a lobby service connection with an auth server url");
+        }
+
         httpClient.BaseAddress = new Uri(_lobbyOptions.AuthServerUrl);
     }
 
     public ThronetekiService.ThronetekiServiceClient GetLobbyServiceClient()
     {
         var address = _lobbyOptions.LobbyServiceUrl;
+
+        if (address == null)
+        {
+            throw new InvalidOperationException("Auth server url is missing");
+        }
 
         if (_thronetekiServiceClient != null)
         {

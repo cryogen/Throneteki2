@@ -8,15 +8,12 @@ using OpenIddict.Validation.AspNetCore;
 using System.Linq.Dynamic.Core;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using AutoMapper;
 using Throneteki.Data;
 using Throneteki.Data.Models;
-using Throneteki.DeckValidation;
-using Throneteki.Models.Models;
 using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 using Throneteki.Web.Models.Options;
-using Throneteki.Models.Services;
+using Throneteki.Web.Services;
 
 namespace Throneteki.Web.Controllers.Api;
 
@@ -28,20 +25,17 @@ public class DeckController : ControllerBase
     private readonly ThronetekiDbContext _context;
     private readonly UserManager<ThronetekiUser> _userManager;
     private readonly ILogger<DeckController> _logger;
-    private readonly IMapper _mapper;
-    private readonly CardService _cardService;
+    private readonly DeckService _deckService;
     private readonly ThronesDbOptions _thronesDbOptions;
     private readonly JsonSerializerOptions _jsonOptions;
 
     public DeckController(ThronetekiDbContext context, UserManager<ThronetekiUser> userManager, 
-        IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger, IMapper mapper,
-        CardService cardService)
+        IOptions<ThronesDbOptions> thronesDbOptions, ILogger<DeckController> logger, DeckService deckService)
     {
         _context = context;
         _userManager = userManager;
         _logger = logger;
-        _mapper = mapper;
-        _cardService = cardService;
+        _deckService = deckService;
         _thronesDbOptions = thronesDbOptions.Value;
         _jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy() };
     }
@@ -57,42 +51,16 @@ public class DeckController : ControllerBase
 
         if (!ModelState.IsValid)
         {
-            return BadRequest(new
+            return BadRequest(new ApiResponse
             {
                 Success = false,
-                Message = ModelState.Select(e => $"{e.Key} - {e.Value}")
+                Messages = ModelState.Select(e => $"{e.Key} - {e.Value}").ToList()
             });
         }
 
-        var deck = new Deck
-        {
-            UserId = user.Id,
-            Name = request.Name, // Name is validated by required attribute
-            FactionId = request.Faction,
-            AgendaId = request.Agenda,
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
+        await _deckService.AddDeck(user, request, cancellationToken);
 
-        var deckCards = new List<DeckCard>();
-
-        deckCards.AddRange(request.BannerCards.Select(id => new DeckCard
-        {
-            Deck = deck,
-            CardId = id,
-            CardType = DeckCardType.Banner,
-            Count = 1
-        }));
-        deckCards.AddRange(GetDeckCardsFromRequest(request.DrawCards, deck, DeckCardType.Draw));
-        deckCards.AddRange(GetDeckCardsFromRequest(request.PlotCards, deck, DeckCardType.Plot));
-
-        deck.DeckCards = deckCards;
-
-        _context.Decks.Add(deck);
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Ok(new
+        return Ok(new ApiResponse
         {
             Success = true
         });
@@ -107,97 +75,7 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var baseQuery = _context.Decks.Where(d => d.UserId == user.Id);
-
-        if (options.Filters != null && options.Filters.Any())
-        {
-            foreach (var filter in options.Filters)
-            {
-                if (filter.Id == null)
-                {
-                    continue;
-                }
-
-                if (filter.Value != null && filter.Value.Contains(','))
-                {
-                    var filterList = filter.Value.Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-                    baseQuery = baseQuery.Where("(@0).Contains(faction.name)", filterList);
-                }
-                else
-                {
-                    baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
-                }
-            }
-        }
-
-        var rowCount = await baseQuery.CountAsync();
-
-        baseQuery = baseQuery.Include(d => d.Faction)
-            .Include(d => d.Agenda)
-            .ThenInclude(a => a.Faction)
-            .Include(d => d.DeckCards)
-            .ThenInclude(dc => dc.Card)
-            .ThenInclude(c => c.Faction);
-
-        if (options.Sorting != null && options.Sorting.Any())
-        {
-            baseQuery = baseQuery.OrderBy(string.Join(", ", options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
-        }
-
-        var decks = await baseQuery
-            .Skip(options.PageNumber * options.PageSize)
-            .Take(options.PageSize)
-            .ToListAsync();
-
-        var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
-        var restrictedLists = await _cardService.GetRestrictedLists();
-
-        if (restrictedList != null)
-        {
-            restrictedLists = restrictedLists.Where(rl => rl.Id == restrictedList).ToList();
-        }
-        var validator = new DeckValidator(packs, restrictedLists);
-
-
-        var apiDecks = decks.Select(d => new ApiDeck
-        {
-            Id = d.Id,
-            Name = d.Name,
-            ExternalId = d.ExternalId,
-            Created = d.Created,
-            Updated = d.Updated,
-            Agenda = d.Agenda != null
-                ? new ApiCard
-                {
-                    Code = d.Agenda.Code,
-                    Label = d.Agenda.Label
-                }
-                : null,
-            Faction = new ApiFaction
-            {
-                Code = d.Faction.Code,
-                Name = d.Faction.Name ?? string.Empty
-            },
-            DeckCards = d.DeckCards.Select(dc => new ApiDeckCard
-            {
-                Count = dc.Count,
-                Card = new ApiCard
-                {
-                    Code = dc.Card.Code,
-                    Label = dc.Card.Label
-                },
-                Type = dc.CardType.ToString()
-            }),
-            IsFavourite = d.IsFavourite,
-            Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(d))
-        });
-
-        return Ok(new
-        {
-            Success = true,
-            TotalCount = rowCount,
-            Data = apiDecks
-        });
+        return Ok(await _deckService.GetDecksForUser(user, restrictedList, options));
     }
 
     [HttpGet("{deckId}")]
@@ -209,67 +87,22 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _context.Decks
-            .Include(d => d.Faction)
-            .Include(d => d.Agenda)
-            .Include(d => d.DeckCards)
-            .ThenInclude(dc => dc.Card)
-            .FirstOrDefaultAsync(d => d.Id == deckId);
+        var deck = await _deckService.GetDeck(deckId, restrictedList);
 
         if (deck == null)
         {
             return NotFound();
         }
 
-        if (deck.UserId != user.Id)
+        if (deck.Owner != user.UserName)
         {
             return Forbid();
         }
 
-        var packs = _mapper.Map<IEnumerable<LobbyPack>>(await _context.Packs.ToListAsync());
-        var restrictedLists = await _cardService.GetRestrictedLists();
-
-        if (restrictedList != null)
-        {
-            restrictedLists = restrictedLists.Where(rl => rl.Id == restrictedList).ToList();
-        }
-        var validator = new DeckValidator(packs, restrictedLists);
-
-        return Ok(new
+        return Ok(new ApiDataResponse<ApiDeck>
         {
             Success = true,
-            Deck = new ApiDeck
-            {
-                Id = deck.Id,
-                Name = deck.Name,
-                ExternalId = deck.ExternalId,
-                Created = deck.Created,
-                Updated = deck.Updated,
-                Agenda = deck.Agenda != null
-                    ? new ApiCard
-                    {
-                        Code = deck.Agenda.Code,
-                        Label = deck.Agenda.Label
-                    }
-                    : null,
-                Faction = new ApiFaction
-                {
-                    Code = deck.Faction.Code,
-                    Name = deck.Faction.Name ?? string.Empty
-                },
-                DeckCards = deck.DeckCards.Select(dc => new ApiDeckCard
-                {
-                    Count = dc.Count,
-                    Card = new ApiCard
-                    {
-                        Code = dc.Card.Code,
-                        Label = dc.Card.Label
-                    },
-                    Type = dc.CardType.ToString()
-                }),
-                IsFavourite = deck.IsFavourite,
-                Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck))
-            }
+            Data = deck
         });
     }
 
@@ -282,12 +115,12 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var decksToDelete = _context.Decks.Where(d => d.UserId == user.Id && request.DeckIds.Contains(d.Id));
-        _context.Decks.RemoveRange(decksToDelete);
+        await _deckService.DeleteDecks(user, request.DeckIds);
 
-        await _context.SaveChangesAsync();
-
-        return Ok();
+        return Ok(new ApiResponse
+        {
+            Success = true
+        });
     }
 
     [HttpDelete("{deckId}")]
@@ -299,18 +132,24 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _context.Decks.FirstOrDefaultAsync(d => d.Id == deckId && d.UserId == user.Id);
+        var deck = await _deckService.GetDeck(deckId);
         if (deck == null)
         {
             return NotFound();
         }
 
-        _context.Decks.Remove(deck);
+        if (deck.Owner != user.UserName)
+        {
+            return Forbid();
+        }
 
-        await _context.SaveChangesAsync();
+        await _deckService.DeleteDeck(deck.Id);
 
-        return Ok();
-    }
+        return Ok(new ApiResponse
+        {
+            Success = true
+        });
+}
 
     [HttpGet("groupFilter")]
     public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
@@ -326,15 +165,9 @@ public class DeckController : ControllerBase
 
         if (options.Filters != null && options.Filters.Any())
         {
-            foreach (var filter in options.Filters)
-            {
-                if (filter.Value == null || filter.Value.Contains(','))
-                {
-                    continue;
-                }
-
-                query = query.Where($"{filter.Id}.Contains(@0)", filter.Value);
-            }
+            query = options.Filters
+                .Where(filter => filter.Value != null && !filter.Value.Contains(','))
+                .Aggregate(query, (current, filter) => current.Where($"{filter.Id}.Contains(@0)", filter.Value));
         }
 
         return Ok(query.Select(column).Distinct());
@@ -379,10 +212,10 @@ public class DeckController : ControllerBase
 
         if (token == null)
         {
-            return Ok(new
+            return Ok(new ApiResponse
             {
                 Success = false,
-                Message = "You need to link your ThronesDB account"
+                Messages = new List<string> { "You need to link your ThronesDB account" }
             });
         }
 
@@ -393,12 +226,13 @@ public class DeckController : ControllerBase
 
         if (token.Expiry < DateTime.UtcNow)
         {
-            if (!await RefreshToken(httpClient, token, cancellationToken))
+            if (!await RefreshThronesDbToken(httpClient, token, cancellationToken))
             {
-                return Ok(new
+                return Ok(new ApiResponse
                 {
                     Success = false,
-                    Message = "An error occurred loading decks, your account needs to be re-linked to ThronesDB"
+                    Messages = new List<string>
+                        { "An error occurred loading decks, your account needs to be re-linked to ThronesDB" }
                 });
             }
         }
@@ -413,10 +247,10 @@ public class DeckController : ControllerBase
         var decks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", _jsonOptions, cancellationToken);
         if (decks == null)
         {
-            return BadRequest(new
+            return BadRequest(new ApiResponse
             {
                 Success = false,
-                Message = "An error occurred fetching decks from ThronesDB"
+                Messages = new List<string> { "An error occurred fetching decks from ThronesDB" }
             });
         }
 
@@ -430,7 +264,7 @@ public class DeckController : ControllerBase
             }
         }
 
-        return Ok(new
+        return Ok(new ApiDataResponse<IEnumerable<ThronesDbDeck>>
         {
             Success = true,
             Data = decks
@@ -455,10 +289,10 @@ public class DeckController : ControllerBase
         var token = user.ExternalTokens.FirstOrDefault(t => t.ExternalId == "ThronesDB");
         if (token == null)
         {
-            return Ok(new
+            return Ok(new ApiResponse
             {
                 Success = false,
-                Message = "You need to link your ThronesDB account"
+                Messages = new List<string> { "You need to link your ThronesDB account" }
             });
         }
 
@@ -469,12 +303,13 @@ public class DeckController : ControllerBase
 
         if (token.Expiry < DateTime.UtcNow)
         {
-            if (!await RefreshToken(httpClient, token, cancellationToken))
+            if (!await RefreshThronesDbToken(httpClient, token, cancellationToken))
             {
-                return Ok(new
+                return Ok(new ApiResponse
                 {
                     Success = false,
-                    Message = "An error occurred importing decks, your account needs to be re-linked to ThronesDB"
+                    Messages = new List<string>
+                        { "An error occurred importing decks, your account needs to be re-linked to ThronesDB" }
                 });
             }
         }
@@ -484,10 +319,10 @@ public class DeckController : ControllerBase
         var thronesDbDecks = await httpClient.GetFromJsonAsync<IEnumerable<ThronesDbDeck>>("oauth2/decks", _jsonOptions, cancellationToken);
         if (thronesDbDecks == null)
         {
-            return BadRequest(new
+            return BadRequest(new ApiResponse
             {
                 Success = false,
-                Message = "An error occurred importing decks, please try again later"
+                Messages = new List<string> { "An error occurred importing decks, please try again later" }
             });
         }
 
@@ -546,7 +381,6 @@ public class DeckController : ControllerBase
                 dbDeck.Agenda = dbCards[deck.Agendas.First()];
             }
 
-
             foreach (var (code, count) in deck.Slots!)
             {
                 if (!dbDeck.DeckCards.Any(dc => dc.CardId == dbCards[code].Id))
@@ -569,14 +403,14 @@ public class DeckController : ControllerBase
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Ok(new
+        return Ok(new ApiResponse
         {
             Success = true
         });
     }
 
     [HttpPost("{deckId}/toggleFavourite")]
-    public async Task<IActionResult> ToggleFavouriteDeck(int deckId, CancellationToken cancellationToken)
+    public async Task<IActionResult> ToggleFavouriteDeck(int deckId)
     {
         var user = await _userManager.FindByNameAsync(User.Identity!.Name);
         if (user == null)
@@ -584,28 +418,28 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _context.Decks.FirstOrDefaultAsync(d => d.Id == deckId, cancellationToken);
+        var deck = await _deckService.GetDeck(deckId);
         if (deck == null)
         {
             return NotFound();
         }
 
-        if (deck.UserId != user.Id)
+        if (deck.Owner != user.UserName)
         {
             return Forbid();
         }
 
         deck.IsFavourite = !deck.IsFavourite;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _deckService.Update(deck);
 
-        return Ok(new
+        return Ok(new ApiResponse
         {
             Success = true
         });
     }
 
-    private async Task<bool> RefreshToken(HttpClient httpClient, ExternalToken token, CancellationToken cancellationToken)
+    private async Task<bool> RefreshThronesDbToken(HttpClient httpClient, ExternalToken token, CancellationToken cancellationToken)
     {
         if (_thronesDbOptions.ClientId == null || _thronesDbOptions.ClientSecret == null)
         {
@@ -628,7 +462,7 @@ public class DeckController : ControllerBase
         if (!response.IsSuccessStatusCode)
         {
             var responseStr = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogWarning($"Error refreshing thronesdb token: {responseStr}");
+            _logger.LogWarning("Error refreshing thronesdb token: {response}", responseStr);
 
             return false;
         }
@@ -648,27 +482,4 @@ public class DeckController : ControllerBase
 
         return true;
     }
-
-    private static IEnumerable<DeckCard> GetDeckCardsFromRequest(Dictionary<string, int> cardList, Deck deck, DeckCardType deckCardType)
-    {
-        var deckCards = new List<DeckCard>();
-
-        foreach (var (cardId, count) in cardList)
-        {
-            deckCards.Add(new DeckCard
-            {
-                Deck = deck,
-                CardId = int.Parse(cardId),
-                CardType = deckCardType,
-                Count = count
-            });
-        }
-
-        return deckCards;
-    }
-}
-
-public class DeleteDecksRequest
-{
-    public IReadOnlyCollection<int> DeckIds { get; set; } = new List<int>();
 }

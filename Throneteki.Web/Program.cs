@@ -9,7 +9,9 @@ using Throneteki.Grpc.MappingProfiles;
 using Throneteki.Models.Mapping;
 using Throneteki.Models.Services;
 using Throneteki.Web;
+using Throneteki.Web.Mapping;
 using Throneteki.Web.Models.Options;
+using Throneteki.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,10 +96,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 builder.Services.AddHostedService<DataInitialisationWorker>();
 
-builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly, typeof(LobbyMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly, typeof(LobbyMappingProfile).Assembly, typeof(ApiMappingProfile).Assembly);
 
 builder.Services.AddTransient<CardService>();
-
+builder.Services.AddTransient<DeckService>();
 
 var app = builder.Build();
 

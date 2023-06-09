@@ -43,7 +43,6 @@
     <ProjectReference Include="..\Throneteki.Models\Throneteki.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Helpers\" />
     <Folder Include="wwwroot\img\cards\" />
   </ItemGroup>
   <Target BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') " Name="DebugEnsureNodeEnv">

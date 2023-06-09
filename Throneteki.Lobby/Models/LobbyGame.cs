@@ -308,7 +308,7 @@ public class LobbyGame
             FinishedAt = FinishedAt,
             Players = Players.Select(p => new LobbySavedGamePlayer
             {
-                Name = p.User.Name, Faction = p.User.Deck.Faction.Code, Agenda = p.User.Deck.Agenda?.Code, Power = 0
+                Name = p.User.Name, Faction = p.User.Deck!.Faction.Code, Agenda = p.User.Deck.Agenda?.Code, Power = 0
             })
         };
     }

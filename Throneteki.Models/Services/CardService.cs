@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Throneteki.Data.Models;
 using Throneteki.Data.Models.RestrictedList;
 using Throneteki.Models.Models;
 
@@ -23,7 +22,7 @@ public class CardService
         return cardSets.Select(set =>
         {
             var activeVersion = GetActiveVersion(lists, set);
-            var joustFormat = activeVersion.Formats.FirstOrDefault(f => f.Name == GameFormat.Joust);
+            var joustFormat = activeVersion.Formats.First(f => f.Name == GameFormat.Joust);
 
             return new LobbyRestrictedList
             {
@@ -41,7 +40,7 @@ public class CardService
         }).ToList();
     }
 
-    private RestrictedList GetActiveVersion(IEnumerable<RestrictedList> versions, RestrictedListCardSet cardSet)
+    private static RestrictedList GetActiveVersion(IEnumerable<RestrictedList> versions, RestrictedListCardSet cardSet)
     {
         var versionsForCardSet = versions.Where(version => version.CardSet == cardSet);
 

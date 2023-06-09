@@ -14,4 +14,5 @@ public class ApiDeck
     public IEnumerable<ApiDeckCard> DeckCards { get; set; } = new List<ApiDeckCard>();
     public bool IsFavourite { get; set; }
     public DeckValidationStatus? Status { get; set; }
+    public string Owner { get; set; } = null!;
 }

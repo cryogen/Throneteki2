@@ -138,7 +138,7 @@ public class ThronetekiDataImporter : IHostedService
             dbCard.Initiative = card.Initiative;
             dbCard.Intrigue = card.IsIntrigue;
             dbCard.Illustrator = card.Illustrator;
-            dbCard.Label = card.Label;
+            dbCard.Label = card.Label ?? string.Empty;
             dbCard.Loyal = card.IsLoyal;
             dbCard.Military = card.IsMilitary;
             dbCard.Name = card.Name;

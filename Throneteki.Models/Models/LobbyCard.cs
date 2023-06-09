@@ -2,7 +2,7 @@
 
 public class LobbyCard
 {
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
     public string? Type { get; set; }
     public string? Name { get; set; }
     public bool Unique { get; set; }
@@ -14,7 +14,7 @@ public class LobbyCard
     public string? Flavor { get; set; }
     public int DeckLimit { get; set; }
     public string? Illustrator { get; set; }
-    public string? PackCode { get; set; }
+    public string PackCode { get; set; } = null!;
     public string? Label { get; set; }
     public string[] Icons { get; set; } = Array.Empty<string>();
     public string[] Traits { get; set; } = Array.Empty<string>();

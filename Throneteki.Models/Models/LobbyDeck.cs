@@ -41,14 +41,16 @@ public class LobbyDeck
         var cardCountsByName = new Dictionary<string, LobbyDeckCard>();
         foreach (var deckCard in GetAllCards())
         {
-            if (!cardCountsByName.ContainsKey(deckCard.Card.Name))
+            if (deckCard.Card.Name == null)
             {
-                cardCountsByName.Add(deckCard.Card.Name, new LobbyDeckCard
-                {
-                    Card = deckCard.Card,
-                    Count = 0
-                });
+                continue;
             }
+
+            cardCountsByName.TryAdd(deckCard.Card.Name, new LobbyDeckCard
+            {
+                Card = deckCard.Card,
+                Count = 0
+            });
 
             cardCountsByName[deckCard.Card.Name].Count += deckCard.Count;
         }

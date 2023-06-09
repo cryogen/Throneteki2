@@ -71,9 +71,9 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
         var deck = await _dbContext.Decks
             .Include(d => d.Faction)
             .Include(d => d.Agenda)
-            .ThenInclude(a => a.Faction)
+            .ThenInclude(a => a != null ? a.Faction : null)
             .Include(d => d.Agenda)
-            .ThenInclude(a => a.Pack)
+            .ThenInclude(a => a != null ? a.Pack : null)
             .Include(d => d.DeckCards)
             .ThenInclude(dc => dc.Card)
             .ThenInclude(c => c.Faction)

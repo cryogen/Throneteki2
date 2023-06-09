@@ -108,6 +108,11 @@ public class LobbyService
 
             if (GamesByUsername.TryGetValue(user.Username, out var game) && game.IsStarted)
             {
+                if (game.Node == null)
+                {
+                    throw new Exception("Game node was null when it really should not have been");
+                }
+
                 await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.HandOff, new
                 {
                     url = game.Node.Url,
@@ -130,8 +135,11 @@ public class LobbyService
                     Username = context.User.Identity.Name
                 })).User;
 
-            ConnectionsByUsername.TryRemove(context.User.Identity.Name, out _);
-            UsersByName.TryRemove(context.User.Identity.Name, out _);
+            if (context.User.Identity.Name != null)
+            {
+                ConnectionsByUsername.TryRemove(context.User.Identity.Name, out _);
+                UsersByName.TryRemove(context.User.Identity.Name, out _);
+            }
 
             var excludedConnectionIds = new List<string> { context.ConnectionId };
 

@@ -15,6 +15,11 @@ public class HelloMessageHandler : IRedisCommandHandler<RedisIncomingMessage<Hel
 
     public Task Handle(RedisIncomingMessage<HelloMessage> message)
     {
+        if (message.Arg == null)
+        {
+            return Task.CompletedTask;
+        }
+
         var node = new LobbyNode
         {
             Name = message.Source,

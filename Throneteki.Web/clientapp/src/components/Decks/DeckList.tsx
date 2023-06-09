@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
@@ -22,6 +22,7 @@ import ReactTable from '../Table/ReactTable';
 import TableGroupFilter from '../Table/TableGroupFilter';
 import DeckStatusLabel from './DeckStatusLabel';
 import IndeterminateCheckbox from '../Table/InterderminateCheckBox';
+import { Constants } from '../../constants';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -46,8 +47,10 @@ const DeckList = ({
 }: DeckListProps) => {
     const { t } = useTranslation();
     const [toggleFavourite] = useToggleDeckFavouriteMutation();
+    const [mousePos, setMousePosition] = useState({ x: 0, y: 0 });
+    const [zoomCard, setZoomCard] = useState(null);
 
-    const columns = useMemo<ColumnDef<Deck>[]>(
+    let columns = useMemo<ColumnDef<Deck>[]>(
         () => [
             {
                 id: 'select',
@@ -95,7 +98,23 @@ const DeckList = ({
                     const faction = info.getValue() as Faction;
                     return (
                         <div className='d-flex justify-content-center'>
-                            <FactionImage faction={faction.code} />
+                            <FactionImage
+                                faction={faction.code}
+                                onMouseOver={() =>
+                                    setZoomCard(Constants.FactionsImagePaths[faction.code])
+                                }
+                                onMouseMove={(event) => {
+                                    let y = event.clientY;
+                                    const yPlusHeight = y + 420;
+
+                                    if (yPlusHeight >= window.innerHeight) {
+                                        y -= yPlusHeight - window.innerHeight;
+                                    }
+
+                                    setMousePosition({ x: event.clientX, y: y });
+                                }}
+                                onMouseOut={() => setZoomCard(null)}
+                            />
                         </div>
                     );
                 },
@@ -156,11 +175,26 @@ const DeckList = ({
                         ) : (
                             agendas.map((agenda: string) => {
                                 return (
-                                    <CardImage
-                                        className='me-1'
+                                    <span
                                         key={agenda}
-                                        imageUrl={`/img/cards/${agenda}.png`}
-                                    />
+                                        onMouseOver={() => setZoomCard(`/img/cards/${agenda}.png`)}
+                                        onMouseMove={(event) => {
+                                            let y = event.clientY;
+                                            const yPlusHeight = y + 420;
+
+                                            if (yPlusHeight >= window.innerHeight) {
+                                                y -= yPlusHeight - window.innerHeight;
+                                            }
+
+                                            setMousePosition({ x: event.clientX, y: y });
+                                        }}
+                                        onMouseOut={() => setZoomCard(null)}
+                                    >
+                                        <CardImage
+                                            className='me-1'
+                                            imageUrl={`/img/cards/${agenda}.png`}
+                                        />
+                                    </span>
                                 );
                             })
                         );
@@ -248,6 +282,10 @@ const DeckList = ({
         [t, readOnly, toggleFavourite]
     );
 
+    if (readOnly) {
+        columns = columns.slice(1);
+    }
+
     return (
         <div>
             <ReactTable
@@ -264,6 +302,14 @@ const DeckList = ({
                     onDeckSelectionChange && onDeckSelectionChange(rows.map((r) => r.original.id))
                 }
             />
+            {zoomCard && (
+                <div
+                    className='decklist-card-zoom'
+                    style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
+                >
+                    <CardImage imageUrl={zoomCard} size='lg' />
+                </div>
+            )}
         </div>
     );
 };

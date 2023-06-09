@@ -15,6 +15,7 @@ import Background from './assets/img/bgs/mainbg.png';
 import BlankBg from './assets/img/bgs/blank.png';
 import StandardBg from './assets/img/bgs/background.png';
 import WinterBg from './assets/img/bgs/background2.png';
+import LoadingSpinner from './components/LoadingSpinner';
 
 function RouteElement() {
     const routeArray = routes();
@@ -71,10 +72,15 @@ function App() {
     useEffect(() => {
         // the `return` is important - addAccessTokenExpiring() returns a cleanup function
         return auth.events.addAccessTokenExpiring(() => {
+            console.info('auth token is expiring');
             auth.signinSilent();
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auth.events, auth.signinSilent]);
+
+    if (auth.isLoading) {
+        return <LoadingSpinner text='Checking authentication status, please wait...' />;
+    }
 
     const user = auth.user?.profile as ThronetekiUser;
 

@@ -5,21 +5,7 @@ namespace Throneteki.DeckValidation;
 
 public static class Rules
 {
-    private static bool HasTrait(LobbyCard card, string trait)
-    {
-        return card.Traits.Any(t => string.Equals(t, trait, StringComparison.CurrentCultureIgnoreCase));
-    }
-
-    private static bool HasKeyword(LobbyCard card, string keywordRegex)
-    {
-        var lines = card.Text.Split('\n');
-        var keywordLine = lines.Any() ? lines[0] : string.Empty;
-        var keywords = keywordLine.Split('.').Select(keyword => keyword.Trim()).Where(keyword => keyword.Length != 0);
-
-        return keywords.Any(keyword => new Regex(keywordRegex).IsMatch(keyword));
-    }
-
-    public static Dictionary<string, StandardValidator> Agenda = new()
+    public static readonly Dictionary<string, StandardValidator> Agenda = new()
     {
         // Banner of the stag
         { "01198", new BannerValidator("baratheon", "Baratheon") },
@@ -64,7 +50,6 @@ public static class Rules
                         Condition = deck => !deck.PlotCards.Any(cardQuantity => HasTrait(cardQuantity.Card, "Winter"))
                     }
                 }
-
             }
         },
         // Kings of Winter
@@ -272,7 +257,7 @@ public static class Rules
                     new ValidationRule
                     {
                         Message = "Must only contain neutral cards or Non-loyal Wildling characters",
-                        Condition = (deck) =>
+                        Condition = deck =>
                         {
                             var drawDeckValid = !deck.DrawCards.Any(cardQuantity =>
                                 cardQuantity.Card.Faction != "neutral" &&
@@ -363,4 +348,18 @@ public static class Rules
             }
         }
     };
+
+    private static bool HasTrait(LobbyCard card, string trait)
+    {
+        return card.Traits.Any(t => string.Equals(t, trait, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    private static bool HasKeyword(LobbyCard card, string keywordRegex)
+    {
+        var lines = (card.Text ?? string.Empty).Split('\n');
+        var keywordLine = lines.Any() ? lines[0] : string.Empty;
+        var keywords = keywordLine.Split('.').Select(keyword => keyword.Trim()).Where(keyword => keyword.Length != 0);
+
+        return keywords.Any(keyword => new Regex(keywordRegex).IsMatch(keyword));
+    }
 }

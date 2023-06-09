@@ -54,7 +54,9 @@ public class RestrictedListValidator
 
         return new RestrictedListValidationStatus
         {
-            Name = _rules.Name, Valid = !errors.Any(), RestrictedRules = restrictedCardsOnList.Count <= 1,
+            Name = _rules.Name,
+            Valid = !errors.Any(),
+            RestrictedRules = restrictedCardsOnList.Count <= 1,
             NoBannedCards = noBannedCards,
             Errors = errors,
             RestrictedCards = restrictedCardsOnList,

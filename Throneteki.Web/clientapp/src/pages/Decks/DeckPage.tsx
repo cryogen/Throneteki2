@@ -22,6 +22,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import FaIconButton from '../../components/Site/FaIconButton';
 import { faPenToSquare, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { toastr } from 'react-redux-toastr';
+import { Constants } from '../../constants';
 
 const DeckPage = () => {
     const { t } = useTranslation();
@@ -29,6 +30,8 @@ const DeckPage = () => {
     const [restrictedList, setRestrictedList] = useState<string | null>();
     const [deleteDeck, { isLoading: isDeleteLoading }] = useDeleteDeckMutation();
     const navigate = useNavigate();
+    const [mousePos, setMousePosition] = useState({ x: 0, y: 0 });
+    const [zoomCard, setZoomCard] = useState(null);
 
     const { data, isLoading, isError, isSuccess } = useGetDeckQuery({
         deckId: params.deckId,
@@ -56,7 +59,7 @@ const DeckPage = () => {
         );
     }, [cardsResponse]);
 
-    const deck = data?.deck;
+    const deck = data?.data;
     let content;
 
     if (isLoading || isCardsLoading || isRestrictedListLoading) {
@@ -90,12 +93,23 @@ const DeckPage = () => {
 
         const agendaContent = agendas.map((agenda: string) => {
             return (
-                <CardImage
-                    className='me-1'
+                <span
                     key={agenda}
-                    imageUrl={`/img/cards/${agenda}.png`}
-                    size='md'
-                />
+                    onMouseOver={() => setZoomCard(`/img/cards/${agenda}.png`)}
+                    onMouseMove={(event) => {
+                        let y = event.clientY;
+                        const yPlusHeight = y + 420;
+
+                        if (yPlusHeight >= window.innerHeight) {
+                            y -= yPlusHeight - window.innerHeight;
+                        }
+
+                        setMousePosition({ x: event.clientX, y: y });
+                    }}
+                    onMouseOut={() => setZoomCard(null)}
+                >
+                    <CardImage className='me-1' imageUrl={`/img/cards/${agenda}.png`} size='md' />
+                </span>
             );
         });
 
@@ -140,7 +154,25 @@ const DeckPage = () => {
                     />
                 </div>
                 <div className='d-flex justify-content-center'>
-                    <FactionImage className='me-1' faction={deck.faction.code} size='md' />
+                    <FactionImage
+                        className='me-1'
+                        faction={deck.faction.code}
+                        size='md'
+                        onMouseOver={() =>
+                            setZoomCard(Constants.FactionsImagePaths[deck.faction.code])
+                        }
+                        onMouseMove={(event) => {
+                            let y = event.clientY;
+                            const yPlusHeight = y + 420;
+
+                            if (yPlusHeight >= window.innerHeight) {
+                                y -= yPlusHeight - window.innerHeight;
+                            }
+
+                            setMousePosition({ x: event.clientX, y: y });
+                        }}
+                        onMouseOut={() => setZoomCard(null)}
+                    />
                     {agendaContent}
                 </div>
                 <Row className='mb-2 mt-2'>
@@ -211,7 +243,15 @@ const DeckPage = () => {
 
     return (
         <Col lg={{ span: 8, offset: 2 }}>
-            <Panel title={data?.deck.name}>{content}</Panel>
+            <Panel title={data?.data.name}>{content}</Panel>
+            {zoomCard && (
+                <div
+                    className='decklist-card-zoom'
+                    style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
+                >
+                    <CardImage imageUrl={zoomCard} size='lg' />
+                </div>
+            )}
         </Col>
     );
 };
