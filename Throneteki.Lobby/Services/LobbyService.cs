@@ -85,7 +85,8 @@ public class LobbyService
         }), cancellationToken: context.ConnectionAborted);
 
         var gamesToSend = GamesById.Values.Where(g => user == null || g.IsVisibleFor(user))
-            .OrderByDescending(g => new { g.IsStarted, g.CreatedAt })
+            .OrderByDescending(g => g.IsStarted)
+            .ThenByDescending(g => g.CreatedAt)
             .Select(g => g.GetState(null));
 
         await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.Games, gamesToSend);
