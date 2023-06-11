@@ -8,9 +8,9 @@ public class GamePlayer
     [Required]
     public string PlayerId { get; set; } = null!;
     public ThronetekiUser? Player { get; set; }
-    public int FactionId { get; set; }
-    public Faction Faction { get; set; } = null!;
-    public int? AgendaId { get; set; }
-    public Card? Agenda { get; set; }
+    public int DeckId { get; set; }
+    public virtual Deck Deck { get; set; } = null!;
     public int TotalPower { get; set; }
+    public int GameId { get; set; }
+    public Game Game { get; set; } = null!;
 }

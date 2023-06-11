@@ -122,8 +122,7 @@ message ThronetekiUser {
 message ThronetekiGamePlayer {
     int32 Id = 1;
     string Player = 2;
-    string FactionCode = 3;
-    string AgendaCode = 4;
+    int32 DeckId = 3;
     int32 TotalPower = 5;
 }
 

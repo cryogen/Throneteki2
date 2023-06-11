@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Throneteki.Data;
@@ -11,9 +12,10 @@ using Throneteki.Data;
 namespace Throneteki.Data.Migrations
 {
     [DbContext(typeof(ThronetekiDbContext))]
-    partial class ThronetekiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230610155643_RenameGamePlayer")]
+    partial class RenameGamePlayer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -705,9 +707,13 @@ namespace Throneteki.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DeckId")
+                    b.Property<int?>("AgendaId")
                         .HasColumnType("integer")
-                        .HasColumnName("deck_id");
+                        .HasColumnName("agenda_id");
+
+                    b.Property<int>("FactionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("faction_id");
 
                     b.Property<int>("GameId")
                         .HasColumnType("integer")
@@ -725,8 +731,11 @@ namespace Throneteki.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_game_players");
 
-                    b.HasIndex("DeckId")
-                        .HasDatabaseName("ix_game_players_deck_id");
+                    b.HasIndex("AgendaId")
+                        .HasDatabaseName("ix_game_players_agenda_id");
+
+                    b.HasIndex("FactionId")
+                        .HasDatabaseName("ix_game_players_faction_id");
 
                     b.HasIndex("GameId")
                         .HasDatabaseName("ix_game_players_game_id");
@@ -1154,12 +1163,17 @@ namespace Throneteki.Data.Migrations
 
             modelBuilder.Entity("Throneteki.Data.Models.GamePlayer", b =>
                 {
-                    b.HasOne("Throneteki.Data.Models.Deck", "Deck")
+                    b.HasOne("Throneteki.Data.Models.Card", "Agenda")
                         .WithMany()
-                        .HasForeignKey("DeckId")
+                        .HasForeignKey("AgendaId")
+                        .HasConstraintName("fk_game_players_cards_agenda_id");
+
+                    b.HasOne("Throneteki.Data.Models.Faction", "Faction")
+                        .WithMany()
+                        .HasForeignKey("FactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_game_players_decks_deck_id");
+                        .HasConstraintName("fk_game_players_factions_faction_id");
 
                     b.HasOne("Throneteki.Data.Models.Game", "Game")
                         .WithMany("Players")
@@ -1175,7 +1189,9 @@ namespace Throneteki.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_game_players_users_player_id");
 
-                    b.Navigation("Deck");
+                    b.Navigation("Agenda");
+
+                    b.Navigation("Faction");
 
                     b.Navigation("Game");
 

@@ -12,7 +12,6 @@ public class GameNodeManager
     private readonly ILogger<GameNodeManager> _logger;
     private readonly RedisCommandHandlerFactory _commandHandlerFactory;
     private readonly Dictionary<string, LobbyNode> _gameNodes = new();
-    private readonly IDatabase _database;
     private readonly ISubscriber _publisher;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -25,7 +24,6 @@ public class GameNodeManager
         _logger = logger;
         _commandHandlerFactory = commandHandlerFactory;
 
-        _database = connectionMultiplexer.GetDatabase();
         _publisher = connectionMultiplexer.GetSubscriber();
         var subscriber = connectionMultiplexer.GetSubscriber();
 

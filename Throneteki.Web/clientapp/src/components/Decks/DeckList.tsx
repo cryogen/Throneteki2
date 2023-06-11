@@ -88,7 +88,7 @@ const DeckList = ({
                     return <Trans>{info.getValue() as string}</Trans>;
                 },
                 meta: {
-                    colWidth: 4
+                    colWidth: 3
                 }
             },
             {
@@ -202,7 +202,7 @@ const DeckList = ({
                     return <div className='d-flex'>{content}</div>;
                 },
                 meta: {
-                    colWidth: 2
+                    colWidth: 1
                 },
                 header: t('Agenda(s)') as string,
                 enableColumnFilter: false,
@@ -213,7 +213,7 @@ const DeckList = ({
                 cell: (info) =>
                     moment(info.getValue() as Date)
                         .local()
-                        .format('YYYY-MM-DD HH:mm'),
+                        .format('YYYY-MM-DD'),
 
                 header: t('Created') as string,
                 meta: {
@@ -226,7 +226,7 @@ const DeckList = ({
                 cell: (info) =>
                     moment(info.getValue() as Date)
                         .local()
-                        .format('YYYY-MM-DD HH:mm'),
+                        .format('YYYY-MM-DD'),
                 header: t('Updated') as string,
                 meta: {
                     colWidth: 2
@@ -241,6 +241,26 @@ const DeckList = ({
                     </div>
                 ),
                 header: t('Validity') as string,
+                meta: {
+                    colWidth: 1
+                },
+                enableColumnFilter: false,
+                enableSorting: false
+            },
+            {
+                accessorKey: 'winRate',
+                cell: (info) => {
+                    return (
+                        <span>
+                            {info.getValue() as string}
+                            {`${info.getValue() ? '%' : ''}`}
+                        </span>
+                    );
+                },
+                header: t('Win Rate') as string,
+                meta: {
+                    colWidth: 1
+                },
                 enableColumnFilter: false
             },
             {

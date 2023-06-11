@@ -194,46 +194,77 @@ const DeckPage = () => {
                         </Form.Group>
                     </Form>
                 </Row>
-                <Row className='mt-3 mb-0' as='dl'>
-                    <Col sm={3} as='dt'>
-                        <Trans>Faction</Trans>
+                <Row>
+                    <Col md={6}>
+                        <Row className='mt-3 mb-0' as='dl'>
+                            <Col sm={6} as='dt'>
+                                <Trans>Faction</Trans>
+                            </Col>
+                            <Col sm={6} className='mb-0' as='dd'>
+                                {deck.faction.name}
+                            </Col>
+                        </Row>
+                        {agendas.map((agenda, index) => (
+                            <Row key={agenda} className='mb-0 mt-1' as='dl'>
+                                <Col sm={6} as='dt'>
+                                    <Trans>{index == 0 ? 'Agenda' : 'Banner'}</Trans>
+                                </Col>
+                                <Col sm={6} className='mb-0' as='dd'>
+                                    {cardsByCode[agenda].label}
+                                </Col>
+                            </Row>
+                        ))}
+                        {deck.externalId && (
+                            <Row className='mb-0 mt-1' as='dl'>
+                                <Col sm={6} as='dt'>
+                                    <Trans>ThronesDB</Trans>
+                                </Col>
+                                <Col sm={6} className='mb-0' as='dd'>
+                                    <a
+                                        href={`https://thronesdb.com/deck/view/${deck.externalId}`}
+                                        target='_blank'
+                                        rel='noreferrer'
+                                    >
+                                        <Trans>Link</Trans>
+                                    </a>
+                                </Col>
+                            </Row>
+                        )}
+                        <Row className='mb-0 mt-1' as='dl'>
+                            <Col sm={6} as='dt'>
+                                <Trans>Validity</Trans>
+                            </Col>
+                            <Col sm={6} className='mb-0' as='dd'>
+                                <DeckStatus status={deck.status} />
+                            </Col>
+                        </Row>
                     </Col>
-                    <Col sm={3} className='mb-0' as='dd'>
-                        {deck.faction.name}
-                    </Col>
-                </Row>
-                {agendas.map((agenda, index) => (
-                    <Row key={agenda} className='mb-0 mt-1' as='dl'>
-                        <Col sm={3} as='dt'>
-                            <Trans>{index == 0 ? 'Agenda' : 'Banner'}</Trans>
-                        </Col>
-                        <Col sm={3} className='mb-0' as='dd'>
-                            {cardsByCode[agenda].label}
-                        </Col>
-                    </Row>
-                ))}
-                {deck.externalId && (
-                    <Row className='mb-0 mt-1' as='dl'>
-                        <Col sm={3} as='dt'>
-                            <Trans>ThronesDB</Trans>
-                        </Col>
-                        <Col sm={3} className='mb-0' as='dd'>
-                            <a
-                                href={`https://thronesdb.com/deck/view/${deck.externalId}`}
-                                target='_blank'
-                                rel='noreferrer'
-                            >
-                                <Trans>Link</Trans>
-                            </a>
-                        </Col>
-                    </Row>
-                )}
-                <Row className='mb-0 mt-1' as='dl'>
-                    <Col sm={3} as='dt'>
-                        <Trans>Validity</Trans>
-                    </Col>
-                    <Col sm={3} className='mb-0' as='dd'>
-                        <DeckStatus status={deck.status} />
+                    <Col md={6}>
+                        <Row className='mt-3 mb-0' as='dl'>
+                            <Col sm={6} as='dt'>
+                                <Trans>Wins</Trans>
+                            </Col>
+                            <Col sm={6} className='mb-0' as='dd'>
+                                {deck.wins}
+                            </Col>
+                        </Row>
+                        <Row className='mt-1 mb-0' as='dl'>
+                            <Col sm={6} as='dt'>
+                                <Trans>Losses</Trans>
+                            </Col>
+                            <Col sm={6} className='mb-0' as='dd'>
+                                {deck.losses}
+                            </Col>
+                        </Row>
+                        <Row className='mt-1 mb-0' as='dl'>
+                            <Col sm={6} as='dt'>
+                                <Trans>Win Rate</Trans>
+                            </Col>
+                            <Col sm={6} className='mb-0' as='dd'>
+                                {deck.winRate}
+                                {deck.winRate && '%'}
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
                 <DeckSummary deck={deck} />

@@ -179,9 +179,6 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
 
     public override async Task<CreateGameResponse> CreateGame(CreateGameRequest request, ServerCallContext context)
     {
-        var cardsByCode = await _dbContext.Cards.ToDictionaryAsync(k => k.Code, v => v);
-        var factionsByCode = await _dbContext.Factions.ToDictionaryAsync(k => k.Code, v => v);
-
         var dbGame = _mapper.Map<Game>(request.Game);
 
         if (request.Game.Winner != string.Empty)
@@ -193,18 +190,11 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
 
         foreach (var player in request.Game.Players)
         {
-            var dbPlayer = new GamePlayer();
-
-            if (player.AgendaCode != string.Empty)
+            var dbPlayer = new GamePlayer
             {
-                dbPlayer.Agenda = cardsByCode[player.AgendaCode];
-                dbPlayer.AgendaId = dbPlayer.Agenda.Id;
-            }
-
-            dbPlayer.Faction = factionsByCode[player.FactionCode];
-            dbPlayer.FactionId = dbPlayer.Faction.Id;
-
-            dbPlayer.Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player);
+                DeckId = player.DeckId,
+                Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player)
+            };
 
             dbGame.Players.Add(dbPlayer);
         }
@@ -223,9 +213,9 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
 
     public override async Task<UpdateGameResponse> UpdateGame(UpdateGameRequest request, ServerCallContext context)
     {
-        var cardsByCode = await _dbContext.Cards.ToDictionaryAsync(k => k.Code, v => v);
-        var factionsByCode = await _dbContext.Factions.ToDictionaryAsync(k => k.Code, v => v);
-        var game = await _dbContext.Games.FirstOrDefaultAsync(g => g.GameId.ToString() == request.Game.GameId);
+        var game = await _dbContext.Games
+            .Include(g => g.Players)
+            .FirstOrDefaultAsync(g => g.GameId.ToString() == request.Game.GameId);
 
         if (game == null)
         {
@@ -237,24 +227,12 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             game.Winner = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == request.Game.Winner);
         }
 
-        game.Players = new List<GamePlayer>();
-
         foreach (var player in request.Game.Players)
         {
-            var dbPlayer = new GamePlayer();
+            var dbPlayer = game.Players.First(p => p.Player.UserName == player.Player);
 
-            if (player.AgendaCode != string.Empty)
-            {
-                dbPlayer.Agenda = cardsByCode[player.AgendaCode];
-                dbPlayer.AgendaId = dbPlayer.Agenda.Id;
-            }
-
-            dbPlayer.Faction = factionsByCode[player.FactionCode];
-            dbPlayer.FactionId = dbPlayer.Faction.Id;
-
-            dbPlayer.Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player);
-
-            game.Players.Add(dbPlayer);
+            dbPlayer.DeckId = player.DeckId;
+            dbPlayer.TotalPower = player.TotalPower;
         }
 
         game.WinReason = game.WinReason == string.Empty ? null : request.Game.WinReason;

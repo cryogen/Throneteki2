@@ -36,8 +36,7 @@ public class GameWonMessageHandler : IRedisCommandHandler<RedisIncomingMessage<G
                     message.Arg.Game.Players.Select(p => new ThronetekiGamePlayer
                     {
                         Player = p.Name,
-                        AgendaCode = p.Agenda ?? string.Empty,
-                        FactionCode = p.Faction,
+                        DeckId = p.DeckId,
                         TotalPower = p.Power
                     })
                 }

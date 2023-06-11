@@ -60,7 +60,29 @@ public class DeckService
     public async Task<ApiPagedDataResponse<IEnumerable<ApiDeck>>> GetDecksForUser(ThronetekiUser user,
         string? restrictedList, DataLoadOptions options)
     {
-        var baseQuery = _context.Decks.Where(d => d.UserId == user.Id);
+        var baseQuery = _context.Decks.Include(d => d.Faction)
+            .Include(d => d.Agenda)
+            .ThenInclude(a => a != null ? a.Faction : null)
+            .Include(d => d.DeckCards)
+            .ThenInclude(dc => dc.Card)
+            .ThenInclude(c => c.Faction)
+            .Where(d => d.UserId == user.Id)
+            .Select(d => new DeckWithStats
+            {
+                Deck = d,
+                Wins = _context.GamePlayers.Count(gp =>
+                    gp.DeckId == d.Id && gp.PlayerId == d.UserId && gp.Game.WinnerId == d.UserId),
+                Losses = _context.GamePlayers.Count(gp =>
+                    gp.DeckId == d.Id && gp.PlayerId == d.UserId && !string.IsNullOrEmpty(gp.Game.WinnerId) &&
+                    gp.Game.WinnerId != d.UserId)
+            })
+            .Select(ds => new DeckWithStats
+            {
+                Deck = ds.Deck,
+                Wins = ds.Wins,
+                Losses = ds.Losses,
+                WinRate = ds.Wins + ds.Losses > 0 ? (int)(ds.Wins / (double)(ds.Wins + ds.Losses)) * 100 : null
+            });
 
         if (options.Filters != null && options.Filters.Any())
         {
@@ -86,17 +108,11 @@ public class DeckService
 
         var rowCount = await baseQuery.CountAsync();
 
-        baseQuery = baseQuery.Include(d => d.Faction)
-            .Include(d => d.Agenda)
-            .ThenInclude(a => a != null ? a.Faction : null)
-            .Include(d => d.DeckCards)
-            .ThenInclude(dc => dc.Card)
-            .ThenInclude(c => c.Faction);
-
         if (options.Sorting != null && options.Sorting.Any())
         {
             baseQuery = baseQuery.OrderBy(string.Join(", ",
-                options.Sorting.Select(o => $"{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
+                options.Sorting.Select(o =>
+                    $"{(o.Id != "winRate" ? "deck." : string.Empty)}{o.Id}{(o.Desc ? " desc" : string.Empty)}")));
         }
 
         var decks = await baseQuery
@@ -118,7 +134,7 @@ public class DeckService
         foreach (var deck in decks)
         {
             var apiDeck = _mapper.Map<ApiDeck>(deck);
-            apiDeck.Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck));
+            apiDeck.Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck.Deck));
 
             apiDecks.Add(apiDeck);
         }
@@ -138,7 +154,23 @@ public class DeckService
             .Include(d => d.Agenda)
             .Include(d => d.DeckCards)
             .ThenInclude(dc => dc.Card)
-            .FirstOrDefaultAsync(d => d.Id == deckId);
+            .Select(d => new DeckWithStats
+            {
+                Deck = d,
+                Wins = _context.GamePlayers.Count(gp =>
+                    gp.DeckId == d.Id && gp.PlayerId == d.UserId && gp.Game.WinnerId == d.UserId),
+                Losses = _context.GamePlayers.Count(gp =>
+                    gp.DeckId == d.Id && gp.PlayerId == d.UserId && !string.IsNullOrEmpty(gp.Game.WinnerId) &&
+                    gp.Game.WinnerId != d.UserId)
+            })
+            .Select(ds => new DeckWithStats
+            {
+                Deck = ds.Deck,
+                Wins = ds.Wins,
+                Losses = ds.Losses,
+                WinRate = ds.Wins + ds.Losses > 0 ? (int)(ds.Wins / (double)(ds.Wins + ds.Losses)) * 100 : null
+            })
+            .FirstOrDefaultAsync(d => d.Deck.Id == deckId);
 
         if (deck == null)
         {
@@ -157,7 +189,7 @@ public class DeckService
 
         var apiDeck = _mapper.Map<ApiDeck>(deck);
 
-        apiDeck.Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck));
+        apiDeck.Status = validator.ValidateDeck(_mapper.Map<LobbyDeck>(deck.Deck));
 
         return apiDeck;
     }

@@ -121,6 +121,7 @@ const ActivePlayerPrompt = ({
                         onButtonClick(button.command, button.arg, button.method, button.promptId)
                     }
                     onMouseOver={() =>
+                        button.card &&
                         onMouseOver({
                             image: (
                                 <ZoomCardImage imageUrl={`/img/cards/${button.card.code}.png`} />

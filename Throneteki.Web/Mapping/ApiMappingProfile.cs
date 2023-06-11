@@ -31,5 +31,8 @@ public class ApiMappingProfile : Profile
         CreateMap<ApiFaction, LobbyFaction>();
         CreateMap<ApiDeckCard, LobbyDeckCard>();
         CreateMap<ApiCard, LobbyCard>();
+
+        CreateMap<DeckWithStats, ApiDeck>()
+            .ConstructUsing((deckWithStats, context) => context.Mapper.Map<ApiDeck>(deckWithStats.Deck));
     }
 }

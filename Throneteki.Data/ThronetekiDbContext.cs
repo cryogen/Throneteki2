@@ -15,6 +15,7 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser, ThronetekiR
     public DbSet<LobbyMessage> LobbyMessages => Set<LobbyMessage>();
     public DbSet<Pack> Packs => Set<Pack>();
     public DbSet<Game> Games => Set<Game>();
+    public DbSet<GamePlayer> GamePlayers => Set<GamePlayer>();
 
     public ThronetekiDbContext()
     {
