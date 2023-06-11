@@ -32,6 +32,7 @@ export interface LobbyGame {
     node: string;
     owner: string;
     players: LobbyGamePlayer[];
+    restrictedListId?: string;
     showHand: boolean;
     spectators: UserSummary[];
     started: boolean;

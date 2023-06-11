@@ -43,6 +43,7 @@ public class DeckService
             _context.Decks.Add(deck);
         }
 
+        deck.Name = request.Name;
         deck.FactionId = request.Faction;
         deck.AgendaId = request.Agenda;
         deck.Updated = DateTime.UtcNow;

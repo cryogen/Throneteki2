@@ -7,9 +7,10 @@ import DeckList from '../Decks/DeckList';
 interface SelectDeckModalProps {
     onClose: () => void;
     onDeckSelected: (deck: Deck) => void;
+    restrictedList?: string;
 }
 
-const SelectDeckModal = ({ onClose, onDeckSelected }: SelectDeckModalProps) => {
+const SelectDeckModal = ({ onClose, onDeckSelected, restrictedList }: SelectDeckModalProps) => {
     //  const standaloneDecks = useSelector((state) => state.cards.standaloneDecks);
     const { t } = useTranslation();
 
@@ -21,7 +22,11 @@ const SelectDeckModal = ({ onClose, onDeckSelected }: SelectDeckModalProps) => {
                 </Modal.Header>
                 <Modal.Body>
                     <div>
-                        <DeckList onDeckSelected={onDeckSelected} readOnly={true} />
+                        <DeckList
+                            onDeckSelected={onDeckSelected}
+                            readOnly={true}
+                            restrictedList={restrictedList}
+                        />
                         {/*standaloneDecks && standaloneDecks.length !== 0 && (
                             <div>
                                 <h4 className='deck-list-header'>

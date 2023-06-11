@@ -108,7 +108,7 @@ const PendingGame = () => {
     }
 
     const canStartGame = () => {
-        if (!user || !currentGame || currentGame.owner !== user.name /*|| connecting*/) {
+        if (!user || !currentGame || currentGame.owner !== user.name || connecting) {
             return false;
         }
 
@@ -273,6 +273,7 @@ const PendingGame = () => {
                         setShowModal(false);
                         dispatch(lobbyActions.sendSelectDeck(deck.id));
                     }}
+                    restrictedList={currentGame.restrictedListId}
                 />
             )}
         </>
