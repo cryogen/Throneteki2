@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGetDeckQuery } from '../../redux/api/apiSlice';
 import DeckEditor from '../../components/Decks/DeckEditor';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -10,6 +10,7 @@ import Panel from '../../components/Site/Panel';
 const EditDeckPage = () => {
     const { t } = useTranslation();
     const params = useParams();
+    const navigate = useNavigate();
 
     const { data, isLoading, isError, isSuccess } = useGetDeckQuery({
         deckId: params.deckId
@@ -34,7 +35,7 @@ const EditDeckPage = () => {
             </div>
         );
     } else if (isSuccess) {
-        content = <DeckEditor deck={data.data} onBackClick={() => console.info('back')} />;
+        content = <DeckEditor deck={data.data} onBackClick={() => navigate('/decks')} />;
     }
 
     return (
