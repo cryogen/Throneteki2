@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Row,
     Col,
@@ -15,12 +15,13 @@ import {
     ApiError,
     useAddDeckMutation,
     useGetCardsQuery,
-    useGetFactionsQuery
+    useGetFactionsQuery,
+    useSaveDeckMutation
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
 import { BannersForFaction, Constants } from '../../constants';
 import { ColumnDef, RowData } from '@tanstack/react-table';
-import { SaveDeck, SaveDeckCard } from '../../types/decks';
+import { Deck, SaveDeck, SaveDeckCard } from '../../types/decks';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ReactTable from '../Table/ReactTable';
@@ -34,7 +35,7 @@ declare module '@tanstack/table-core' {
 }
 
 interface DeckEditorProps {
-    deck: { faction: string; agendas: string[] };
+    deck: Deck;
     onBackClick: () => void;
 }
 
@@ -42,40 +43,54 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     const { t } = useTranslation();
     const { data: cards, isLoading, isError } = useGetCardsQuery({});
     const [addDeck, { isLoading: isAddLoading }] = useAddDeckMutation();
+    const [saveDeck, { isLoading: isSaveLoading }] = useSaveDeckMutation();
     const {
         data: factions,
         isLoading: isFactionsLoading,
         isError: isFactionsError
     } = useGetFactionsQuery({});
     const [factionFilter, setFactionFilter] = useState<string[]>(
-        [deck.faction]
+        [deck.faction.code]
             .concat(['neutral'])
             .concat(
-                deck.agendas.filter((a) => BannersForFaction[a]).map((a) => BannersForFaction[a])
+                deck.deckCards
+                    .filter((a) => BannersForFaction[a.card.code])
+                    .map((a) => BannersForFaction[a.card.code])
             )
     );
     const [typeFilter, setTypeFilter] = useState<string[]>(['character', 'agenda', 'plot']);
-    const [deckCards, setDeckCards] = useState<SaveDeckCard[]>([]);
-    const [deckName, setDeckName] = useState<string>('');
+    const [deckCards, setDeckCards] = useState<SaveDeckCard[]>(deck.deckCards);
+    const [deckName, setDeckName] = useState<string>(deck.name);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const buildSaveDeck = () => {
         const saveDeck: SaveDeck = {
+            id: deck.id,
             name: deckName,
-            faction: factionsByCode[deck.faction].id,
-            agenda: deck.agendas && cardsByCode[deck.agendas[0]].id,
+            faction: factionsByCode[deck.faction.code].id,
+            agenda: deck.agenda && cardsByCode[deck.agenda.code].id,
             bannerCards: [],
             plotCards: {},
             drawCards: {}
         };
 
-        for (const deckCard of deckCards.filter((dc) => dc.card.type === 'plot')) {
-            saveDeck.plotCards[deckCard.card.id] = deckCard.count;
+        saveDeck.bannerCards = deckCards
+            .filter((dc) => dc.card.type === 'agenda')
+            .map((c) => cardsByCode[c.card.code].id);
+
+        for (const deckCard of deckCards.filter(
+            (dc) => cardsByCode[dc.card.code].type === 'plot'
+        )) {
+            saveDeck.plotCards[cardsByCode[deckCard.card.code].id] = deckCard.count;
         }
 
-        for (const deckCard of deckCards.filter((dc) => dc.card.type !== 'plot')) {
-            saveDeck.drawCards[deckCard.card.id] = deckCard.count;
+        for (const deckCard of deckCards.filter(
+            (dc) =>
+                cardsByCode[dc.card.code].type !== 'plot' &&
+                cardsByCode[dc.card.code].type !== 'agenda'
+        )) {
+            saveDeck.drawCards[cardsByCode[deckCard.card.code].id] = deckCard.count;
         }
 
         return saveDeck;
@@ -214,11 +229,6 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
         );
     }, [factions]);
 
-    useEffect(() => {
-        setDeckCards(deck.agendas.map((a) => ({ card: cardsByCode[a], count: 1 })));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [cardsByCode]);
-
     if (isLoading || isFactionsLoading) {
         return <LoadingSpinner text={t('Loading, please wait...')} />;
     } else if (isError || isFactionsError) {
@@ -248,10 +258,12 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                             setError('');
                             setSuccess('');
 
-                            const saveDeck = buildSaveDeck();
+                            const deckToSave = buildSaveDeck();
 
                             try {
-                                const response = await addDeck(saveDeck).unwrap();
+                                const response = deckToSave.id
+                                    ? await saveDeck(deckToSave).unwrap()
+                                    : await addDeck(deckToSave).unwrap();
                                 if (!response.success) {
                                     setError(response.message);
                                 } else {
@@ -269,7 +281,9 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         }}
                     >
                         <Trans>Save</Trans>
-                        {isAddLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
+                        {(isAddLoading || isSaveLoading) && (
+                            <FontAwesomeIcon icon={faCircleNotch} spin />
+                        )}
                     </Button>
                 </div>
                 {error && <Alert variant='danger'>{error}</Alert>}
@@ -353,7 +367,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                     deck={{
                         name: deckName,
                         deckCards: deckCards,
-                        faction: factionsByCode[deck.faction]
+                        faction: factionsByCode[deck.faction.code]
                     }}
                 />
             </Col>

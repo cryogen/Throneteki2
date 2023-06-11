@@ -4,9 +4,10 @@ import { Trans } from 'react-i18next';
 
 import { Constants } from '../../constants';
 import FactionImage from '../Images/FactionImage';
+import { Faction } from '../../types/data';
 
 interface FactionSelectProps {
-    onSelect: (faction: string) => void;
+    onSelect: (faction: Faction) => void;
 }
 
 const FactionSelect = ({ onSelect }: FactionSelectProps) => {
@@ -24,7 +25,10 @@ const FactionSelect = ({ onSelect }: FactionSelectProps) => {
             <Row>
                 {factions.map((faction) => (
                     <Col sm='3' key={faction} className='mt-2 mb-2 d-flex justify-content-center'>
-                        <div role='button' onClick={() => onSelect(faction)}>
+                        <div
+                            role='button'
+                            onClick={() => onSelect({ code: faction, name: faction })}
+                        >
                             <FactionImage size='lg' faction={faction} />
                         </div>
                     </Col>

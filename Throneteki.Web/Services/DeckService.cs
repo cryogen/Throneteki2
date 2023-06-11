@@ -6,7 +6,6 @@ using Throneteki.Data.Models;
 using Throneteki.DeckValidation;
 using Throneteki.Models.Models;
 using Throneteki.Models.Services;
-using Throneteki.Web.Controllers.Api;
 using Throneteki.Web.Models;
 using Throneteki.Web.Models.Decks;
 
@@ -25,18 +24,28 @@ public class DeckService
         _mapper = mapper;
     }
 
-    public async Task AddDeck(ThronetekiUser user, AddDeckRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task AddOrUpdateDeck(ThronetekiUser user, AddDeckRequest request, CancellationToken cancellationToken = default)
     {
-        var deck = new Deck
+        Deck deck;
+
+        if (request is EditDeckRequest editRequest)
         {
-            UserId = user.Id,
-            Name = request.Name,
-            FactionId = request.Faction,
-            AgendaId = request.Agenda,
-            Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
-        };
+            deck = await _context.Decks.FirstAsync(d => d.Id == editRequest.Id, cancellationToken);
+        }
+        else
+        {
+            deck = new Deck
+            {
+                UserId = user.Id,
+                Created = DateTime.UtcNow
+            };
+            
+            _context.Decks.Add(deck);
+        }
+
+        deck.FactionId = request.Faction;
+        deck.AgendaId = request.Agenda;
+        deck.Updated = DateTime.UtcNow;
 
         var deckCards = new List<DeckCard>();
 
@@ -51,8 +60,6 @@ public class DeckService
         deckCards.AddRange(GetDeckCardsFromRequest(request.PlotCards, deck, DeckCardType.Plot));
 
         deck.DeckCards = deckCards;
-
-        _context.Decks.Add(deck);
 
         await _context.SaveChangesAsync(cancellationToken);
     }
@@ -147,7 +154,7 @@ public class DeckService
         };
     }
 
-    public async Task<ApiDeck?> GetDeck(int deckId, string? restrictedList = null)
+    public async Task<ApiDeck?> GetDeckById(int deckId, string? restrictedList = null)
     {
         var deck = await _context.Decks
             .Include(d => d.Faction)

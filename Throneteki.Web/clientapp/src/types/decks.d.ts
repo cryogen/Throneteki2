@@ -1,6 +1,7 @@
 import { ApiResponse, Card, Faction } from './data';
 
 export interface SaveDeck {
+    id?: number;
     name: string;
     faction: number;
     agenda: number | undefined;

@@ -160,6 +160,14 @@ export const apiSlice = createApi({
                 method: 'POST'
             })
         }),
+        saveDeck: builder.mutation({
+            query: (deck) => ({
+                url: `/decks/${deck.id}`,
+                method: 'PUT',
+                body: deck
+            }),
+            invalidatesTags: (result, error, arg) => [{ type: TagTypes.Deck, id: arg.id }]
+        }),
         saveUser: builder.mutation({
             query: ({ userId, userDetails }) => ({
                 url: `/user/${userId}`,
@@ -197,6 +205,7 @@ export const {
     useLazyGetUserDetailsQuery,
     useLinkThronesDbAccountMutation,
     useToggleDeckFavouriteMutation,
+    useSaveDeckMutation,
     useSaveUserAdminMutation,
     useSaveUserMutation
 } = apiSlice;

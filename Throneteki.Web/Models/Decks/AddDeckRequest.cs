@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Throneteki.Web.Controllers.Api;
+namespace Throneteki.Web.Models.Decks;
 
 public class AddDeckRequest
 {

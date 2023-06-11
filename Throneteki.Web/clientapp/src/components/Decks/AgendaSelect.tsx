@@ -8,13 +8,13 @@ import LoadingSpinner from '../LoadingSpinner';
 
 interface AgendaSelectProps {
     onBackClick: () => void;
-    onNextClick: (agendas: string[]) => void;
+    onNextClick: (agendas: Card[]) => void;
 }
 
 const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
     const { t } = useTranslation();
     const { data, isLoading, isError } = useGetCardsQuery({});
-    const [selectedAgendas, setAgendas] = useState<string[]>([]);
+    const [selectedAgendas, setAgendas] = useState<Card[]>([]);
     const agendas = useMemo<Card[]>(() => {
         if (!data) {
             return [];
@@ -26,7 +26,7 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
     }, [data]);
 
     const canSelectAgenda = (agendaCode: string) => {
-        if (selectedAgendas.some((a) => a === agendaCode)) {
+        if (selectedAgendas.some((a) => a.code === agendaCode)) {
             return true;
         }
 
@@ -34,7 +34,7 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
             return false;
         }
 
-        if (selectedAgendas.length > 0 && selectedAgendas.some((a) => a === '06018')) {
+        if (selectedAgendas.length > 0 && selectedAgendas.some((a) => a.code === '06018')) {
             const card = agendas.find((a) => a.code === agendaCode);
 
             return card?.traits.some((t) => t === 'Banner');
@@ -79,12 +79,14 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
                                     return;
                                 }
 
-                                const isSelected = selectedAgendas.some((a) => a === agenda.code);
+                                const isSelected = selectedAgendas.some(
+                                    (a) => a.code === agenda.code
+                                );
 
                                 setAgendas(
                                     isSelected
-                                        ? selectedAgendas.filter((a) => a !== agenda.code)
-                                        : selectedAgendas.concat(agenda.code)
+                                        ? selectedAgendas.filter((a) => a.code !== agenda.code)
+                                        : selectedAgendas.concat(agenda)
                                 );
                             }}
                         >
@@ -92,7 +94,7 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
                                 <CardImage
                                     imageUrl={`/img/cards/${agenda.code}.png`}
                                     size='lg'
-                                    selected={selectedAgendas.some((a) => a === agenda.code)}
+                                    selected={selectedAgendas.some((a) => a.code === agenda.code)}
                                 />
                                 {agenda.label}
                             </div>

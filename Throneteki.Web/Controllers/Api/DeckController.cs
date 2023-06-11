@@ -58,7 +58,44 @@ public class DeckController : ControllerBase
             });
         }
 
-        await _deckService.AddDeck(user, request, cancellationToken);
+        await _deckService.AddOrUpdateDeck(user, request, cancellationToken);
+
+        return Ok(new ApiResponse
+        {
+            Success = true
+        });
+    }
+
+    [HttpPut("{deckId}")]
+    public async Task<IActionResult> EditDeck(EditDeckRequest request, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Messages = ModelState.Select(e => $"{e.Key} - {e.Value}").ToList()
+            });
+        }
+
+        var deck = await _deckService.GetDeckById(request.Id);
+        if (deck == null)
+        {
+            return NotFound();
+        }
+
+        if (deck.Owner != user.UserName)
+        {
+            return Forbid();
+        }
+
+        await _deckService.AddOrUpdateDeck(user, request, cancellationToken);
 
         return Ok(new ApiResponse
         {
@@ -87,7 +124,7 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _deckService.GetDeck(deckId, restrictedList);
+        var deck = await _deckService.GetDeckById(deckId, restrictedList);
 
         if (deck == null)
         {
@@ -132,7 +169,7 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _deckService.GetDeck(deckId);
+        var deck = await _deckService.GetDeckById(deckId);
         if (deck == null)
         {
             return NotFound();
@@ -418,7 +455,7 @@ public class DeckController : ControllerBase
             return Unauthorized();
         }
 
-        var deck = await _deckService.GetDeck(deckId);
+        var deck = await _deckService.GetDeckById(deckId);
         if (deck == null)
         {
             return NotFound();
