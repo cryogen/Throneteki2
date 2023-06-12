@@ -47,7 +47,9 @@ i18n
             // cache user language on
             caches: ['localStorage', 'cookie'],
 
-            cookieSecure: true,
+            cookieOptions: {
+                secure: true
+            },
 
             // optional expire and domain for set cookie
             cookieMinutes: 1000000
