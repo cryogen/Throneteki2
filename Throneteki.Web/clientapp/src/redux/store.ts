@@ -16,8 +16,8 @@ export const store = configureStore({
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
-            .concat(lobbyMiddleware)
             .concat(apiSlice.middleware)
+            .concat(lobbyMiddleware)
             .concat(gameNodeMiddleware)
 });
 
