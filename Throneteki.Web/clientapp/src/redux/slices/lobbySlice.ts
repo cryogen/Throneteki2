@@ -70,6 +70,19 @@ const lobbySlice = createSlice({
         receiveUpdateGame(state, action: PayloadAction<LobbyGame>) {},
         receiveRemoveGame(state, action: PayloadAction<LobbyGame>) {
             state.games = state.games.filter((g) => g.id !== action.payload.id);
+
+            if (action.payload.id === state.currentGame?.id) {
+                state.currentGame = null;
+            }
+        },
+        receiveRemoveGames(state, action: PayloadAction<LobbyGame[]>) {
+            state.games = state.games.filter((g) => action.payload.some((rg) => rg.id !== g.id));
+
+            console.info(state.games);
+
+            if (!state.games.find((g) => g.id === state.currentGame?.id)) {
+                state.currentGame = null;
+            }
         },
         receivePing: (
             state,

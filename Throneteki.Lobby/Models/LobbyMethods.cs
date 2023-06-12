@@ -14,6 +14,7 @@ public static class LobbyMethods
     public const string NewUser = "newuser";
     public const string NoChat = "nochat";
     public const string RemoveGame = "removegame";
+    public const string RemoveGames = "removegames";
     public const string UpdateGame = "updategame";
     public const string UserLeft = "userleft";
     public const string Users = "users";

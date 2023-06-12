@@ -137,7 +137,8 @@ public class LobbyGame
             Spectators = GameUsers.Where(gu => gu.GameUserType == GameUserType.Spectator).Select(gu => gu.User.GetSummary()),
             Started = IsStarted,
             UseChessClocks = IsChessClocksEnabled,
-            UseGameTimeLimit = IsGameTimeLimited
+            UseGameTimeLimit = IsGameTimeLimited,
+            RestrictedListId = RestrictedList?.Id
         };
     }
 

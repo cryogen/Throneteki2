@@ -9,17 +9,19 @@ namespace Throneteki.Lobby.Services;
 
 public class GameNodeManager
 {
-    private readonly ILogger<GameNodeManager> _logger;
     private readonly RedisCommandHandlerFactory _commandHandlerFactory;
-    private readonly Dictionary<string, LobbyNode> _gameNodes = new();
-    private readonly ISubscriber _publisher;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public GameNodeManager(ILogger<GameNodeManager> logger, IConnectionMultiplexer connectionMultiplexer, RedisCommandHandlerFactory commandHandlerFactory)
+    private readonly ILogger<GameNodeManager> _logger;
+    private readonly ISubscriber _publisher;
+
+    public GameNodeManager(ILogger<GameNodeManager> logger,
+        IConnectionMultiplexer connectionMultiplexer,
+        RedisCommandHandlerFactory commandHandlerFactory)
     {
         _logger = logger;
         _commandHandlerFactory = commandHandlerFactory;
@@ -27,26 +29,34 @@ public class GameNodeManager
         _publisher = connectionMultiplexer.GetSubscriber();
         var subscriber = connectionMultiplexer.GetSubscriber();
 
-        subscriber.SubscribeAsync(LobbyCommands.Hello, HandleMessage<RedisIncomingMessage<HelloMessage>>);
-        subscriber.SubscribeAsync(LobbyCommands.GameWin, HandleMessage<RedisIncomingMessage<GameWonMessage>>);
-        subscriber.SubscribeAsync(LobbyCommands.GameClosed, HandleMessage<RedisIncomingMessage<GameClosedMessage>>);
+        subscriber.SubscribeAsync(LobbyCommands.Hello, HandleMessage<RedisIncomingMessage<HelloMessage>, HelloMessage>);
+        subscriber.SubscribeAsync(LobbyCommands.GameWin,
+            HandleMessage<RedisIncomingMessage<GameWonMessage>, GameWonMessage>);
+        subscriber.SubscribeAsync(LobbyCommands.GameClosed,
+            HandleMessage<RedisIncomingMessage<GameClosedMessage>, GameClosedMessage>);
     }
+
+    public Dictionary<string, LobbyNode> GameNodes { get; } = new();
 
     public void AddNode(LobbyNode node)
     {
-        if (_gameNodes.ContainsKey(node.Name))
+        if (GameNodes.TryGetValue(node.Name, out var gameNode))
         {
-            _logger.LogWarning($"Got HELLO for node we already know about ({node.Name}), presuming reconnected");
+            _logger.LogWarning("Got HELLO for node we already know about ({nodeName}), presuming reconnected", node.Name);
+            gameNode.IsDisconnected = false;
+            gameNode.LastPingSentTime = null;
+            gameNode.LastMessageReceivedTime = DateTime.UtcNow;
         }
         else
         {
-            _gameNodes.Add(node.Name, node);
+            GameNodes.Add(node.Name, node);
         }
     }
 
     public LobbyNode? GetNextAvailableNode()
     {
-        return _gameNodes.Values.Where(n => n.MaxGames == 0 || n.Games.Count < n.MaxGames).MinBy(n => n.Games.Count);
+        return GameNodes.Values.Where(n => !n.IsDisconnected && (n.MaxGames == 0 || n.Games.Count < n.MaxGames))
+            .MinBy(n => n.Games.Count);
     }
 
     public async Task Initialise()
@@ -57,6 +67,11 @@ public class GameNodeManager
     public Task StartGame(LobbyNode node, object gameDetails)
     {
         return SendMessage(LobbyCommands.StartGame, gameDetails, node.Name);
+    }
+
+    public Task PingNode(LobbyNode node)
+    {
+        return SendMessage("PING", new LobbyPing(), node.Name);
     }
 
     private async Task SendMessage<T>(string command, T message, string target = "allnodes")
@@ -72,21 +87,27 @@ public class GameNodeManager
         await _publisher.PublishAsync(command, messageString);
     }
 
-    private void HandleMessage<T>(RedisChannel channel, RedisValue message) where T : class, new()
+    private void HandleMessage<TOuter, TInner>(RedisChannel channel, RedisValue message)
+        where TOuter : RedisIncomingMessage<TInner>, new()
     {
-        var handler = _commandHandlerFactory.GetHandler<T>();
+        var handler = _commandHandlerFactory.GetHandler<TOuter>();
         if (handler == null)
         {
             throw new InvalidOperationException($"Unknown redis command: '{channel}'");
         }
 
-        var param = new T();
+        var param = new TOuter();
 
         if (message != RedisValue.Null)
         {
-            param = JsonSerializer.Deserialize<T>(message!, _jsonOptions);
+            param = JsonSerializer.Deserialize<TOuter>(message!, _jsonOptions);
         }
 
-        handler.Handle(param!);
+        if (GameNodes.TryGetValue(param!.Source, out var node))
+        {
+            node.LastMessageReceivedTime = DateTime.UtcNow;
+        }
+
+        handler.Handle(param);
     }
 }

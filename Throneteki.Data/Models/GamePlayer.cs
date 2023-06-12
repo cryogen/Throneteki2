@@ -7,7 +7,8 @@ public class GamePlayer
     public int Id { get; set; }
     [Required]
     public string PlayerId { get; set; } = null!;
-    public ThronetekiUser? Player { get; set; }
+
+    public ThronetekiUser Player { get; set; } = null!;
     public int DeckId { get; set; }
     public virtual Deck Deck { get; set; } = null!;
     public int TotalPower { get; set; }

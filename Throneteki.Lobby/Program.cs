@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Throneteki.Lobby.Services;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
+using Quartz;
 using StackExchange.Redis;
 using Throneteki.DeckValidation;
 using Throneteki.Grpc.MappingProfiles;
@@ -66,6 +67,34 @@ builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<HelloMes
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameWonMessage>>, GameWonMessageHandler>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameClosedMessage>>, GameClosedMessageHandler>();
 builder.Services.AddTransient<CardService>();
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    q.ScheduleJob<GameCleanupJob>(cfg =>
+    {
+        cfg.WithIdentity(nameof(GameCleanupJob))
+            .StartNow()
+            .WithSimpleSchedule(x => x
+                .WithIntervalInMinutes(1)
+                .RepeatForever());
+    });
+
+    q.ScheduleJob<GameNodeTimeoutJob>(cfg =>
+    {
+        cfg.WithIdentity(nameof(GameNodeTimeoutJob))
+            .StartNow()
+            .WithSimpleSchedule(x => x
+                .WithIntervalInMinutes(1)
+                .RepeatForever());
+    });
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 var app = builder.Build();
 

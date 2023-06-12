@@ -7,4 +7,5 @@ public static class LobbyCommands
     public const string StartGame = "STARTGAME2";
     public const string GameWin = "GAMEWIN2";
     public const string GameClosed = "GAMECLOSED2";
+    public const string Ping = "PING2";
 }

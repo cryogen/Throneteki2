@@ -20,6 +20,7 @@ enum LobbyEvent {
     UserLeftMessage = 'userleft',
     UsersMessage = 'users',
     RemoveGame = 'removegame',
+    RemoveGames = 'removegames',
     SelectDeck = 'selectdeck',
     StartGame = 'startgame',
     JoinGame = 'joingame',
@@ -91,6 +92,10 @@ const lobbyMiddleware: Middleware = (store) => {
 
             connection.on(LobbyEvent.RemoveGame, (game: LobbyGame) => {
                 store.dispatch(lobbyActions.receiveRemoveGame(game));
+            });
+
+            connection.on(LobbyEvent.RemoveGames, (games: LobbyGame[]) => {
+                store.dispatch(lobbyActions.receiveRemoveGames(games));
             });
 
             connection.on(LobbyEvent.GameState, (game: LobbyGame) => {

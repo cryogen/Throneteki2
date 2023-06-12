@@ -15,22 +15,24 @@ namespace Throneteki.Lobby.Services;
 
 public class LobbyService
 {
-    private readonly ThronetekiService.ThronetekiServiceClient _thronetekiService;
-    private readonly IHubContext<LobbyHub> _hubContext;
-    private readonly CardService _cardService;
-    private readonly IMapper _mapper;
-    private readonly GameNodeManager _nodeManager;
-    private readonly ILogger<LobbyService> _logger;
-    private readonly LobbyOptions _lobbyOptions;
-
     private static readonly ConcurrentDictionary<string, ThronetekiUser> UsersByName = new();
     private static readonly ConcurrentDictionary<string, string> ConnectionsByUsername = new();
     private static readonly ConcurrentDictionary<string, string> Connections = new();
     private static readonly ConcurrentDictionary<string, LobbyGame> GamesByUsername = new();
     private static readonly ConcurrentDictionary<Guid, LobbyGame> GamesById = new();
 
+    private static readonly TimeSpan StaleGameTimeout = TimeSpan.FromMinutes(10);
+    private readonly CardService _cardService;
+    private readonly IHubContext<LobbyHub> _hubContext;
+    private readonly LobbyOptions _lobbyOptions;
+    private readonly ILogger<LobbyService> _logger;
+    private readonly IMapper _mapper;
+    private readonly GameNodeManager _nodeManager;
+    private readonly ThronetekiService.ThronetekiServiceClient _thronetekiService;
+
     public LobbyService(ThronetekiService.ThronetekiServiceClient thronetekiService, IHubContext<LobbyHub> hubContext,
-        CardService cardService, IMapper mapper, GameNodeManager nodeManager, ILogger<LobbyService> logger, IOptions<LobbyOptions> lobbyOptions)
+        CardService cardService, IMapper mapper, GameNodeManager nodeManager, ILogger<LobbyService> logger,
+        IOptions<LobbyOptions> lobbyOptions)
     {
         _thronetekiService = thronetekiService;
         _hubContext = hubContext;
@@ -58,31 +60,35 @@ public class LobbyService
             ConnectionsByUsername[user.Username] = context.ConnectionId;
         }
 
-        var userSummaries = (user != null ? FilterUserListForUserByBlockList(user, UsersByName.Values) : UsersByName.Values).Select(u => new
-        {
-            u.Id,
-            u.Avatar,
-            u.Role,
-            u.Username
-        });
+        var userSummaries =
+            (user != null ? FilterUserListForUserByBlockList(user, UsersByName.Values) : UsersByName.Values).Select(u =>
+                new
+                {
+                    u.Id,
+                    u.Avatar,
+                    u.Role,
+                    u.Username
+                });
 
-        await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.Users, userSummaries, context.ConnectionAborted);
+        await _hubContext.Clients.Client(context.ConnectionId)
+            .SendAsync(LobbyMethods.Users, userSummaries, context.ConnectionAborted);
         var lobbyMessages = await _thronetekiService.GetLobbyMessagesForUserAsync(
             new GetLobbyMessagesForUserRequest { UserId = user != null ? user.Id : string.Empty },
             cancellationToken: context.ConnectionAborted);
-        await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.LobbyMessages, lobbyMessages.Messages.OrderBy(m => m.Time).Select(message => new LobbyMessage
-        {
-            Id = message.Id,
-            Message = message.Message,
-            Time = message.Time.ToDateTime(),
-            User = new LobbyUser
+        await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.LobbyMessages, lobbyMessages
+            .Messages.OrderBy(m => m.Time).Select(message => new LobbyMessage
             {
-                Id = message.User.Id,
-                Role = message.User.Role,
-                Username = message.User.Username,
-                Avatar = message.User.Avatar
-            }
-        }), cancellationToken: context.ConnectionAborted);
+                Id = message.Id,
+                Message = message.Message,
+                Time = message.Time.ToDateTime(),
+                User = new LobbyUser
+                {
+                    Id = message.User.Id,
+                    Role = message.User.Role,
+                    Username = message.User.Username,
+                    Avatar = message.User.Avatar
+                }
+            }), context.ConnectionAborted);
 
         var gamesToSend = GamesById.Values.Where(g => user == null || g.IsVisibleFor(user))
             .OrderByDescending(g => g.IsStarted)
@@ -96,15 +102,16 @@ public class LobbyService
             var excludedConnectionIds = new List<string> { context.ConnectionId };
 
             excludedConnectionIds.AddRange(UsersByName.Values.Where(u =>
-                u.BlockList.Any(bl => bl.UserId == user.Id) &&
-                user.BlockList.Any(bl => bl.UserId == u.Id)).Select(u => Connections[ConnectionsByUsername[u.Username]]));
+                    u.BlockList.Any(bl => bl.UserId == user.Id) &&
+                    user.BlockList.Any(bl => bl.UserId == u.Id))
+                .Select(u => Connections[ConnectionsByUsername[u.Username]]));
 
             await _hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync(LobbyMethods.NewUser, new LobbyUser
             {
                 Id = user.Id,
                 Avatar = user.Avatar,
                 Username = user.Username
-            }, cancellationToken: context.ConnectionAborted);
+            }, context.ConnectionAborted);
 
             if (GamesByUsername.TryGetValue(user.Username, out var game) && game.IsStarted)
             {
@@ -118,7 +125,7 @@ public class LobbyService
                     url = game.Node.Url,
                     name = game.Node.Name,
                     gameId = game.Id.ToString()
-                }, cancellationToken: context.ConnectionAborted);
+                }, context.ConnectionAborted);
             }
         }
     }
@@ -144,14 +151,30 @@ public class LobbyService
             var excludedConnectionIds = new List<string> { context.ConnectionId };
 
             excludedConnectionIds.AddRange(UsersByName.Values.Where(u =>
-                u.BlockList.Any(bl => bl.UserId == user.Id) &&
-                user.BlockList.Any(bl => bl.UserId == u.Id)).Select(u => Connections[ConnectionsByUsername[u.Username]]));
+                    u.BlockList.Any(bl => bl.UserId == user.Id) &&
+                    user.BlockList.Any(bl => bl.UserId == u.Id))
+                .Select(u => Connections[ConnectionsByUsername[u.Username]]));
 
             await _hubContext.Clients.AllExcept(excludedConnectionIds).SendAsync(LobbyMethods.UserLeft, user.Username);
 
             if (GamesByUsername.TryGetValue(user.Username, out var game))
             {
                 game.UserDisconnect(user.Username);
+
+                if (game.IsEmpty)
+                {
+                    await BroadcastGameMessage(LobbyMethods.RemoveGame, game, context.ConnectionAborted);
+                    GamesById.TryRemove(game.Id, out _);
+                }
+                else
+                {
+                    await BroadcastGameMessage(LobbyMethods.UpdateGame, game, context.ConnectionAborted);
+                }
+
+                if (!game.IsStarted)
+                {
+                    GamesByUsername.TryRemove(user.Username, out _);
+                }
             }
         }
     }
@@ -212,12 +235,17 @@ public class LobbyService
                 Username = context.User!.Identity!.Name
             }, cancellationToken: context.ConnectionAborted)).User;
 
-        // Check for existing game
+        if (GamesByUsername.ContainsKey(user.Username))
+        {
+            return;
+        }
         // Check for quickjoin
 
         var restrictedLists = await _cardService.GetRestrictedLists();
 
-        var restrictedList = request.RestrictedListId == null ? restrictedLists.First() : restrictedLists.FirstOrDefault(r => r.Id == request.RestrictedListId);
+        var restrictedList = request.RestrictedListId == null
+            ? restrictedLists.First()
+            : restrictedLists.FirstOrDefault(r => r.Id == request.RestrictedListId);
 
         var newGame = new LobbyGame(request, user, restrictedList);
 
@@ -228,7 +256,8 @@ public class LobbyService
 
         await BroadcastGameMessage(LobbyMethods.NewGame, newGame, context.ConnectionAborted);
 
-        await _hubContext.Groups.AddToGroupAsync(context.ConnectionId, newGame.Id.ToString(), cancellationToken: context.ConnectionAborted);
+        await _hubContext.Groups.AddToGroupAsync(context.ConnectionId, newGame.Id.ToString(),
+            context.ConnectionAborted);
         await SendGameState(newGame, context.ConnectionAborted);
     }
 
@@ -291,7 +320,8 @@ public class LobbyService
         var node = _nodeManager.GetNextAvailableNode();
         if (node == null)
         {
-            await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.GameError, "No game nodes available. Try again later.");
+            await _hubContext.Clients.Client(context.ConnectionId)
+                .SendAsync(LobbyMethods.GameError, "No game nodes available. Try again later.");
             return;
         }
 
@@ -332,7 +362,7 @@ public class LobbyService
             url = node.Url,
             name = node.Name,
             gameId = game.Id.ToString()
-        }, cancellationToken: context.ConnectionAborted);
+        }, context.ConnectionAborted);
     }
 
     public async Task HandleLeaveGame(HubCallerContext context)
@@ -352,18 +382,21 @@ public class LobbyService
 
         game.PlayerLeave(user.Username);
 
+        GamesByUsername.TryRemove(user.Username, out _);
+
         await _hubContext.Clients.Client(context.ConnectionId)
-            .SendAsync(LobbyMethods.ClearGameState, cancellationToken: context.ConnectionAborted);
+            .SendAsync(LobbyMethods.ClearGameState, context.ConnectionAborted);
 
         await _hubContext.Groups.RemoveFromGroupAsync(context.ConnectionId, game.Id.ToString());
 
         if (game.IsEmpty)
         {
-            await BroadcastGameMessage(LobbyMethods.RemoveGame, game, cancellationToken: context.ConnectionAborted);
+            await BroadcastGameMessage(LobbyMethods.RemoveGame, game, context.ConnectionAborted);
+            GamesById.TryRemove(game.Id, out _);
         }
         else
         {
-            await BroadcastGameMessage(LobbyMethods.UpdateGame, game, cancellationToken: context.ConnectionAborted);
+            await BroadcastGameMessage(LobbyMethods.UpdateGame, game, context.ConnectionAborted);
         }
     }
 
@@ -377,15 +410,62 @@ public class LobbyService
         var game = GamesById[gameId];
 
         GamesById.Remove(gameId, out _);
+        foreach (var (key, g) in GamesByUsername)
+            if (g.Id == gameId)
+            {
+                GamesByUsername.TryRemove(key, out _);
+            }
 
         await BroadcastGameMessage(LobbyMethods.RemoveGame, game);
     }
 
-    private async Task BroadcastGameMessage(string message, LobbyGame game, CancellationToken cancellationToken = default)
+    public async Task ClearStalePendingGames()
+    {
+        var staleGames = GamesById.Values
+            .Where(game => !game.IsStarted && DateTime.UtcNow - game.CreatedAt > StaleGameTimeout).ToList();
+
+        foreach (var game in staleGames)
+        {
+            GamesById.Remove(game.Id, out _);
+            foreach (var (key, g) in GamesByUsername)
+            {
+                if (g.Id == game.Id)
+                {
+                    GamesByUsername.TryRemove(key, out _);
+                }
+            }
+
+            await BroadcastGameMessage(LobbyMethods.RemoveGame, game);
+        }
+    }
+
+    public async Task ClearGamesForNode(LobbyNode node)
+    {
+        var gamesOnNode = GamesById.Values
+            .Where(game => game.Node?.Name == node.Name).ToList();
+
+        foreach (var game in gamesOnNode)
+        {
+            GamesById.Remove(game.Id, out _);
+            foreach (var (key, g) in GamesByUsername)
+            {
+                if (g.Id == game.Id)
+                {
+                    GamesByUsername.TryRemove(key, out _);
+                }
+            }
+        }
+
+        await _hubContext.Clients.All.SendAsync(LobbyMethods.RemoveGames, gamesOnNode.Select(g => g.GetState(null)));
+    }
+
+    private async Task BroadcastGameMessage(string message, LobbyGame game,
+        CancellationToken cancellationToken = default)
     {
         var gameState = game.GetState(null);
 
-        await _hubContext.Clients.AllExcept(ConnectionsByUsername.Values).SendAsync(message, gameState, cancellationToken: cancellationToken);
+        await _hubContext.Clients.AllExcept(ConnectionsByUsername.Values)
+            .SendAsync(message, gameState, cancellationToken);
 
         var connectionsToSend = new List<string>();
 
@@ -401,7 +481,7 @@ public class LobbyService
             connectionsToSend.Add(connection);
         }
 
-        await _hubContext.Clients.Clients(connectionsToSend).SendAsync(message, gameState, cancellationToken: cancellationToken);
+        await _hubContext.Clients.Clients(connectionsToSend).SendAsync(message, gameState, cancellationToken);
     }
 
     private async Task SendGameState(LobbyGame game, CancellationToken cancellationToken = default)
@@ -415,17 +495,20 @@ public class LobbyService
         {
             if (!ConnectionsByUsername.ContainsKey(player.User.Name))
             {
-                _logger.LogError("Trying to send game state to {playerName} but they're disconnected", player.User.Name);
+                _logger.LogError("Trying to send game state to {playerName} but they're disconnected",
+                    player.User.Name);
                 continue;
             }
 
             var connection = ConnectionsByUsername[player.User.Name];
-            await _hubContext.Clients.Client(connection).SendAsync(LobbyMethods.GameState, game.GetState(player.User), cancellationToken: cancellationToken);
+            await _hubContext.Clients.Client(connection)
+                .SendAsync(LobbyMethods.GameState, game.GetState(player.User), cancellationToken);
         }
     }
 
     [SuppressMessage("ReSharper", "SimplifyLinqExpressionUseAll", Justification = "More readable this way")]
-    private static IEnumerable<ThronetekiUser> FilterUserListForUserByBlockList(ThronetekiUser sourceUser, IEnumerable<ThronetekiUser> userList)
+    private static IEnumerable<ThronetekiUser> FilterUserListForUserByBlockList(ThronetekiUser sourceUser,
+        IEnumerable<ThronetekiUser> userList)
     {
         return userList.Where(u =>
             !u.BlockList.Any(bl => bl.UserId == sourceUser.Id) &&
@@ -440,13 +523,6 @@ public class LobbyService
                 Username = context.User!.Identity!.Name
             }, cancellationToken: context.ConnectionAborted)).User;
 
-        /*
-
-        socket.joinChannel(game.id);
-
-        this.sendGameState(game);
-        this.broadcastGameMessage('updategame', game);
-         */
         if (GamesByUsername.ContainsKey(user.Username))
         {
             await _hubContext.Clients.Client(context.ConnectionId).SendAsync(LobbyMethods.JoinFailed,

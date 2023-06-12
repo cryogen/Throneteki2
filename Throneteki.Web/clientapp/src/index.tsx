@@ -28,7 +28,6 @@ const oidcConfig = {
     },
     userStore: new WebStorageStateStore({ store: window.localStorage })
 };
-
 function AppWrapper() {
     return (
         <Provider store={store}>
