@@ -31,8 +31,12 @@ var thronesDbOptions = new ThronesDbOptions();
 builder.Configuration.GetSection("ThronesDb").Bind(thronesDbOptions);
 builder.Services.Configure<ThronesDbOptions>(builder.Configuration.GetSection("ThronesDb"));
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddOAuth("ThronesDB", options =>
+
+var authServices = builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+
+if (!string.IsNullOrEmpty(thronesDbOptions.ClientId))
+{
+    authServices.AddOAuth("ThronesDB", options =>
     {
         options.ClientId = thronesDbOptions.ClientId ?? string.Empty;
         options.ClientSecret = thronesDbOptions.ClientSecret ?? string.Empty;
@@ -70,6 +74,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             await dbContext.SaveChangesAsync();
         };
     });
+}
 
 builder.Services.AddIdentity<ThronetekiUser, ThronetekiRole>()
     .AddEntityFrameworkStores<ThronetekiDbContext>()
