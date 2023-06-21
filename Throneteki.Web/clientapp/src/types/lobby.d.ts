@@ -1,4 +1,5 @@
 import { GameType } from './enums';
+import { ThronetekiUser } from './user';
 
 export interface UserSummary {
     username: string;
@@ -8,7 +9,9 @@ export interface UserSummary {
 }
 
 export interface LobbyUser {
-    name: string;
+    avatar: string;
+    username: string;
+    role: string;
 }
 
 export interface LobbyMessage {
@@ -30,7 +33,7 @@ export interface LobbyGame {
     name: string;
     needsPassword: boolean;
     node: string;
-    owner: string;
+    owner: ThronetekiUser;
     players: LobbyGamePlayer[];
     restrictedListId?: string;
     showHand: boolean;
@@ -52,12 +55,10 @@ export interface DeckValidationStatus {
 }
 
 export interface LobbyGamePlayer {
-    avatar: string;
     deckName?: string;
     deckSelected: boolean;
     deckStatus: any;
-    name: string;
-    role: string;
+    user: LobbyUser;
 }
 
 export interface HandOff {
