@@ -122,7 +122,7 @@ const Navigation = () => {
                 <div className='flex-basis-0 flex-grow-1'></div>
                 <Navbar.Brand className='navbar-brand bg-dark mr-0' as={Link} to='/'>
                     <img
-                        src={HeaderIcon}
+                        src={SmallHeaderIcon}
                         width='32'
                         height='32'
                         className='d-inline-block align-top'
