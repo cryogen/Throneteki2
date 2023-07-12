@@ -74,7 +74,17 @@
     line-height: $navbar-height;
 }
 
+.navbar-sm .navbar-nav > li > a {
+    padding: 0 15px;
+    line-height: $navbar-height;
+}
+
 .navbar-sm .navbar-item > span {
+    padding: 0 15px;
+    line-height: $navbar-height;
+}
+
+.navbar-sm .navbar-item > li > span {
     padding: 0 15px;
     line-height: $navbar-height;
 }
