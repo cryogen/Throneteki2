@@ -193,7 +193,7 @@ const GameBoard = () => {
             setCardToZoom(arg);
         }
     };
-    const onShuffleClick = () => true;
+    const onShuffleClick = () => dispatch(gameNodeActions.sendShuffleDeckMessage());
     const onCommand = (command: string, arg: string, method: string, promptId: string) => {
         dispatch(gameNodeActions.sendPromptClickedMessage({ arg, command, method, promptId }));
     };
@@ -332,6 +332,11 @@ const GameBoard = () => {
                 onMouseOut={onMouseOut}
                 onMouseOver={onMouseOver}
                 onMuteClick={onMuteClick}
+                onPopupChange={(args) => {
+                    if (args.source === CardLocation.Draw && !args.visible) {
+                        dispatch(gameNodeActions.sendShowDrawDeckMessage(false));
+                    }
+                }}
                 onSettingsClick={() => setShowModal(true)}
                 showControls={!isSpectating() && true}
                 showDeck={thisPlayer.showDeck}
