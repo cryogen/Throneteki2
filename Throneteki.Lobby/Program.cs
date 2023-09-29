@@ -69,6 +69,7 @@ builder.Services.AddSingleton<GameNodeManager>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<HelloMessage>>, HelloMessageHandler>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameWonMessage>>, GameWonMessageHandler>();
 builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<GameClosedMessage>>, GameClosedMessageHandler>();
+builder.Services.AddTransient<IRedisCommandHandler<RedisIncomingMessage<PongMessage>>, PongMessageHandler>();
 builder.Services.AddTransient<CardService>();
 
 builder.Services.AddQuartz(q =>

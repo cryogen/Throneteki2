@@ -34,6 +34,7 @@ public class GameNodeManager
             HandleMessage<RedisIncomingMessage<GameWonMessage>, GameWonMessage>);
         subscriber.SubscribeAsync(LobbyCommands.GameClosed,
             HandleMessage<RedisIncomingMessage<GameClosedMessage>, GameClosedMessage>);
+        subscriber.SubscribeAsync(LobbyCommands.Pong, HandleMessage<RedisIncomingMessage<PongMessage>, PongMessage>);
     }
 
     public Dictionary<string, LobbyNode> GameNodes { get; } = new();
@@ -71,7 +72,7 @@ public class GameNodeManager
 
     public Task PingNode(LobbyNode node)
     {
-        return SendMessage("PING", new LobbyPing(), node.Name);
+        return SendMessage(LobbyCommands.Ping, new LobbyPing(), node.Name);
     }
 
     private async Task SendMessage<T>(string command, T message, string target = "allnodes")
@@ -106,6 +107,7 @@ public class GameNodeManager
         if (GameNodes.TryGetValue(param!.Source, out var node))
         {
             node.LastMessageReceivedTime = DateTime.UtcNow;
+            node.LastPingSentTime = null;
         }
 
         handler.Handle(param);
