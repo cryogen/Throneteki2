@@ -3,10 +3,12 @@ export const ItemTypes = {
     PANEL: 'panel'
 };
 
-interface ContantsType {
+type ContantsType = {
     Factions: string[];
-    FactionsImagePaths: Record<string, string>;
-}
+    Stats: string[];
+    FactionsImagePaths: { [key: string]: string };
+    StatIconImagePaths: { [key: string]: string };
+};
 
 export const Constants: ContantsType = {
     Factions: [
@@ -19,11 +21,23 @@ export const Constants: ContantsType = {
         'thenightswatch',
         'tyrell'
     ],
-    FactionsImagePaths: {}
+    Stats: ['gold', 'totalPower', 'initiative', 'claim', 'reserve'],
+    FactionsImagePaths: {},
+    StatIconImagePaths: {}
 };
 
 for (const faction of Constants.Factions) {
-    Constants.FactionsImagePaths[faction] = require(`./assets/img/factions/${faction}.png`);
+    Constants.FactionsImagePaths[faction] = new URL(
+        `./assets/img/factions/${faction}.png`,
+        import.meta.url
+    ).href;
+}
+
+for (const stat of Constants.Stats) {
+    Constants.StatIconImagePaths[stat] = new URL(
+        `./assets/img/stats/${stat}.png`,
+        import.meta.url
+    ).href;
 }
 
 export const BannersForFaction: Record<string, string> = {

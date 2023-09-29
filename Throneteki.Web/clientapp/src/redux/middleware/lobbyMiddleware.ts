@@ -35,6 +35,11 @@ const lobbyMiddleware: Middleware = (store) => {
         const isConnectionEstablished = connection && store.getState().lobby.isConnected;
 
         if (lobbyActions.startConnecting.match(action)) {
+            if (connection) {
+                connection.stop();
+                connection = null;
+            }
+
             connection = new signalR.HubConnectionBuilder()
                 .withUrl('/lobbyhub', {
                     accessTokenFactory: () => {
@@ -118,10 +123,13 @@ const lobbyMiddleware: Middleware = (store) => {
                     })
                 );
 
-                setTimeout(() => {
-                    connection?.invoke('ping');
-                    pingSentTime = new Date();
-                }, 2 * 1000 * 60);
+                setTimeout(
+                    () => {
+                        connection?.invoke('ping');
+                        pingSentTime = new Date();
+                    },
+                    2 * 1000 * 60
+                );
             });
         }
 

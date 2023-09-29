@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 // import { toastr } from 'react-redux-toastr';
 import { useTranslation } from 'react-i18next';
-import { Col, Form } from 'react-bootstrap';
 // import { Carousel } from 'react-responsive-carousel';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
 // import NewsComponent from '../Components/News/News';
 // import AlertPanel from '../Components/Site/AlertPanel';
-import Panel from '../components/Site/Panel';
+import Panel from '../components/site/Panel';
 // import Typeahead from '../Components/Form/Typeahead';
-import SideBar from '../components/Lobby/SideBar';
-import UserList from '../components/Lobby/UserList';
+import SideBar from '../components/lobby/SideBar';
+import UserList from '../components/lobby/UserList';
 import { lobbyActions } from '../redux/slices/lobbySlice';
 import { useAuth } from 'react-oidc-context';
-import LobbyChat from '../components/Lobby/LobbyChat';
-import { Permission } from '../components/Navigation/menus';
+import LobbyChat from '../components/lobby/LobbyChat';
+import { Permission } from '../components/navigation/menus';
 import { ThronetekiUser } from '../types/user';
+import { Input } from '@nextui-org/react';
 // import UserList from '../Components/Lobby/UserList';
 // import LobbyChat from '../Components/Lobby/LobbyChat';
 // import { clearChatStatus, loadNews, removeLobbyMessage, sendSocketMessage } from '../redux/actions';
@@ -94,13 +94,12 @@ const Lobby = () => {
     //     // ];
 
     return (
-        <div className='flex-container'>
+        <div className='mx-auto flex h-[91vh] w-2/3 flex-col'>
             <SideBar>
                 <UserList users={users} />
             </SideBar>
             <div>
-                <Col sm={{ span: 10, offset: 1 }}>
-                    {/* <Carousel
+                {/* <Carousel
                             autoPlay={true}
                             infiniteLoop={true}
                             showArrows={false}
@@ -124,7 +123,6 @@ const Lobby = () => {
                                 );
                             })}
                         </Carousel> */}
-                </Col>
             </div>
 
             {/* {motd?.message && (
@@ -142,56 +140,51 @@ const Lobby = () => {
                     </div>
                 )} */}
             <div>
-                <Col sm={{ span: 10, offset: 1 }}>
-                    <Panel title={t('Latest site news')}>
-                        {/* {apiState?.loading ? (
+                <Panel title={t('Latest site news')}>
+                    {/* {apiState?.loading ? (
                                 <div>
                                     <Trans>News loading, please wait...</Trans>
                                 </div>
                             ) : null}
                             <NewsComponent news={news} /> */}
-                    </Panel>
-                </Col>
-            </div>
-            <Col sm={{ span: 10, offset: 1 }} className='chat-container'>
-                <Panel
-                    title={t('Lobby Chat ({{users}}) online', {
-                        users: users.length
-                    })}
-                >
-                    <LobbyChat
-                        messages={lobbyMessages}
-                        isModerator={user?.role?.includes(Permission.CanModerateChat)}
-                        onRemoveMessageClick={() => {
-                            //   dispatch(removeLobbyMessage(messageId))
-                        }}
-                    />
                 </Panel>
-                <Form
-                    className='chat-box-container'
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        sendMessage();
+            </div>
+            <Panel
+                className='mt-4'
+                title={t('Lobby Chat ({{users}}) online', {
+                    users: users.length
+                })}
+            >
+                <LobbyChat
+                    messages={lobbyMessages}
+                    isModerator={user?.role?.includes(Permission.CanModerateChat)}
+                    onRemoveMessageClick={() => {
+                        //   dispatch(removeLobbyMessage(messageId))
                     }}
-                >
-                    <Form.Group>
-                        <Form.Control
-                            className='bg-light text-dark'
-                            onKeyDown={onKeyPress}
-                            onChange={(event) =>
-                                setMessage(
-                                    event.target.value.substring(
-                                        0,
-                                        Math.min(512, event.target.value.length)
-                                    )
-                                )
-                            }
-                            placeholder={t(placeholder)}
-                            value={message}
-                        ></Form.Control>
-                    </Form.Group>
-                </Form>
-            </Col>
+                />
+            </Panel>
+            <form
+                className='relative bottom-[42px] left-[2px] z-50 pr-[5px]'
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    sendMessage();
+                }}
+            >
+                <Input
+                    classNames={{ inputWrapper: 'rounded-tl-none rounded-tr-none' }}
+                    onKeyDown={onKeyPress}
+                    onChange={(event) =>
+                        setMessage(
+                            event.target.value.substring(
+                                0,
+                                Math.min(512, event.target.value.length)
+                            )
+                        )
+                    }
+                    placeholder={t(placeholder)}
+                    value={message}
+                ></Input>
+            </form>
         </div>
     );
 };

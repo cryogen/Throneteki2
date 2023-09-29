@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button } from '@nextui-org/react';
 import { LobbyGame } from '../../types/lobby';
 import GamePlayer from './GamePlayer';
 
@@ -25,7 +24,7 @@ const GamePlayerRow = ({ allowJoin, game, onJoinGame }: GamePlayerRow) => {
         players.push(
             <div key='join' className={'game-player-row other-player'}>
                 <div className='game-faction-row other-player'>
-                    <Button variant='primary' className='gamelist-button' onClick={onJoinGame}>
+                    <Button color='primary' className='gamelist-button' onClick={onJoinGame}>
                         Join
                     </Button>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { Trans } from 'react-i18next';
 import { ThronetekiUser } from '../../../types/user';
@@ -88,9 +88,9 @@ const GameBoard = () => {
 
     const renderBoard = (thisPlayer: GamePlayer, otherPlayer: GamePlayer) => {
         return (
-            <div className='board-middle d-flex flex-column flex-grow-1 flex-shrink-1'>
-                <div className='board-inner flex-grow-1 flex-shrink-1 d-flex'>
-                    <div className='play-area'>
+            <div className='flex flex-shrink flex-grow flex-col overflow-x-hidden'>
+                <div className='flex min-h-0 flex-shrink flex-grow overflow-x-hidden'>
+                    <div className='flex min-h-0 flex-1 flex-col content-between overflow-x-hidden'>
                         {
                             <>
                                 <PlayerBoard
@@ -164,9 +164,12 @@ const GameBoard = () => {
     thisPlayer = defaultPlayerInfo(thisPlayer);
     otherPlayer = defaultPlayerInfo(otherPlayer);
 
-    const boardClass = classNames('game-board d-flex justify-content-between flex-column', {
-        'select-cursor': thisPlayer && thisPlayer.selectCard
-    });
+    const boardClass = classNames(
+        'absolute top-0 bottom-0 right-0 left-0 flex justify-between flex-col',
+        {
+            'select-cursor': thisPlayer && thisPlayer.selectCard
+        }
+    );
 
     const onCardClick = (card: GameCard) =>
         dispatch(gameNodeActions.sendCardClickedMessage(card.uuid));
@@ -248,7 +251,7 @@ const GameBoard = () => {
                     timerSettings={thisPlayer.timerSettings}
                 />
             )}
-            <div className='stats-top'>
+            <div>
                 <PlayerStats
                     agenda={otherPlayer.agenda}
                     faction={otherPlayer.faction}
@@ -272,13 +275,13 @@ const GameBoard = () => {
                     spectating={isSpectating()}
                 />
             </div>
-            <div className='main-window d-flex flex-row flex-grow-1 flex-shrink-1'>
+            <div className='flex flex-shrink flex-grow basis-0 overflow-hidden'>
                 {renderBoard(thisPlayer, otherPlayer)}
                 {cardToZoom && <CardZoom card={cardToZoom} />}
-                <div className='right-side d-flex flex-row'>
-                    <div className='d-flex flex-column justify-content-around'>
-                        <div className='h-50'></div>
-                        <div className='inset-pane h-50 d-flex flex-column justify-content-end'>
+                <div className='relative flex overflow-hidden'>
+                    <div className='flex flex-col content-around'>
+                        <div className='h-1/2'></div>
+                        <div className='mr-1 flex h-1/2 w-56 flex-col justify-end'>
                             {isSpectating() ? (
                                 <div />
                             ) : (
@@ -300,7 +303,7 @@ const GameBoard = () => {
                         </div>
                     </div>
                     {showMessages && (
-                        <div className='gamechat w-100 flex-grow-1 flex-shrink-1 d-flex flex-column'>
+                        <div className='relative flex w-full flex-shrink flex-grow flex-col overflow-y-hidden'>
                             <GameChat
                                 messages={activeGame.messages}
                                 onCardMouseOut={onMouseOut}

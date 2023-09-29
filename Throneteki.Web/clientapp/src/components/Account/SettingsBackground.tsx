@@ -1,9 +1,9 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
-import { Row, Col, Form } from 'react-bootstrap';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Image } from '@nextui-org/react';
 import classNames from 'classnames';
 
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
 
 interface BackgroundOption {
     name: string;
@@ -33,31 +33,32 @@ const SettingsBackground = ({
 
     return (
         <Panel title={t('Game Board Background')}>
-            <Row>
+            <div className='grid grid-cols-3'>
                 {backgrounds.map((background) => (
-                    <Col
-                        sm={4}
+                    <div
+                        className={'m-2'}
                         onClick={() => onBackgroundSelected(background.name, null)}
                         key={background.name}
                     >
-                        <img
-                            className={classNames('img-fluid bg-image', {
-                                selected: selectedBackground === background.name
+                        <Image
+                            className={classNames('cursor-pointer', {
+                                'shadow-[0_0_1px_4px] shadow-success':
+                                    selectedBackground === background.name
                             })}
                             src={background.imageUrl}
                         />
-                        <span className='bg-label'>{background.label}</span>
-                    </Col>
+                        <span className='inline-block w-full text-center'>{background.label}</span>
+                    </div>
                 ))}
-                <Col sm={4}>
+                <div className='m-2'>
                     <img
-                        className={classNames('custom-bg bg-image', {
-                            selected: selectedBackground === 'custom'
+                        className={classNames('w-[476px]', {
+                            'shadow-[0_0_1px_4px] shadow-success': selectedBackground === 'custom'
                         })}
                         src={localCustomBg}
                         onClick={() => uploadRef.current?.click()}
                     />
-                    <Form.Control
+                    <input
                         name='avatar'
                         type='file'
                         accept='image/*'
@@ -86,11 +87,11 @@ const SettingsBackground = ({
                             }
                         }}
                         ref={uploadRef}
-                    ></Form.Control>
-                    {fileError && <span className='text-danger bg-error'>{fileError}</span>}
-                    <span className='bg-label'>Custom</span>
-                </Col>
-            </Row>
+                    />
+                    {fileError && <span className='bg-error text-danger'>{fileError}</span>}
+                    <span className='inline-block w-full text-center'>Custom</span>
+                </div>
+            </div>
         </Panel>
     );
 };

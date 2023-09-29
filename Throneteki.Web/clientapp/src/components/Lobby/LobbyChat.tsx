@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import Avatar from '../Site/Avatar';
 import { LobbyMessage } from '../../types/lobby';
+import { Avatar } from '@nextui-org/react';
 
 interface LobbyChatProps {
     messages: LobbyMessage[];
@@ -115,7 +115,7 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                 }
 
                 return (
-                    <div key={message.user.username + i++} className='lobby-message text-white-50'>
+                    <div key={message.user.username + i++} className='text-white-50 break-words'>
                         {messageText}
                         {isModerator && (
                             <a
@@ -137,15 +137,15 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
             return (
                 <div
                     key={timestamp + firstMessage.user.username + (index++).toString()}
-                    className='message-container d-flex mb-2'
+                    className='message-container mb-2 flex'
                 >
-                    <div>
-                        <Avatar avatar={firstMessage.user.avatar} float />
+                    <div className='mr-2'>
+                        <Avatar src={firstMessage.user.avatar} />
                     </div>
                     <div>
-                        <div className='d-flex'>
+                        <div className='flex'>
                             <span className={userClass}>{firstMessage.user.username}</span>
-                            <span className='text-white-50'>{timestamp}</span>
+                            <span className='ml-2 text-white'>{timestamp}</span>
                         </div>
                         <div>{renderedMessages}</div>
                     </div>
@@ -155,7 +155,11 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
     };
 
     return (
-        <div className='lobby-messages' ref={messageRef} onScroll={onScroll}>
+        <div
+            className='absolute bottom-[50px] left-2 right-0 top-3 overflow-y-auto'
+            ref={messageRef}
+            onScroll={onScroll}
+        >
             {getMessages()}
         </div>
     );

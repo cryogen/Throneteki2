@@ -1,14 +1,4 @@
-import React, { useMemo, useState } from 'react';
-import {
-    Row,
-    Col,
-    Alert,
-    ButtonGroup,
-    ButtonToolbar,
-    ToggleButton,
-    Button,
-    Form
-} from 'react-bootstrap';
+import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import LoadingSpinner from '../LoadingSpinner';
 import {
@@ -22,10 +12,10 @@ import { Card, Faction } from '../../types/data';
 import { BannersForFaction, Constants } from '../../constants';
 import { ColumnDef, RowData } from '@tanstack/react-table';
 import { Deck, SaveDeck, SaveDeckCard } from '../../types/decks';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ReactTable from '../Table/ReactTable';
+import ReactTable from '../table/ReactTable';
 import DeckSummary from './DeckSummary';
+import Alert from '../site/Alert';
+import { Button, ButtonGroup, Input, extendVariants } from '@nextui-org/react';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -38,6 +28,26 @@ interface DeckEditorProps {
     deck: Deck;
     onBackClick: () => void;
 }
+
+const SmallButton = extendVariants(Button, {
+    variants: {
+        size: {
+            xs: 'px-unit-2 min-w-unit-8 h-unit-8 text-small gap-unit-1 rounded-none first:rounded-l-md last:rounded-r-md border'
+        }
+    }
+});
+
+const factionToTextColourMap: { [key: string]: string } = {
+    baratheon: 'text-baratheon',
+    greyjoy: 'text-greyjoy',
+    lannister: 'text-lannister',
+    martell: 'text-martell',
+    neutral: 'text-neutral',
+    stark: 'text-startl',
+    targaryen: 'text-targaryen',
+    thenightswatch: 'text-thenightswatch',
+    tyrell: 'text-tyrell'
+};
 
 const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     const { t } = useTranslation();
@@ -107,7 +117,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 header: t('Name') as string,
                 cell: (info) => <Trans>{info.getValue() as string}</Trans>,
                 meta: {
-                    colWidth: 7
+                    colWidth: '70%'
                 }
             },
             {
@@ -116,7 +126,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                     row.income != undefined ? row.income : row.cost != undefined ? row.cost : '',
                 header: t('C/I') as string,
                 meta: {
-                    colWidth: 1
+                    colWidth: '10%'
                 },
                 enableColumnFilter: false
             },
@@ -130,7 +140,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         : '',
                 header: t('S/I') as string,
                 meta: {
-                    colWidth: 1
+                    colWidth: '10%'
                 },
                 enableColumnFilter: false
             },
@@ -146,7 +156,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 ),
                 filterFn: 'arrIncludesSome',
                 meta: {
-                    colWidth: 1
+                    colWidth: '10%'
                 },
                 enableColumnFilter: false
             },
@@ -159,7 +169,7 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                 ),
                 filterFn: 'arrIncludesSome',
                 meta: {
-                    colWidth: 1
+                    colWidth: '10%'
                 },
                 enableColumnFilter: false
             },
@@ -174,44 +184,41 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                     const count = deckCard?.count || 0;
 
                     return (
-                        <ButtonToolbar>
-                            <ButtonGroup>
-                                {[...Array(max).keys()].map((digit) => (
-                                    <ToggleButton
-                                        size='sm'
-                                        key={digit}
-                                        type='checkbox'
-                                        variant='outline-light'
-                                        value={digit}
-                                        checked={count === digit}
-                                        onClick={() => {
-                                            let deckCard = deckCards.find(
-                                                (dc) => dc.card.code === info.row.original.code
-                                            );
+                        <ButtonGroup className='rounded-md border' radius='md'>
+                            {[...Array(max).keys()].map((digit) => (
+                                <SmallButton
+                                    size='xs'
+                                    className='w-1'
+                                    key={digit}
+                                    value={digit}
+                                    color={count === digit ? 'primary' : null}
+                                    onClick={() => {
+                                        let deckCard = deckCards.find(
+                                            (dc) => dc.card.code === info.row.original.code
+                                        );
 
-                                            if (!deckCard) {
-                                                deckCard = {
-                                                    card: cardsByCode[info.row.original.code],
-                                                    count: digit
-                                                };
+                                        if (!deckCard) {
+                                            deckCard = {
+                                                card: cardsByCode[info.row.original.code],
+                                                count: digit
+                                            };
 
-                                                deckCards.push(deckCard);
-                                            }
+                                            deckCards.push(deckCard);
+                                        }
 
-                                            deckCard.count = digit;
+                                        deckCard.count = digit;
 
-                                            const newDeckCards = [
-                                                ...deckCards.filter((dc) => dc.count > 0)
-                                            ];
+                                        const newDeckCards = [
+                                            ...deckCards.filter((dc) => dc.count > 0)
+                                        ];
 
-                                            setDeckCards(newDeckCards);
-                                        }}
-                                    >
-                                        {digit}
-                                    </ToggleButton>
-                                ))}
-                            </ButtonGroup>
-                        </ButtonToolbar>
+                                        setDeckCards(newDeckCards);
+                                    }}
+                                >
+                                    {digit}
+                                </SmallButton>
+                            ))}
+                        </ButtonGroup>
                     );
                 },
                 meta: {
@@ -245,15 +252,15 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
     cardTypes = Array.from(new Set(cardTypes));
 
     return (
-        <Row>
-            <Col sm={6}>
+        <div className='grid grid-cols-2 gap-4'>
+            <div>
                 <div className='mb-2'>
-                    <Button variant='light' className='me-2' onClick={() => onBackClick()}>
+                    <Button color='default' className='mr-2' onClick={() => onBackClick()}>
                         <Trans>Back</Trans>
                     </Button>
                     <Button
-                        variant='primary'
-                        disabled={isAddLoading}
+                        color='primary'
+                        isLoading={isAddLoading || isSaveLoading}
                         onClick={async () => {
                             setError('');
                             setSuccess('');
@@ -281,88 +288,92 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         }}
                     >
                         <Trans>Save</Trans>
-                        {(isAddLoading || isSaveLoading) && (
-                            <FontAwesomeIcon icon={faCircleNotch} spin />
-                        )}
                     </Button>
                 </div>
                 {error && <Alert variant='danger'>{error}</Alert>}
                 {success && <Alert variant='success'>{success}</Alert>}
-                <Form.Group as={Row}>
-                    <Form.Label>
-                        <Trans>Deck Name</Trans>
-                    </Form.Label>
-                    <Col>
-                        <Form.Control
-                            placeholder={t('Enter a name')}
-                            value={deckName}
-                            onChange={(event) => setDeckName(event.target.value)}
-                        />
-                    </Col>
-                </Form.Group>
-                <ButtonToolbar className='mt-3'>
-                    <ButtonGroup>
-                        {cardTypes.map((type: string) => {
-                            return (
-                                <ToggleButton
-                                    key={type}
-                                    type='checkbox'
-                                    variant='outline-light'
-                                    checked={typeFilter.some((t) => t === type)}
-                                    value={type}
-                                    onClick={() =>
-                                        setTypeFilter(
-                                            typeFilter.some((t) => t === type)
-                                                ? typeFilter.filter((t) => t !== type)
-                                                : typeFilter.concat(type)
-                                        )
-                                    }
-                                >
-                                    <span className={`icon icon-${type}`}></span>
-                                </ToggleButton>
-                            );
-                        })}
-                    </ButtonGroup>
-                </ButtonToolbar>
-                <ButtonToolbar className='mt-1 mb-3'>
-                    <ButtonGroup aria-label='First group'>
-                        {Constants.Factions.concat('neutral').map((faction: string) => {
-                            return (
-                                <ToggleButton
-                                    key={faction}
-                                    type='checkbox'
-                                    variant='outline-light'
-                                    checked={factionFilter.some((f) => f === faction)}
-                                    value={faction}
-                                    onClick={() =>
-                                        setFactionFilter(
+                <div>
+                    <Input
+                        placeholder={t('Enter a name')}
+                        value={deckName}
+                        onChange={(event) => setDeckName(event.target.value)}
+                        label={t('Deck Name')}
+                    />
+                    <div>
+                        <ButtonGroup className='mt-3 rounded-md border' radius='md'>
+                            {cardTypes.map((type: string) => {
+                                return (
+                                    <SmallButton
+                                        key={type}
+                                        size='xs'
+                                        color={
+                                            typeFilter.some((t) => t === type) ? 'primary' : null
+                                        }
+                                        onClick={() =>
+                                            setTypeFilter(
+                                                typeFilter.some((t) => t === type)
+                                                    ? typeFilter.filter((t) => t !== type)
+                                                    : typeFilter.concat(type)
+                                            )
+                                        }
+                                    >
+                                        <span className={`icon icon-${type}`}></span>
+                                    </SmallButton>
+                                );
+                            })}
+                        </ButtonGroup>
+                    </div>
+                    <div>
+                        <ButtonGroup
+                            className='mb-3 mt-1 rounded-md border'
+                            radius='md'
+                            aria-label='First group'
+                        >
+                            {Constants.Factions.concat('neutral').map((faction: string) => {
+                                return (
+                                    <SmallButton
+                                        key={faction}
+                                        size='xs'
+                                        color={
                                             factionFilter.some((f) => f === faction)
-                                                ? factionFilter.filter((f) => f !== faction)
-                                                : factionFilter.concat(faction)
-                                        )
-                                    }
-                                >
-                                    <span className={`icon icon-${faction} text-${faction}`}></span>
-                                </ToggleButton>
-                            );
-                        })}
-                    </ButtonGroup>
-                </ButtonToolbar>
-                <ReactTable
-                    dataLoadFn={() => ({
-                        data: { data: cards },
-                        isLoading: false,
-                        isError: false
-                    })}
-                    defaultColumnFilters={{ type: typeFilter, faction: factionFilter }}
-                    defaultSort={{
-                        id: 'type',
-                        desc: true
-                    }}
-                    columns={columns}
-                />
-            </Col>
-            <Col sm={6}>
+                                                ? 'primary'
+                                                : null
+                                        }
+                                        onClick={() =>
+                                            setFactionFilter(
+                                                factionFilter.some((f) => f === faction)
+                                                    ? factionFilter.filter((f) => f !== faction)
+                                                    : factionFilter.concat(faction)
+                                            )
+                                        }
+                                    >
+                                        <span
+                                            className={`icon icon-${faction} ${factionToTextColourMap[faction]}`}
+                                        ></span>
+                                    </SmallButton>
+                                );
+                            })}
+                        </ButtonGroup>
+                    </div>
+                    <div className='h-[60vh]'>
+                        <ReactTable
+                            dataLoadFn={() => ({
+                                data: { data: cards },
+                                isLoading: false,
+                                isError: false
+                            })}
+                            defaultColumnFilters={{ type: typeFilter, faction: factionFilter }}
+                            defaultSort={{
+                                column: 'type',
+                                direction: 'descending'
+                            }}
+                            disableSelection
+                            columns={columns}
+                        />
+                    </div>
+                </div>
+            </div>
+            <div>
                 <DeckSummary
                     deck={{
                         name: deckName,
@@ -370,8 +381,8 @@ const DeckEditor = ({ deck, onBackClick }: DeckEditorProps) => {
                         faction: factionsByCode[deck.faction.code]
                     }}
                 />
-            </Col>
-        </Row>
+            </div>
+        </div>
     );
 };
 

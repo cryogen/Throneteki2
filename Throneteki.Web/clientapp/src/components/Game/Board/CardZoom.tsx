@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CardMouseOverEventArgs } from '../../../types/game';
 
 interface CardZoomProps {
@@ -7,7 +5,13 @@ interface CardZoomProps {
 }
 
 const CardZoom = ({ card }: CardZoomProps) => {
-    return <div className={`card-zoom ${card.size} vertical shadow`}>{card.image}</div>;
+    return (
+        <div
+            className={`card-zoom pointer-events-none absolute right-1 top-11 ${card.size} vertical shadow`}
+        >
+            {card.image}
+        </div>
+    );
 };
 
 CardZoom.displayName = 'CardZoom';

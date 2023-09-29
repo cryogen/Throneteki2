@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Col, Form, Row } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { faPenToSquare, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
-import Panel from '../../components/Site/Panel';
+import Panel from '../../components/site/Panel';
 import {
     useDeleteDeckMutation,
     useGetCardsQuery,
@@ -11,18 +11,17 @@ import {
     useGetRestrictedListQuery
 } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import FactionImage from '../../components/Images/FactionImage';
-import CardImage from '../../components/Images/CardImage';
+import FactionImage from '../../components/images/FactionImage';
+import CardImage from '../../components/images/CardImage';
 import { DeckCard, RestrictedList } from '../../types/decks';
 import { DrawCardType } from '../../types/enums';
 import { Card } from '../../types/data';
-import DeckSummary from '../../components/Decks/DeckSummary';
-import DeckStatus from '../../components/Decks/DeckStatus';
-import { LinkContainer } from 'react-router-bootstrap';
-import FaIconButton from '../../components/Site/FaIconButton';
-import { faPenToSquare, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import DeckSummary from '../../components/decks/DeckSummary';
+import DeckStatus from '../../components/decks/DeckStatus';
+import FaIconButton from '../../components/site/FaIconButton';
 import { toastr } from 'react-redux-toastr';
 import { Constants } from '../../constants';
+import { Select, SelectItem } from '@nextui-org/react';
 
 const DeckPage = () => {
     const { t } = useTranslation();
@@ -116,11 +115,15 @@ const DeckPage = () => {
         content = (
             <>
                 <div>
-                    <LinkContainer to={`/decks/${deck.id}/edit`}>
-                        <FaIconButton variant='light' icon={faPenToSquare} text='Edit' />
-                    </LinkContainer>
                     <FaIconButton
-                        variant='danger'
+                        color='default'
+                        icon={faPenToSquare}
+                        text='Edit'
+                        as={Link}
+                        to={`/decks/${deck.id}/edit`}
+                    />
+                    <FaIconButton
+                        color='danger'
                         className='ms-2'
                         icon={faTrashAlt}
                         text='Delete'
@@ -153,9 +156,9 @@ const DeckPage = () => {
                         }}
                     />
                 </div>
-                <div className='d-flex justify-content-center'>
+                <div className='mb-2 mt-2 flex justify-center'>
                     <FactionImage
-                        className='me-1'
+                        className='mr-1'
                         faction={deck.faction.code}
                         size='md'
                         onMouseOver={() =>
@@ -175,51 +178,41 @@ const DeckPage = () => {
                     />
                     {agendaContent}
                 </div>
-                <Row className='mb-2 mt-2'>
-                    <Form>
-                        <Form.Group as={Col} lg='4'>
-                            <Form.Label>{t('Game mode')}</Form.Label>
-                            <Form.Select
-                                value={restrictedList}
-                                onChange={(e) => {
-                                    setRestrictedList(e.target.value);
-                                }}
-                            >
-                                {restrictedLists?.map((rl: RestrictedList) => (
-                                    <option key={rl.name} value={rl.id}>
-                                        {rl.name}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </Form>
-                </Row>
-                <Row>
-                    <Col md={6}>
-                        <Row className='mt-3 mb-0' as='dl'>
-                            <Col sm={6} as='dt'>
+                <div className='mb-2 mt-2 w-full md:w-2/6'>
+                    <Select
+                        label={t('Game node')}
+                        onChange={(e) => setRestrictedList(e.target.value)}
+                        selectedKeys={restrictedList ? new Set([restrictedList]) : null}
+                    >
+                        {restrictedLists?.map((rl: RestrictedList) => (
+                            <SelectItem key={rl.id} value={rl.id}>
+                                {t(rl.name)}
+                            </SelectItem>
+                        ))}
+                    </Select>
+                </div>
+                <div className='grid grid-cols-2'>
+                    <div>
+                        <dl className='mb-0 mt-3 grid grid-cols-2'>
+                            <dt className='font-bold'>
                                 <Trans>Faction</Trans>
-                            </Col>
-                            <Col sm={6} className='mb-0' as='dd'>
-                                {deck.faction.name}
-                            </Col>
-                        </Row>
+                            </dt>
+                            <dd className='mb-0'>{deck.faction.name}</dd>
+                        </dl>
                         {agendas.map((agenda, index) => (
-                            <Row key={agenda} className='mb-0 mt-1' as='dl'>
-                                <Col sm={6} as='dt'>
+                            <dl key={agenda} className='mb-0 mt-1 grid grid-cols-2'>
+                                <dt className='font-bold'>
                                     <Trans>{index == 0 ? 'Agenda' : 'Banner'}</Trans>
-                                </Col>
-                                <Col sm={6} className='mb-0' as='dd'>
-                                    {cardsByCode[agenda].label}
-                                </Col>
-                            </Row>
+                                </dt>
+                                <dd className='mb-0'>{cardsByCode[agenda].label}</dd>
+                            </dl>
                         ))}
                         {deck.externalId && (
-                            <Row className='mb-0 mt-1' as='dl'>
-                                <Col sm={6} as='dt'>
+                            <dl className='mb-0 mt-1 grid grid-cols-2'>
+                                <dt className='font-bold'>
                                     <Trans>ThronesDB</Trans>
-                                </Col>
-                                <Col sm={6} className='mb-0' as='dd'>
+                                </dt>
+                                <dd className='mb-0'>
                                     <a
                                         href={`https://thronesdb.com/deck/view/${deck.externalId}`}
                                         target='_blank'
@@ -227,63 +220,61 @@ const DeckPage = () => {
                                     >
                                         <Trans>Link</Trans>
                                     </a>
-                                </Col>
-                            </Row>
+                                </dd>
+                            </dl>
                         )}
-                        <Row className='mb-0 mt-1' as='dl'>
-                            <Col sm={6} as='dt'>
+                    </div>
+                    <div>
+                        <dl className='mb-0 mt-1 grid grid-cols-2'>
+                            <dt className='font-bold'>
                                 <Trans>Validity</Trans>
-                            </Col>
-                            <Col sm={6} className='mb-0' as='dd'>
+                            </dt>
+                            <dd className='mb-0'>
                                 <DeckStatus status={deck.status} />
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col md={6}>
-                        <Row className='mt-3 mb-0' as='dl'>
-                            <Col sm={6} as='dt'>
+                            </dd>
+                        </dl>
+                        <dl className='mb-0 mt-3 grid grid-cols-2'>
+                            <dt className='font-bold'>
                                 <Trans>Wins</Trans>
-                            </Col>
-                            <Col sm={6} className='mb-0' as='dd'>
+                            </dt>
+                            <dd sm={6} className='mb-0' as='dd'>
                                 {deck.wins}
-                            </Col>
-                        </Row>
-                        <Row className='mt-1 mb-0' as='dl'>
-                            <Col sm={6} as='dt'>
+                            </dd>
+                        </dl>
+                        <dl className='mb-0 mt-1 grid grid-cols-2'>
+                            <dt className='font-bold'>
                                 <Trans>Losses</Trans>
-                            </Col>
-                            <Col sm={6} className='mb-0' as='dd'>
-                                {deck.losses}
-                            </Col>
-                        </Row>
-                        <Row className='mt-1 mb-0' as='dl'>
-                            <Col sm={6} as='dt'>
+                            </dt>
+                            <dd className='mb-0'>{deck.losses}</dd>
+                        </dl>
+                        <dl className='mb-0 mt-1 grid grid-cols-2'>
+                            <dt className='font-bold'>
                                 <Trans>Win Rate</Trans>
-                            </Col>
-                            <Col sm={6} className='mb-0' as='dd'>
+                            </dt>
+                            <dd className='mb-0'>
                                 {deck.winRate}
                                 {deck.winRate && '%'}
-                            </Col>
-                        </Row>
-                    </Col>
-                </Row>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
                 <DeckSummary deck={deck} />
             </>
         );
     }
 
     return (
-        <Col lg={{ span: 8, offset: 2 }}>
+        <div className='mx-auto w-4/5'>
             <Panel title={data?.data.name}>{content}</Panel>
             {zoomCard && (
                 <div
-                    className='decklist-card-zoom'
+                    className='decklist-card-zoom fixed left-0 top-0 z-50'
                     style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
                 >
                     <CardImage imageUrl={zoomCard} size='lg' />
                 </div>
             )}
-        </Col>
+        </div>
     );
 };
 

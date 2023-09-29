@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 import Card from './Card';
 import { useTranslation } from 'react-i18next';
@@ -121,10 +120,14 @@ const SquishableCardPanel = ({
     const needsSquish = cards?.length > maxCards;
     const cardsToRender = getCards(needsSquish);
 
-    const divClassName = classNames('squishable-card-panel', className, {
-        [cardSize]: cardSize !== 'normal',
-        squish: needsSquish
-    });
+    const divClassName = classNames(
+        'squishable-card-panel flex mx-0 my-1 p-0 relative justify-start',
+        className,
+        {
+            [cardSize]: cardSize !== 'normal',
+            squish: needsSquish
+        }
+    );
 
     const style = {
         width: dimensions.width + 'px',
@@ -133,7 +136,9 @@ const SquishableCardPanel = ({
 
     return (
         <div className={divClassName} style={style}>
-            {title && <div className='panel-header'>{`${title} (${cardsToRender.length})`}</div>}
+            {title && (
+                <div className='absolute left-0 top-0 z-50 rounded-sm bg-black px-px py-1 text-xs leading-3 opacity-60'>{`${title} (${cardsToRender.length})`}</div>
+            )}
             {cardsToRender}
         </div>
     );

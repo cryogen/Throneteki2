@@ -1,11 +1,9 @@
-import React, { MouseEventHandler } from 'react';
+import { MouseEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toastr } from 'react-redux-toastr';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCogs, faComment, faCopy, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { Badge } from 'react-bootstrap';
 
-import Avatar from '../../Site/Avatar';
 import Droppable from './Droppable';
 import CardPileLink from './CardPileLink';
 import DrawDeck from './DrawDeck';
@@ -22,12 +20,13 @@ import {
 import { useAppDispatch } from '../../../redux/hooks';
 import { gameNodeActions } from '../../../redux/slices/gameNodeSlice';
 
-import Minus from '../../../assets/img/Minus.png';
-import Plus from '../../../assets/img/Plus.png';
 import { Faction } from '../../../types/data';
-import CardImage from '../../Images/CardImage';
+import CardImage from '../../images/CardImage';
 import { Constants } from '../../../constants';
 import ZoomCardImage from './ZoomCardImage';
+import { Avatar, Badge } from '@nextui-org/react';
+import StatContainer from './StatContainer';
+import StatDisplay from './StatDisplay';
 
 interface PlayerStatsProps {
     activePlayer: boolean;
@@ -105,55 +104,53 @@ const PlayerStats = ({
 
     const getButton = (stat: StatsIndexer, name: string, statToSet: string = stat) => {
         return (
-            <div className='state' title={t(name)}>
-                {showControls ? (
-                    <a
-                        href='#'
-                        className='btn-stat'
-                        onClick={() => {
-                            dispatch(
-                                gameNodeActions.sendChangeStatMessage({
-                                    statToChange: statToSet,
-                                    amount: -1
-                                })
-                            );
-                        }}
-                    >
-                        <img src={Minus} title='-' alt='-' />
-                    </a>
-                ) : null}
-                <div className='stat-value'>{getStatValueOrDefault(stat)}</div>
-                <div className={`stat-image ${stat}`} />
-                {showControls ? (
-                    <a
-                        href='#'
-                        className='btn-stat'
-                        onClick={() => {
-                            dispatch(
-                                gameNodeActions.sendChangeStatMessage({
-                                    statToChange: statToSet,
-                                    amount: 1
-                                })
-                            );
-                        }}
-                    >
-                        <img src={Plus} title='+' alt='+' />
-                    </a>
-                ) : null}
-            </div>
+            <StatContainer title={t(name)}>
+                <StatDisplay
+                    showControls={showControls}
+                    statName={name}
+                    statCode={stat}
+                    statValue={getStatValueOrDefault(stat)}
+                    onMinusClick={
+                        showControls
+                            ? () =>
+                                  dispatch(
+                                      gameNodeActions.sendChangeStatMessage({
+                                          statToChange: statToSet,
+                                          amount: -1
+                                      })
+                                  )
+                            : null
+                    }
+                    onPlusClick={
+                        showControls
+                            ? () =>
+                                  dispatch(
+                                      gameNodeActions.sendChangeStatMessage({
+                                          statToChange: statToSet,
+                                          amount: 1
+                                      })
+                                  )
+                            : null
+                    }
+                />
+            </StatContainer>
         );
     };
 
     const playerAvatar = (
-        <div className={`pr-1 player-info ${activePlayer ? 'active-player' : 'inactive-player'}`}>
-            <Avatar avatar={user?.avatar} />
+        <div
+            className={`pr-1 ${
+                activePlayer ? 'active-player' : 'inactive-player'
+            } flex items-center`}
+        >
+            <Avatar src={user?.avatar} showFallback size='sm' />
 
-            <b>
+            <span className='pl-2 font-bold'>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     user?.username || (t('Noone') as any)
                 }
-            </b>
+            </span>
         </div>
     );
 
@@ -172,7 +169,12 @@ const PlayerStats = ({
 
     const renderDroppableList = (source: CardLocation, child: JSX.Element) => {
         return isMe ? (
-            <Droppable onDragDrop={onDragDrop} source={source} manualMode={manualMode}>
+            <Droppable
+                className='flex items-center'
+                onDragDrop={onDragDrop}
+                source={source}
+                manualMode={manualMode}
+            >
                 {child}
             </Droppable>
         ) : (
@@ -214,6 +216,7 @@ const PlayerStats = ({
     const draw = (
         <DrawDeck
             {...pileProps}
+            className='flex items-center'
             cardCount={numDeckCards}
             cards={cardPiles.drawDeck}
             isMe={isMe}
@@ -269,9 +272,9 @@ const PlayerStats = ({
 
     const factionAndAgenda = (
         <>
-            <div className='state'>
+            <StatContainer>
                 <div
-                    className='icon'
+                    className='h-8 w-6'
                     onMouseOver={() =>
                         onMouseOver({
                             image: (
@@ -286,11 +289,11 @@ const PlayerStats = ({
                 >
                     <CardImage imageUrl={Constants.FactionsImagePaths[faction.code]} size={'sm'} />
                 </div>
-            </div>
+            </StatContainer>
             {agenda && (
-                <div className='state'>
+                <StatContainer>
                     <div
-                        className='icon'
+                        className='h-8 w-6'
                         onMouseOver={() =>
                             onMouseOver({
                                 image: <ZoomCardImage imageUrl={`/img/cards/${agenda.code}.png`} />,
@@ -301,10 +304,10 @@ const PlayerStats = ({
                     >
                         <CardImage imageUrl={`/img/cards/${agenda.code}.png`} size={'sm'} />
                     </div>
-                </div>
+                </StatContainer>
             )}
             {cardPiles.bannerCards.length > 0 && (
-                <div className='state'>
+                <StatContainer>
                     <CardPileLink
                         {...pileProps}
                         hiddenTopCard={true}
@@ -313,14 +316,14 @@ const PlayerStats = ({
                         title={t('Banners')}
                         source={CardLocation.Banners}
                     />
-                </div>
+                </StatContainer>
             )}
         </>
     );
 
     return (
-        <div className='panel player-stats d-flex justify-content-between align-items-center'>
-            <div className='state'>
+        <div className='player-stats flex content-between items-center bg-background'>
+            <StatContainer>
                 {playerAvatar}
                 {getButton('gold', 'Gold')}
                 {getButton('totalPower', 'Power', 'power')}
@@ -329,53 +332,53 @@ const PlayerStats = ({
                 {getButton('reserve', 'Reserve')}
                 {factionAndAgenda}
                 {!isMe && (
-                    <div className='state'>{renderDroppableList(CardLocation.Hand, hand)}</div>
+                    <StatContainer>{renderDroppableList(CardLocation.Hand, hand)}</StatContainer>
                 )}
                 {!isMe && cardPiles.shadows.length > 0 && (
-                    <div className='state'>
+                    <StatContainer>
                         {renderDroppableList(CardLocation.Shadows, shadows)}
-                    </div>
+                    </StatContainer>
                 )}
-                <div className='state'>{renderDroppableList(CardLocation.Draw, draw)}</div>
-                <div className='state'>{renderDroppableList(CardLocation.Discard, discard)}</div>
-                <div className='state'>{renderDroppableList(CardLocation.Dead, dead)}</div>
-                <div className='state'>{renderDroppableList(CardLocation.Plots, plots)}</div>
-                <div className='state'>
+                <StatContainer>{renderDroppableList(CardLocation.Draw, draw)}</StatContainer>
+                <StatContainer>{renderDroppableList(CardLocation.Discard, discard)}</StatContainer>
+                <StatContainer>{renderDroppableList(CardLocation.Dead, dead)}</StatContainer>
+                <StatContainer>{renderDroppableList(CardLocation.Plots, plots)}</StatContainer>
+                <StatContainer>
                     {renderDroppableList(CardLocation.RevealedPlots, usedPlots)}
-                </div>
-            </div>
+                </StatContainer>
+            </StatContainer>
 
             {showMessages && (
-                <div className='state'>
-                    <div className='state'>
-                        <a href='#' className='pr-1 pl-1'>
+                <StatContainer>
+                    <StatContainer>
+                        <a href='#' className='pl-1 pr-1'>
                             <FontAwesomeIcon
                                 icon={muteSpectators ? faEyeSlash : faEye}
                                 onClick={onMuteClick}
                             ></FontAwesomeIcon>
                         </a>
-                    </div>
-                    <div className='state'>
-                        <a href='#' className='pr-1 pl-1'>
+                    </StatContainer>
+                    <StatContainer>
+                        <a href='#' className='pl-1 pr-1'>
                             <FontAwesomeIcon
                                 icon={faCopy}
                                 onClick={writeChatToClipboard}
                             ></FontAwesomeIcon>
                         </a>
-                    </div>
-                    <div className='state'>
-                        <a href='#' onClick={onSettingsClick} className='pr-1 pl-1'>
+                    </StatContainer>
+                    <StatContainer>
+                        <a href='#' onClick={onSettingsClick} className='pl-1 pr-1'>
                             <FontAwesomeIcon icon={faCogs}></FontAwesomeIcon>
                             <span className='ml-1'>{t('Settings')}</span>
                         </a>
-                    </div>
-                    <div className='state'>
+                    </StatContainer>
+                    <StatContainer>
                         <a href='#' onClick={onMessagesClick} className='pl-1'>
                             <FontAwesomeIcon icon={faComment}></FontAwesomeIcon>
-                            {numMessages > 0 && <Badge bg='danger'>{numMessages}</Badge>}
+                            {numMessages > 0 && <Badge color='danger'>{numMessages}</Badge>}
                         </a>
-                    </div>
-                </div>
+                    </StatContainer>
+                </StatContainer>
             )}
         </div>
     );

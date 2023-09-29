@@ -1,13 +1,12 @@
-import React from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookOpenReader, faClock, faLock } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'react-bootstrap';
 import { Trans } from 'react-i18next';
 
 import { LobbyGame } from '../../types/lobby';
 import GamePlayerRow from './GamePlayerRow';
+import { Button } from '@nextui-org/react';
 
 interface GameProps {
     game: LobbyGame;

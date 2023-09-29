@@ -1,10 +1,9 @@
-import React from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
 import { ExistingProfileDetails } from './Settings';
 import { ThronetekiUser } from '../../types/user';
+import { Input, Switch } from '@nextui-org/react';
 
 type ThronetekiGameSettingsProps = {
     formProps: FormikProps<ExistingProfileDetails>;
@@ -16,8 +15,8 @@ const ThronetekiGameSettings = ({ formProps }: ThronetekiGameSettingsProps) => {
 
     return (
         <Panel title={t('Game Settings')}>
-            <Row>
-                <Col sm={12}>
+            <div className='grid grid-cols-2'>
+                <div>
                     <p className='form-text small'>
                         <Trans key='timer-help'>
                             Every time a game event occurs that you could possibly interrupt to
@@ -28,58 +27,57 @@ const ThronetekiGameSettings = ({ formProps }: ThronetekiGameSettingsProps) => {
                             abilities are triggered (useful if you play a lot of Treachery).
                         </Trans>
                     </p>
-                </Col>
-                <Col sm={6}>
-                    <Row>
-                        <Col sm={6}>
-                            <Form.Label>{t('Window timeout')}</Form.Label>
-                            <Form.Control
+                    <div>
+                        <div className='mt-2'>
+                            <Input
+                                label={t('Window timeout')}
                                 type={'number'}
                                 max={10}
                                 min={0}
                                 {...formProps.getFieldProps('windowTimer')}
+                                errorMessage={formProps.errors.windowTimer}
                             />
-                            <Form.Control.Feedback type='invalid'>
-                                {formProps.errors.windowTimer}
-                            </Form.Control.Feedback>
-                        </Col>
-                        <Col sm={6}>
-                            <Form.Check
-                                label={t('Show timer for events')}
-                                type='switch'
-                                checked={formProps.values.timerEvents}
+                        </div>
+                        <div className='mt-2 flex'>
+                            <Switch
+                                isSelected={formProps.values.timerEvents}
                                 {...formProps.getFieldProps('timerEvents')}
-                            />{' '}
-                            <Form.Check
-                                label={t('Show timer for card abilities')}
-                                type='switch'
-                                checked={formProps.values.timerAbilities}
+                            >
+                                {t('Show timer for events')}
+                            </Switch>
+                            <Switch
+                                className='ml-2'
+                                isSelected={formProps.values.timerAbilities}
                                 {...formProps.getFieldProps('timerAbilities')}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                <Col sm={6}>
-                    <Form.Check
-                        label={t('Choose order of keywords')}
-                        type='switch'
-                        checked={formProps.values.chooseOrder}
+                            >
+                                {t('Show timer for card abilities')}
+                            </Switch>
+                        </div>
+                    </div>
+                </div>
+                <div className='ml-3 flex flex-col'>
+                    <Switch
+                        isSelected={formProps.values.chooseOrder}
                         {...formProps.getFieldProps('chooseOrder')}
-                    />
-                    <Form.Check
-                        label={t('Make keywords optional')}
-                        type='switch'
-                        checked={formProps.values.chooseCards}
+                    >
+                        {t('Choose order of keywords')}
+                    </Switch>
+                    <Switch
+                        className='mt-2'
+                        isSelected={formProps.values.chooseCards}
                         {...formProps.getFieldProps('chooseCards')}
-                    />
-                    <Form.Check
-                        label={t('Prompt before using dupes to save')}
-                        type='switch'
-                        checked={formProps.values.promptDupes}
+                    >
+                        {t('Make keywords optional')}
+                    </Switch>
+                    <Switch
+                        className='mt-2'
+                        isSelected={formProps.values.promptDupes}
                         {...formProps.getFieldProps('promptDupes')}
-                    />
-                </Col>
-            </Row>
+                    >
+                        {t('Prompt before using dupes to save')}
+                    </Switch>
+                </div>
+            </div>
         </Panel>
     );
 };

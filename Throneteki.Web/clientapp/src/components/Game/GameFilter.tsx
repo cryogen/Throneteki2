@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Row, Col, Form } from 'react-bootstrap';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GameType } from '../../types/enums';
 import { Filter } from '../../types/lobby';
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
+import { Switch } from '@nextui-org/react';
 
 interface GameFilterProps {
     filter: Record<string, boolean>;
@@ -31,38 +31,32 @@ const GameFilter = ({ filter, onFilterChanged }: GameFilterProps) => {
 
     return (
         <Panel type='primary'>
-            <Row>
-                {filters.map((filter) => {
-                    return (
-                        <Col key={filter.name} sm={6} lg={4}>
-                            <Form.Check
-                                type='switch'
-                                id={filter.name}
-                                label={filter.label}
-                                inline
-                                onChange={(event) => {
-                                    onFilterChecked(filter.name, event.target.checked);
-                                }}
-                                checked={currentFilter[filter.name]}
-                            ></Form.Check>
-                        </Col>
-                    );
-                })}
-            </Row>
-            <Row>
-                <Col>
-                    <Form.Check
-                        type='switch'
-                        id='onlyShowNew'
-                        label={t('Only show new games')}
-                        inline
-                        onChange={(event) => {
-                            onFilterChecked('onlyShowNew', event.target.checked);
-                        }}
-                        checked={currentFilter['onlyShowNew']}
-                    ></Form.Check>
-                </Col>
-            </Row>
+            <div className='grid grid-cols-3'>
+                {filters.map((filter) => (
+                    <div key={filter.name}>
+                        <Switch
+                            id={filter.name}
+                            onValueChange={(isSelected) => {
+                                onFilterChecked(filter.name, isSelected);
+                            }}
+                            isSelected={currentFilter[filter.name]}
+                        >
+                            {filter.label}
+                        </Switch>
+                    </div>
+                ))}
+            </div>
+            <div className='mt-2'>
+                <Switch
+                    id='onlyShowNew'
+                    onValueChange={(isSelected) => {
+                        onFilterChecked('onlyShowNew', isSelected);
+                    }}
+                    isSelected={currentFilter['onlyShowNew']}
+                >
+                    {t('Only show new games')}
+                </Switch>
+            </div>
         </Panel>
     );
 };

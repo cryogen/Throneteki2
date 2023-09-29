@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faDownload,
@@ -21,9 +20,9 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import { ThronesDbDeck } from '../../types/decks';
 import { ColumnDef, Row, RowData } from '@tanstack/react-table';
 import moment from 'moment';
-import IndeterminateCheckbox from '../Table/InterderminateCheckBox';
-import FaIconButton from '../Site/FaIconButton';
-import ReactTable from '../Table/ReactTable';
+import Alert from '../site/Alert';
+import { Button } from '@nextui-org/react';
+import ReactTable, { TableButton } from '../table/ReactTable';
 
 declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,7 +35,7 @@ const ThronesDbDecks = () => {
     const { t } = useTranslation();
     const [error, setError] = useState('');
     const [selectedRows, setSelectedRows] = useState<Row<ThronesDbDeck>[]>([]);
-    const { data: response, isLoading, isError } = useGetThronesDbDecksQuery({});
+    const { data: response, isLoading, isError, refetch } = useGetThronesDbDecksQuery({});
     const [importDecks, { isLoading: isImportLoading }] = useImportThronesDbDecksMutation();
     const [linkAccount, { isLoading: isLinkLoading }] = useLinkThronesDbAccountMutation();
     const [syncDecks, { isLoading: isSyncLoading }] = useSyncThronesDbDecksMutation();
@@ -86,48 +85,17 @@ const ThronesDbDecks = () => {
     const columns = useMemo<ColumnDef<ThronesDbDeck>[]>(
         () => [
             {
-                id: 'select',
-                header: ({ table }) => (
-                    <label className='text-center'>
-                        <IndeterminateCheckbox
-                            {...{
-                                className: 'mb-1',
-                                checked: table.getIsAllRowsSelected(),
-                                indeterminate: table.getIsSomeRowsSelected(),
-                                onChange: table.getToggleAllRowsSelectedHandler()
-                            }}
-                        />
-                    </label>
-                ),
-                cell: ({ row }) => (
-                    <label className='text-center'>
-                        <IndeterminateCheckbox
-                            {...{
-                                className: 'mt-1',
-                                checked: row.getIsSelected(),
-                                indeterminate: row.getIsSomeSelected(),
-                                onChange: row.getToggleSelectedHandler()
-                            }}
-                        />
-                    </label>
-                ),
-                enableSorting: false,
-                meta: {
-                    colWidth: 1
-                }
-            },
-            {
                 accessorKey: 'name',
                 header: t('Name') as string,
                 meta: {
-                    colWidth: 5
+                    colWidth: '50%'
                 }
             },
             {
                 accessorKey: 'factionName',
                 header: t('Faction') as string,
                 meta: {
-                    colWidth: 2
+                    colWidth: '20%'
                 }
             },
             {
@@ -138,7 +106,7 @@ const ThronesDbDecks = () => {
                         .format('YYYY-MM-DD HH:mm'),
                 header: t('Created') as string,
                 meta: {
-                    colWidth: 2
+                    colWidth: '20%'
                 }
             },
             {
@@ -149,7 +117,7 @@ const ThronesDbDecks = () => {
                         .format('YYYY-MM-DD HH:mm'),
                 header: t('Updated') as string,
                 meta: {
-                    colWidth: 2
+                    colWidth: '20%'
                 }
             },
             {
@@ -165,7 +133,7 @@ const ThronesDbDecks = () => {
                 enableColumnFilter: false,
                 header: t('Synced') as string,
                 meta: {
-                    colWidth: 1
+                    colWidth: '10%'
                 }
             }
         ],
@@ -174,10 +142,6 @@ const ThronesDbDecks = () => {
 
     if (isLoading) {
         content = <LoadingSpinner text='Loading ThronesDB decks, please wait...' />;
-    } else if (isImportLoading) {
-        content = <LoadingSpinner text='Importing decks, please wait...' />;
-    } else if (isSyncLoading) {
-        content = <LoadingSpinner text='Syncing decks, please wait...' />;
     } else if (isError) {
         content = (
             <Alert variant='danger'>
@@ -220,48 +184,54 @@ const ThronesDbDecks = () => {
         );
     } else if (response.data.length === 0) {
         content = (
-            <Alert variant='info'>
+            <Alert variant={AlertType.Info}>
                 {t('There are no decks in your ThronesDB account to import.')}
             </Alert>
         );
     } else {
+        const buttons: TableButton[] = [
+            {
+                color: 'default',
+                disabled: selectedRows.length === 0,
+                label: t('Import Selected'),
+                icon: <FontAwesomeIcon icon={faDownload} />,
+                isLoading: isImportLoading,
+                onClick: async () => {
+                    await onImportClick(selectedRows.map((r: Row<ThronesDbDeck>) => r.original.id));
+                }
+            },
+            {
+                color: 'default',
+                icon: <FontAwesomeIcon icon={faCloudArrowUp} />,
+                label: t('Import All'),
+                onClick: async () => {
+                    await onImportClick(response.data.map((d: ThronesDbDeck) => d.id));
+                },
+                isLoading: isImportLoading
+            },
+            {
+                color: 'default',
+                label: t('Sync'),
+                icon: <FontAwesomeIcon icon={faRightLeft} />,
+                onClick: async () => {
+                    await onSyncClick();
+                },
+                isLoading: isSyncLoading
+            }
+        ];
+
         content = (
-            <div>
-                <div className='d-flex justify-content-between mb-3'>
-                    <div>
-                        <FaIconButton
-                            variant='light'
-                            disabled={selectedRows.length === 0}
-                            icon={faDownload}
-                            text='Import Selected'
-                            onClick={async () => {
-                                await onImportClick(
-                                    selectedRows.map((r: Row<ThronesDbDeck>) => r.original.id)
-                                );
-                            }}
-                        />
-                        <FaIconButton
-                            variant='light'
-                            className='ms-2'
-                            icon={faCloudArrowUp}
-                            text='Import All'
-                            onClick={async () => {
-                                await onImportClick(response.data.map((d: ThronesDbDeck) => d.id));
-                            }}
-                        />
-                        <FaIconButton
-                            variant='light'
-                            className='ms-2'
-                            icon={faRightLeft}
-                            text='Sync'
-                            onClick={async () => {
-                                await onSyncClick();
-                            }}
-                        />
-                    </div>
-                </div>
+            <div className='h-[75vh]'>
                 <ReactTable
-                    dataLoadFn={() => ({ data: response })}
+                    buttons={buttons}
+                    dataLoadFn={() => ({
+                        data: {
+                            data: response.data,
+                            totalCount: response.data.length
+                        },
+                        refetch: refetch,
+                        isLoading: isLoading
+                    })}
                     columns={columns}
                     onRowSelectionChange={(rows) => setSelectedRows(rows)}
                 />
@@ -270,10 +240,10 @@ const ThronesDbDecks = () => {
     }
 
     return (
-        <Col>
+        <div>
             {error && <Alert variant='danger'>{t(error)}</Alert>}
             {content}
-        </Col>
+        </div>
     );
 };
 

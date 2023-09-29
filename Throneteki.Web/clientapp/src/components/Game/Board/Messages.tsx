@@ -1,12 +1,13 @@
-import React from 'react';
 import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
 import classNames from 'classnames';
 import { useAppSelector } from '../../../redux/hooks';
 import ZoomCardImage from './ZoomCardImage';
-import Avatar from '../../Site/Avatar';
 import CardBackImage from '../../../assets/img/cardback.png';
 import GoldImage from '../../../assets/img/Gold.png';
-import AlertPanel, { AlertType } from '../../Site/AlertPanel';
+import Alert, { AlertType } from '../../site/Alert';
+import { Link } from '@nextui-org/react';
+
+import './Messages.css';
 
 interface MessagesProps {
     messages: ChatMessage[];
@@ -20,9 +21,9 @@ interface ChatToken {
 }
 
 const tokens: { [key: string]: ChatToken } = {
-    card: { className: 'icon-card', imageSrc: CardBackImage },
-    cards: { className: 'icon-card', imageSrc: CardBackImage },
-    gold: { className: 'icon-gold', imageSrc: GoldImage }
+    card: { className: 'h-4 w-3 inline', imageSrc: CardBackImage },
+    cards: { className: 'h-4 w-3 inline', imageSrc: CardBackImage },
+    gold: { className: 'h-3 w-3 inline -mt-1', imageSrc: GoldImage }
 };
 
 const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) => {
@@ -73,62 +74,40 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                 switch (fragment.type) {
                     case 'endofround':
                     case 'phasestart':
+                        // eslint-disable-next-line no-var
+                        var sepClass = classNames('font-bold', {
+                            'text-md': fragment.type === 'phasestart',
+                            capitalize: fragment.type === 'phasestart'
+                        });
                         messages.push(
-                            <div
-                                className={'fw-bold text-light separator ' + fragment.type}
-                                key={index++}
-                            >
-                                <hr className={'mt-2 mb-2 ' + fragment.type} />
+                            <div className={sepClass} key={index++}>
+                                <hr className={'mb-4 mt-2 border-primary ' + fragment.type} />
                                 {message}
-                                {fragment.type === 'phasestart' && <hr />}
+                                {fragment.type === 'phasestart' && (
+                                    <hr className='mt-4 border-primary' />
+                                )}
                             </div>
                         );
                         break;
                     case 'startofround':
                         messages.push(
-                            <div
-                                className={'fw-bold text-light separator ' + fragment.type}
-                                key={index++}
-                            >
+                            <div className={'separator font-bold ' + fragment.type} key={index++}>
                                 {message}
                             </div>
                         );
                         break;
                     case 'success':
-                        messages.push(
-                            <AlertPanel type={AlertType.Success} key={index++}>
-                                {message}
-                            </AlertPanel>
-                        );
-                        break;
                     case 'info':
-                        messages.push(
-                            <AlertPanel type={AlertType.Info} key={index++}>
-                                {message}
-                            </AlertPanel>
-                        );
-                        break;
                     case 'danger':
-                        messages.push(
-                            <AlertPanel type={AlertType.Danger} key={index++}>
-                                {message}
-                            </AlertPanel>
-                        );
-                        break;
                     case 'bell':
-                        messages.push(
-                            <AlertPanel type={AlertType.Bell} key={index++}>
-                                {message}
-                            </AlertPanel>
-                        );
-                        break;
                     case 'warning':
                         messages.push(
-                            <AlertPanel type={AlertType.Warning} key={index++}>
+                            <Alert variant={fragment.type as AlertType} key={index++} size={'sm'}>
                                 {message}
-                            </AlertPanel>
+                            </Alert>
                         );
                         break;
+
                     default:
                         messages.concat(message);
                         break;
@@ -137,15 +116,15 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                 messages.concat(formatMessageText(fragment.message));
             } else if (fragment.link && fragment.label) {
                 messages.push(
-                    <a href={fragment.link} target='_blank' rel='noopener noreferrer'>
+                    <Link isExternal href={fragment.link}>
                         {fragment.label}
-                    </a>
+                    </Link>
                 );
             } else if (fragment.image && fragment.label) {
                 messages.push(
                     <span
                         key={index++}
-                        className='card-link'
+                        className='cursor-pointer text-secondary hover:text-info'
                         onMouseOver={onCardMouseOver.bind(this, {
                             image: <ZoomCardImage imageUrl={`/img/cards/${fragment.code}.png`} />,
                             size: 'normal'
@@ -161,7 +140,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
                 messages.push(
                     <span
                         key={index++}
-                        className='card-link'
+                        className='cursor-pointer text-secondary hover:text-info'
                         onMouseOver={onCardMouseOver.bind(this, {
                             image: <ZoomCardImage imageUrl={`/img/cards/${fragment.code}.png`} />,
                             size: 'normal'
@@ -179,7 +158,6 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
 
                 messages.push(
                     <div key={index++} className='message-chat'>
-                        <Avatar avatar={fragment.avatar} float />
                         <span key={index++} className={userClass}>
                             {fragment.name}
                         </span>
@@ -209,7 +187,7 @@ const Messages = ({ messages, onCardMouseOut, onCardMouseOver }: MessagesProps) 
 
     const renderMessages = () => {
         return messages.map((message: ChatMessage, index: number) => {
-            const className = classNames('message', 'mb-1', {
+            const className = classNames('break-words leading-3 pt-0 pl-2 pb-2 pr-2 max-w-xs', '', {
                 'this-player': message.activePlayer && message.activePlayer == owner.name,
                 'other-player': message.activePlayer && message.activePlayer !== owner.name,
                 'chat-bubble': Object.values(message.message).some(

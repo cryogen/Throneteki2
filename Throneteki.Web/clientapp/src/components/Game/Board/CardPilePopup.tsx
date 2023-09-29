@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 
 import CardTiledList from './CardTiledList';
@@ -55,11 +54,14 @@ const CardPilePopup = ({
     };
 
     if (cards && cards.some((card) => card.group)) {
-        const cardGroup = cards.reduce((grouping, card) => {
-            (grouping[card.group] = grouping[card.group] || []).push(card);
+        const cardGroup = cards.reduce(
+            (grouping, card) => {
+                (grouping[card.group] = grouping[card.group] || []).push(card);
 
-            return grouping;
-        }, {} as { [key: string]: GameCard[] });
+                return grouping;
+            },
+            {} as { [key: string]: GameCard[] }
+        );
         const sortedKeys = Object.keys(cardGroup).sort();
         for (const key of sortedKeys) {
             cardList.push(

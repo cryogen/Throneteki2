@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { useDrop } from 'react-dnd';
 import classNames from 'classnames';
 import { ItemTypes } from '../../../constants';
@@ -89,6 +89,7 @@ const validTargets: { [key: string]: CardLocation[] } = {
 };
 
 interface DroppableProps {
+    className?: string;
     children?: ReactNode | ReactNode[];
     manualMode: boolean;
     onDragDrop: (card: string, source: CardLocation, target: CardLocation) => void;
@@ -101,7 +102,13 @@ interface DraggingCard {
     source: CardLocation;
 }
 
-const Droppable = ({ children, manualMode, onDragDrop, source }: DroppableProps) => {
+const Droppable = ({
+    className = null,
+    children,
+    manualMode,
+    onDragDrop,
+    source
+}: DroppableProps) => {
     const [{ canDrop, isOver, itemSource }, drop] = useDrop({
         accept: ItemTypes.CARD,
         canDrop: (_, monitor) => {
@@ -138,20 +145,20 @@ const Droppable = ({ children, manualMode, onDragDrop, source }: DroppableProps)
             onDragDrop && onDragDrop(item.card, item.source, source);
         }
     });
-    const className = classNames('overlay', {
+    const innerClassName = classNames('overlay', {
         'drop-ok': isOver && canDrop,
         'no-drop': isOver && !canDrop && source !== itemSource,
         'can-drop': !isOver && canDrop,
         [source]: true
     });
 
-    const dropClass = classNames('drop-target', {
+    const dropClass = classNames(className, 'inline-block relative h-full', {
         [source]: source !== 'play area'
     });
 
     return (
         <div className={dropClass} ref={drop}>
-            <div className={className} />
+            <div className={innerClassName} />
             {children}
         </div>
     );

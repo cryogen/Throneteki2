@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Col } from 'react-bootstrap';
 
-import Panel from '../../components/Site/Panel';
+import Panel from '../../components/site/Panel';
 import {
     ApiError,
     useGetThronesDbStatusQuery,
     useLinkThronesDbAccountMutation
 } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import ThronesDbDecks from '../../components/Decks/ThronesDbDecks';
+import ThronesDbDecks from '../../components/decks/ThronesDbDecks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import Alert from '../../components/site/Alert';
+import { Button } from '@nextui-org/react';
 
 const ThronesDbDecksPage = () => {
     const { t } = useTranslation();
@@ -69,9 +70,9 @@ const ThronesDbDecksPage = () => {
     }
 
     return (
-        <Col lg={{ span: 12, offset: 0 }}>
+        <div>
             <Panel title={t('Import ThronesDB decks')}>{content}</Panel>
-        </Col>
+        </div>
     );
 };
 

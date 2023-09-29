@@ -1,5 +1,4 @@
-import React from 'react';
-import { Form, Row, Col } from 'react-bootstrap';
+import { Input, Switch } from '@nextui-org/react';
 import { Trans, useTranslation } from 'react-i18next';
 
 interface GameOptionsProps {
@@ -24,55 +23,48 @@ const GameOptions = ({ formProps }: GameOptionsProps) => {
 
     return (
         <>
-            <Form.Group>
-                <Row>
-                    <Col xs={12} className='font-weight-bold'>
-                        <Trans>Options</Trans>
-                    </Col>
+            <div>
+                <div className='text-foreground-500'>
+                    <Trans>Options</Trans>
+                </div>
+                <div className='mt-2 grid grid-cols-3'>
                     {options.map((option) => (
-                        <Col key={option.name} lg='4'>
-                            <Form.Check
-                                type='switch'
+                        <div key={option.name}>
+                            <Switch
+                                className='mb-2'
+                                classNames={{ label: 'text-sm' }}
                                 id={option.name}
-                                label={option.label}
-                                inline
                                 onChange={formProps.handleChange}
                                 value='true'
-                                checked={formProps.values[option.name]}
-                            ></Form.Check>
-                        </Col>
+                                isSelected={formProps.values[option.name]}
+                            >
+                                {option.label}
+                            </Switch>
+                        </div>
                     ))}
-                </Row>
-            </Form.Group>
+                </div>
+            </div>
             {formProps.values.useGameTimeLimit && (
-                <Row>
-                    <Form.Group as={Col} sm={4}>
-                        <Form.Label>{t('Time Limit')}</Form.Label>
-                        <Form.Control
-                            type='text'
-                            placeholder={t('Enter time limit')}
-                            {...formProps.getFieldProps('gameTimeLimit')}
-                        />
-                        <Form.Control.Feedback type='invalid'>
-                            {formProps.errors.gameTimeLimit}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                </Row>
+                <div>
+                    <Input
+                        label={t('Time Limit')}
+                        type='text'
+                        placeholder={t('Enter time limit')}
+                        {...formProps.getFieldProps('gameTimeLimit')}
+                        errorMessage={formProps.errors.gameTimeLimit}
+                    />
+                </div>
             )}
             {formProps.values.useChessClocks && (
-                <Row className='mt-2'>
-                    <Form.Group as={Col} sm={4}>
-                        <Form.Label>{t('Chess Clock Limit')}</Form.Label>
-                        <Form.Control
-                            type='text'
-                            placeholder={t('Enter time limit')}
-                            {...formProps.getFieldProps('gameChessClockLimit')}
-                        />
-                        <Form.Control.Feedback type='invalid'>
-                            {formProps.errors.gameChessClockLimit}
-                        </Form.Control.Feedback>
-                    </Form.Group>
-                </Row>
+                <div className='mt-2'>
+                    <Input
+                        label={t('Chess Clock Limit')}
+                        type='text'
+                        placeholder={t('Enter time limit')}
+                        {...formProps.getFieldProps('gameChessClockLimit')}
+                        errorMessage={formProps.errors.gameChessClockLimit}
+                    />
+                </div>
             )}
         </>
     );

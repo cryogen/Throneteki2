@@ -1,10 +1,9 @@
-import React from 'react';
-import Panel from '../Site/Panel';
-import { Col, Form, Row } from 'react-bootstrap';
+import Panel from '../site/Panel';
 import { Trans, useTranslation } from 'react-i18next';
 import { FormikProps } from 'formik';
 import { ExistingProfileDetails } from './Settings';
 import { ThronetekiUser } from '../../types/user';
+import { Switch } from '@nextui-org/react';
 
 type SettingsActionWindowsProps = {
     formProps: FormikProps<ExistingProfileDetails>;
@@ -27,18 +26,17 @@ const SettingsActionWindows = ({ formProps }: SettingsActionWindowsProps) => {
 
     const renderedWindows = windows.map((window) => {
         return (
-            <Col key={window.name} sm={6}>
-                <Form.Check
-                    inline
+            <div key={window.name}>
+                <Switch
                     id={window.name}
                     name={`actionWindows.${window.name}`}
-                    label={t(window.label)}
-                    type='switch'
-                    checked={formProps.values.actionWindows[window.name]}
+                    isSelected={formProps.values.actionWindows[window.name]}
                     onChange={formProps.handleChange}
                     onBlur={formProps.handleBlur}
-                />
-            </Col>
+                >
+                    {t(window.label)}
+                </Switch>
+            </div>
         );
     });
 
@@ -53,7 +51,7 @@ const SettingsActionWindows = ({ formProps }: SettingsActionWindowsProps) => {
                 </Trans>
             </p>
 
-            <Row>{renderedWindows}</Row>
+            <div className='mt-2 grid grid-cols-2'>{renderedWindows}</div>
         </Panel>
     );
 };

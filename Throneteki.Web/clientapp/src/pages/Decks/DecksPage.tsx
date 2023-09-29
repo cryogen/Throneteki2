@@ -1,13 +1,10 @@
-import React from 'react';
-import { Col } from 'react-bootstrap';
-
-import Decks from '../../components/Decks/Decks';
+import Decks from '../../components/decks/Decks';
 
 const DecksPage = () => {
     return (
-        <Col lg={{ span: 12 }}>
+        <div>
             <Decks />
-        </Col>
+        </div>
     );
 };
 

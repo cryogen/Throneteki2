@@ -1,11 +1,11 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { useGetDeckQuery } from '../../redux/api/apiSlice';
-import DeckEditor from '../../components/Decks/DeckEditor';
+import DeckEditor from '../../components/decks/DeckEditor';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { Alert, Col } from 'react-bootstrap';
-import Panel from '../../components/Site/Panel';
+import Panel from '../../components/site/Panel';
+import Alert from '../../components/site/Alert';
 
 const EditDeckPage = () => {
     const { t } = useTranslation();
@@ -39,9 +39,9 @@ const EditDeckPage = () => {
     }
 
     return (
-        <Col lg={{ span: 12 }}>
+        <div className='w-full'>
             <Panel title={data?.data.name}>{content}</Panel>
-        </Col>
+        </div>
     );
 };
 

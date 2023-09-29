@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Nav } from 'react-bootstrap';
+import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { ThronetekiUser } from '../../types/user';
 import { useAuth } from 'react-oidc-context';
 import { toastr } from 'react-redux-toastr';
 import { gameNodeActions } from '../../redux/slices/gameNodeSlice';
+import { Link, NavbarMenuItem } from '@nextui-org/react';
 
 const GameContextMenu = () => {
     const { t } = useTranslation();
@@ -77,35 +77,38 @@ const GameContextMenu = () => {
     const spectators = activeGame.spectators.map((spectator) => {
         return <li key={spectator.id}>{spectator.name}</li>;
     });
-    const spectatorPopup = <ul className='spectators-popup mt-5 absolute-panel'>{spectators}</ul>;
+    const spectatorPopup = <ul className='spectators-popup absolute-panel mt-5'>{spectators}</ul>;
 
     return (
         <>
             <li
                 onMouseOver={() => setShowPopup(true)}
                 onMouseOut={() => setShowPopup(false)}
-                className='navbar-item'
+                className='font-[PoppinsMedium] text-large'
             >
-                <span>{t('{{users}} spectators', { users: activeGame.spectators.length })}</span>
+                <span className='text-medium'>
+                    {t('{{users}} spectators', { users: activeGame.spectators.length })}
+                </span>
             </li>
             {showPopup && spectators.length > 0 && spectatorPopup}
             {!isSpectating && (
-                <li className='navbar-item'>
-                    <Nav.Link
+                <NavbarMenuItem>
+                    <Link
+                        className='font-[PoppinsMedium] text-emphasis transition-colors duration-500 ease-in-out hover:text-white'
                         onClick={() => dispatch(gameNodeActions.sendConcedeMessage())}
-                        className='navbar-item interactable'
                     >
-                        <span>
-                            <Trans>Concede</Trans>
-                        </span>
-                    </Nav.Link>
-                </li>
+                        <Trans>Concede</Trans>
+                    </Link>
+                </NavbarMenuItem>
             )}
-            <li className='navbar-item'>
-                <Nav.Link onClick={onLeaveClick} className='navbar-item interactable'>
+            <NavbarMenuItem className='font-[PoppinsMedium] text-emphasis transition-colors duration-500 ease-in-out hover:text-white'>
+                <Link
+                    className='font-[PoppinsMedium] text-emphasis transition-colors duration-500 ease-in-out hover:text-white'
+                    onClick={onLeaveClick}
+                >
                     <Trans>Leave Game</Trans>
-                </Nav.Link>
-            </li>
+                </Link>
+            </NavbarMenuItem>
         </>
     );
 };

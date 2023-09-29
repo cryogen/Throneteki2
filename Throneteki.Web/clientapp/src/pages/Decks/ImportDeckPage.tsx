@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Col, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
-import Panel from '../../components/Site/Panel';
+import Panel from '../../components/site/Panel';
 import {
     ApiError,
     useAddDeckMutation,
@@ -16,6 +15,8 @@ import { Card, Faction } from '../../types/data';
 import { lookupCardByName } from '../../helpers/DeckHelper';
 import { SaveDeck, SaveDeckCard } from '../../types/decks';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import Alert from '../../components/site/Alert';
+import { Button, Input } from '@nextui-org/react';
 
 const ImportDeckPage = () => {
     const { t } = useTranslation();
@@ -184,7 +185,7 @@ const ImportDeckPage = () => {
         </Alert>;
     } else {
         content = (
-            <Form
+            <form
                 onSubmit={(event) => {
                     event.preventDefault();
 
@@ -193,8 +194,8 @@ const ImportDeckPage = () => {
                     processDeck();
                 }}
             >
-                <Form.Group className='mb-3' controlId='deckText'>
-                    <Form.Label>
+                <div className='mb-3' controlId='deckText'>
+                    <label>
                         <Trans>
                             Export your deck as plain text from{' '}
                             <a href='https://thronesdb.com' target='_blank' rel='noreferrer'>
@@ -202,32 +203,32 @@ const ImportDeckPage = () => {
                             </a>{' '}
                             and paste it into this box
                         </Trans>
-                    </Form.Label>
-                    <Form.Control
+                    </label>
+                    <Input
                         as='textarea'
                         rows={15}
                         value={deckText}
                         onChange={(event) => setDeckText(event.target.value)}
                     />
-                </Form.Group>
+                </div>
 
                 <Button type='submit' disabled={!deckText || isAddLoading}>
                     <Trans>Submit</Trans>
                     &nbsp;
                     {isAddLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
                 </Button>
-            </Form>
+            </form>
         );
     }
 
     return (
-        <Col lg={{ span: 8, offset: 2 }}>
+        <div className='container'>
             <Panel title={t('Import Deck')}>
                 {error && <Alert variant='danger'>{error}</Alert>}
                 {success && <Alert variant='success'>{success}</Alert>}
                 {content}
             </Panel>
-        </Col>
+        </div>
     );
 };
 

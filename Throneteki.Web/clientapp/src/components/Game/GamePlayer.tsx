@@ -1,8 +1,7 @@
-import React from 'react';
 import classNames from 'classnames';
 
 import { LobbyGamePlayer } from '../../types/lobby';
-import Avatar from '../Site/Avatar';
+import { Avatar } from '@nextui-org/react';
 
 interface GamePlayerProps {
     player: LobbyGamePlayer;
@@ -22,7 +21,7 @@ const GamePlayer = ({ player, reverse }: GamePlayerProps) => {
             <div className='game-faction-row first-player'>
                 <div className='game-player-name'>
                     <span className='gamelist-avatar'>
-                        <Avatar avatar={player.user.username} />
+                        <Avatar src={player.user.username} showFallback />
                     </span>
                     <span className='bold'>{player.user.username}</span>
                 </div>
@@ -63,7 +62,7 @@ const GamePlayer = ({ player, reverse }: GamePlayerProps) => {
                 <div className='game-player-name'>
                     <span className='bold'>{player.user.username}</span>
                     <span className='gamelist-avatar'>
-                        <Avatar avatar={player.user.username} />
+                        <Avatar src={player.user.username} />
                     </span>
                 </div>
             </div>

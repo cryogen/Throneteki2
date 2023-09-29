@@ -31,9 +31,6 @@ export interface MenuItem {
     childItems?: MenuItem[];
 }
 
-/**
- * @type {MenuItem[]} The list of menu items for the left side menu
- */
 export const LeftMenu: MenuItem[] = [
     { path: '/decks', title: 'Decks', showOnlyWhenLoggedIn: true },
     //{ path: '/matches', title: 'Matches', showOnlyWhenLoggedIn: true },
@@ -75,9 +72,6 @@ export const RightMenu: MenuItem[] = [
     }
 ];
 
-/**
- * @type {MenuItem[]} The menu items that appear in the profile menu
- */
 export const ProfileMenu: MenuItem[] = [
     { title: 'Profile', path: '/account/profile' },
     { title: 'Settings', path: '/account/settings' },

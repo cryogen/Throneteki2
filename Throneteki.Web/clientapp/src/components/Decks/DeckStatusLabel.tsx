@@ -1,19 +1,18 @@
-import React from 'react';
-
 import { DeckValidationStatus } from '../../types/lobby';
 import { deckStatusLabel } from '../../helpers/DeckHelper';
-import { Badge } from 'react-bootstrap';
+import { Chip } from '@nextui-org/react';
+import { ColorType } from '../../types/ui';
 
 interface DeckStatusLabelProps {
     className?: string;
     status: DeckValidationStatus;
 }
 
-const DeckStatusLabel = ({ className = '', status }: DeckStatusLabelProps) => {
+const DeckStatusLabel = ({ className = 'h-10', status }: DeckStatusLabelProps) => {
     const text = status ? deckStatusLabel(status) : 'Loading...';
     const restrictionsFollowed = status.faqJoustRules && status.noUnreleasedCards;
 
-    let bg = 'light';
+    let bg: ColorType = 'default';
 
     if (!status.basicRules || !status.noBannedCards) {
         bg = 'danger';
@@ -24,9 +23,9 @@ const DeckStatusLabel = ({ className = '', status }: DeckStatusLabelProps) => {
     }
 
     return (
-        <Badge className={className} pill bg={bg}>
+        <Chip className={className} color={bg} radius='md'>
             {text}
-        </Badge>
+        </Chip>
     );
 };
 

@@ -1,7 +1,6 @@
-import React from 'react';
 import { CardOrientation, CardSize } from '../../../types/enums';
 import classNames from 'classnames';
-import { Image } from 'react-bootstrap';
+import { Image } from '@nextui-org/react';
 
 interface CardImageProps {
     imageUrl: string;
@@ -20,7 +19,7 @@ const ZoomCardImage = ({ imageUrl, orientation }: CardImageProps) => {
         <div className={zoomClass}>
             <div>
                 {/* <span className='card-name'>{this.props.cardName}</span> */}
-                <Image fluid src={imageUrl} />
+                <Image src={imageUrl} radius='md' />
                 {/* {this.props.card && <AltCard card={this.props.card} />} */}
             </div>
         </div>

@@ -1,5 +1,4 @@
 import React, { ReactElement, useState, useRef, useEffect } from 'react';
-import { Form, Button, Alert, Col, Row } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -15,6 +14,8 @@ import { ApiError, useSaveUserMutation } from '../../redux/api/apiSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { ThronetekiUser } from '../../types/user';
+import Alert, { AlertType } from '../site/Alert';
+import { Button } from '@nextui-org/react';
 
 interface GameSettings {
     chooseOrder: boolean;
@@ -100,7 +101,7 @@ const Settings = ({ user }: ProfileProps) => {
     const [localBackground, setBackground] = useState(settings.background || 'standard');
     const [localCardSize, setCardSize] = useState(settings.cardSize || 'normal');
     const [customBg, setCustomBg] = useState<string | null | undefined>(null);
-    const topRowRef = useRef<HTMLElement>(null);
+    const topRowRef = useRef<HTMLDivElement>(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -112,7 +113,9 @@ const Settings = ({ user }: ProfileProps) => {
     const [saveUser, { isLoading }] = useSaveUserMutation();
 
     if (!user) {
-        return <Alert variant='danger'>You need to be logged in to view your profile.</Alert>;
+        return (
+            <Alert variant={AlertType.Danger}>You need to be logged in to view your profile.</Alert>
+        );
     }
 
     const initialValues: ExistingProfileDetails = {
@@ -193,15 +196,15 @@ const Settings = ({ user }: ProfileProps) => {
                 initialValues={initialValues}
             >
                 {(formProps: FormikProps<ExistingProfileDetails>): ReactElement => (
-                    <Form
+                    <form
                         className='profile-form'
                         onSubmit={(event: React.FormEvent<HTMLFormElement>): void => {
                             event.preventDefault();
                             formProps.handleSubmit(event);
                         }}
                     >
-                        <Row ref={topRowRef}>
-                            <Col sm='12'>
+                        <div ref={topRowRef}>
+                            <div>
                                 <SettingsBackground
                                     backgrounds={backgrounds}
                                     selectedBackground={localBackground}
@@ -220,32 +223,31 @@ const Settings = ({ user }: ProfileProps) => {
                                         setBackground(name);
                                     }}
                                 />
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
                                 <ThronetekiGameSettings formProps={formProps} user={user} />
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col sm='6'>
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-2'>
+                            <div>
                                 <SettingsCardSize
                                     cardSizes={cardSizes}
                                     selectedCardSize={localCardSize}
                                     onCardSizeSelected={(name): void => setCardSize(name)}
                                 />
-                            </Col>
-                            <Col sm='6'>
+                            </div>
+                            <div>
                                 <SettingsActionWindows formProps={formProps} user={user} />
-                            </Col>
-                        </Row>
-                        <div className='text-center profile-submit'>
-                            <Button variant='success' type='submit'>
+                            </div>
+                        </div>
+                        <div className='sticky bottom-5 z-50 bg-primary text-center'>
+                            <Button color='success' type='submit' isLoading={isLoading}>
                                 <Trans>Save</Trans>
-                                {isLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
                             </Button>
                         </div>
-                    </Form>
+                    </form>
                 )}
             </Formik>
         </>

@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { Card } from 'react-bootstrap';
+import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { ReactNode } from 'react';
 
 enum PanelType {
     Default = 'default',
@@ -15,6 +15,7 @@ interface PanelProps {
     title?: string;
     titleClass?: string;
     type?: string;
+    fullHeight?: boolean;
 }
 
 const Panel = ({
@@ -22,16 +23,22 @@ const Panel = ({
     type = PanelType.Primary,
     title,
     titleClass,
-    children
+    children,
+    fullHeight = true
 }: PanelProps) => {
     return (
-        <Card border={type} bg='dark' text='light' className={className}>
+        <Card
+            className={`${className} border-2 bg-opacity-70 border-${type} ${
+                fullHeight ? 'h-full' : ''
+            } shadow-lg`}
+            classNames={{ body: 'h-full overflow-y-auto' }}
+        >
             {title && (
-                <Card.Header className={`${titleClass} text-center bg-primary`}>
+                <CardHeader className={`${titleClass} justify-center bg-${type} rounded-none`}>
                     {title}
-                </Card.Header>
+                </CardHeader>
             )}
-            <Card.Body>{children}</Card.Body>
+            <CardBody>{children}</CardBody>
         </Card>
     );
 };

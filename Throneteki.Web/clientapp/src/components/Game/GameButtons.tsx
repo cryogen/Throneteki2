@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button } from '@nextui-org/react';
 import { Trans } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 
@@ -13,13 +12,13 @@ const GameButtons = ({ onNewGame }: GameButtonsProps) => {
 
     return (
         <>
-            <Button disabled={!user} variant='primary' onClick={() => onNewGame && onNewGame()}>
+            <Button disabled={!user} color='primary' onClick={() => onNewGame && onNewGame()}>
                 <Trans>New Game</Trans>
             </Button>
             <Button
                 className='mt-2'
                 disabled={!user}
-                variant='primary'
+                color='primary'
                 onClick={() => {
                     // setQuickJoin(true);
                     // dispatch(startNewGame());

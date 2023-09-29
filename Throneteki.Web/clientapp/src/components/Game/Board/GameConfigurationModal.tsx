@@ -1,8 +1,7 @@
-import React from 'react';
-import { Modal } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import GameConfiguration from './GameConfiguration';
 import { KeywordSettings, PromptedActionWindows, TimerSettings } from '../../../types/game';
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/react';
 
 interface GameConfigurationModalProps {
     keywordSettings: KeywordSettings;
@@ -31,22 +30,22 @@ const GameConfigurationModal = ({
 
     return (
         <>
-            <Modal show={true} onHide={onClose} size='lg'>
-                <Modal.Header closeButton closeVariant='white'>
-                    <Modal.Title>{t('Game Configuration')}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <GameConfiguration
-                        actionWindows={promptedActionWindows}
-                        keywordSettings={keywordSettings}
-                        promptDupes={promptDupes}
-                        timerSettings={timerSettings}
-                        onKeywordSettingToggle={onKeywordSettingToggle}
-                        onTimerSettingToggle={onTimerSettingToggle}
-                        onActionWindowToggle={onPromptedActionWindowToggle}
-                        onPromptDupesToggle={onPromptDupesToggle}
-                    />
-                </Modal.Body>
+            <Modal isOpen={true} onClose={onClose} size='lg'>
+                <ModalContent>
+                    <ModalHeader>{t('Game Configuration')}</ModalHeader>
+                    <ModalBody>
+                        <GameConfiguration
+                            actionWindows={promptedActionWindows}
+                            keywordSettings={keywordSettings}
+                            promptDupes={promptDupes}
+                            timerSettings={timerSettings}
+                            onKeywordSettingToggle={onKeywordSettingToggle}
+                            onTimerSettingToggle={onTimerSettingToggle}
+                            onActionWindowToggle={onPromptedActionWindowToggle}
+                            onPromptDupesToggle={onPromptDupesToggle}
+                        />
+                    </ModalBody>
+                </ModalContent>
             </Modal>
         </>
     );

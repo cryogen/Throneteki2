@@ -1,5 +1,4 @@
-import React from 'react';
-import { Spinner } from 'react-bootstrap';
+import { Spinner } from '@nextui-org/react';
 import { useTranslation } from 'react-i18next';
 
 interface LoadingSpinnerProps {
@@ -10,8 +9,8 @@ function LoadingSpinner({ text }: LoadingSpinnerProps) {
     const { t } = useTranslation();
 
     return (
-        <div className='d-flex flex-column align-items-center justify-content-center'>
-            <Spinner animation='border' title={`${t(text)}`} />
+        <div className='align-items-center justify-content-center flex flex-col'>
+            <Spinner title={`${t(text)}`} />
             <div>{t(text)}</div>
         </div>
     );

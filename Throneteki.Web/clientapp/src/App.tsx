@@ -1,27 +1,23 @@
-import React, { useEffect, useRef } from 'react';
 import { useLocation, useRoutes } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import { useAuth } from 'react-oidc-context';
-// import useBreadcrumbs from 'use-react-router-breadcrumbs';
+import Navigation from './components/navigation/Navigation';
 
-import { useAppDispatch, useAppSelector } from './redux/hooks';
-import Navigation from './components/Navigation/Navigation';
-import AuthorisationRoutes from './authorisation/AuthorisationRoutes';
 import routes from './routes';
-import { lobbyActions } from './redux/slices/lobbySlice';
-import { ThronetekiUser } from './types/user';
-// import Breadcrumbs from './components/Site/Breadcrumbs';
 import Background from './assets/img/bgs/mainbg.png';
 import BlankBg from './assets/img/bgs/blank.png';
 import StandardBg from './assets/img/bgs/background.png';
 import WinterBg from './assets/img/bgs/background2.png';
+import { useAuth } from 'react-oidc-context';
+import { useEffect, useRef } from 'react';
+import { ThronetekiUser } from './types/user';
+import { lobbyActions } from './redux/slices/lobbySlice';
+import { useAppDispatch, useAppSelector } from './redux/hooks';
 import LoadingSpinner from './components/LoadingSpinner';
 
-function RouteElement() {
+const RouteElement = () => {
     const routeArray = routes();
 
-    return useRoutes(routeArray.concat(AuthorisationRoutes()));
-}
+    return useRoutes(routeArray);
+};
 
 const backgrounds: { [key: string]: string } = {
     none: BlankBg,
@@ -29,13 +25,12 @@ const backgrounds: { [key: string]: string } = {
     winter: WinterBg
 };
 
-function App() {
+const App = () => {
     const dispatch = useAppDispatch();
     const auth = useAuth();
     const { currentGame: activeGame } = useAppSelector((state) => state.gameNode);
     const location = useLocation();
     const bgRef = useRef<HTMLDivElement>();
-    // const breadcrumbs = useBreadcrumbs(routes());
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -78,42 +73,49 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [auth.events, auth.signinSilent]);
 
+    const user = auth.user?.profile as ThronetekiUser;
+    const gameBoardVisible = activeGame?.started && location.pathname === '/play';
+
+    useEffect(() => {
+        if (gameBoardVisible && user) {
+            const settings = user.throneteki_settings ? JSON.parse(user.throneteki_settings) : {};
+            const background = settings.background;
+
+            if (bgRef.current && background === 'custom' && settings.customBackgroundUrl) {
+                bgRef.current.style.backgroundImage = `url('/img/bgs/${settings.customBackgroundUrl}')`;
+            } else if (bgRef.current) {
+                bgRef.current.style.backgroundImage = `url('${backgrounds[background]}')`;
+            }
+        } else if (bgRef.current) {
+            bgRef.current.style.backgroundImage = `url('${Background}')`;
+        }
+    });
+
     if (auth.isLoading) {
         return <LoadingSpinner text='Checking authentication status, please wait...' />;
     }
 
-    const user = auth.user?.profile as ThronetekiUser;
-
-    const gameBoardVisible = activeGame?.started && location.pathname === '/play';
-
-    if (gameBoardVisible && user) {
-        const settings = JSON.parse(user.throneteki_settings);
-        const background = settings.background;
-
-        if (bgRef.current && background === 'custom' && settings.customBackgroundUrl) {
-            bgRef.current.style.backgroundImage = `url('/img/bgs/${settings.customBackgroundUrl}')`;
-        } else if (bgRef.current) {
-            bgRef.current.style.backgroundImage = `url('${backgrounds[background]}')`;
-        }
-    } else if (bgRef.current) {
-        bgRef.current.style.backgroundImage = `url('${Background}')`;
-    }
-
     return (
-        <div className='bg' ref={bgRef}>
+        <div>
             <Navigation />
 
             <main role='main'>
-                <div className='wrapper'>
-                    <Container className='content'>
-                        {/*      <Breadcrumbs breadcrumbs={breadcrumbs} />*/}
-
+                <div
+                    className='absolute bottom-0 left-0 right-0 top-12 bg-cover bg-center bg-no-repeat'
+                    ref={bgRef}
+                >
+                    {/*      <Breadcrumbs breadcrumbs={breadcrumbs} />*/}
+                    {activeGame ? (
                         <RouteElement />
-                    </Container>
+                    ) : (
+                        <div className='container mt-4'>
+                            <RouteElement />
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
     );
-}
+};
 
 export default App;

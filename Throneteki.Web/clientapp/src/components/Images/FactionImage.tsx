@@ -1,8 +1,9 @@
 import React from 'react';
-import { Image } from 'react-bootstrap';
 import classNames from 'classnames';
+import { Image } from '@nextui-org/react';
 
 import { Constants } from '../../constants';
+import './FactionImage.css';
 
 interface FactionImageProps {
     className?: string;
@@ -29,7 +30,11 @@ const FactionImage = ({
             onMouseOut={onMouseOut}
             onMouseOver={onMouseOver}
         >
-            <Image className={classString} fluid src={Constants.FactionsImagePaths[faction]} />
+            <Image
+                className={classString}
+                src={Constants.FactionsImagePaths[faction]}
+                radius='sm'
+            />
         </div>
     );
 };

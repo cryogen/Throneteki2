@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { ForwardedRef, PropsWithChildren, forwardRef, useEffect, useMemo, useState } from 'react';
 import {
     ColumnFiltersState,
     ColumnDef,
@@ -13,16 +13,33 @@ import {
     getSortedRowModel,
     TableOptions,
     ColumnFilter,
-    ColumnSort
+    RowSelectionState
 } from '@tanstack/react-table';
-import { Table, Button, Alert } from 'react-bootstrap';
 import { Trans, useTranslation } from 'react-i18next';
 
 import TablePagination from './TablePagination';
-import TableHeader from './TableHeader';
 import LoadingSpinner from '../LoadingSpinner';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
-import FaIconButton from '../Site/FaIconButton';
+import { faFilter, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import FaIconButton from '../site/FaIconButton';
+import {
+    Button,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Select,
+    SelectItem,
+    Selection,
+    SortDescriptor,
+    Table,
+    TableBody,
+    TableCell,
+    TableColumn,
+    TableHeader,
+    TableRow
+} from '@nextui-org/react';
+import Alert from '../site/Alert';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ColorType } from '../../types/ui';
 
 interface DataLoadOptions {
     columnFilters: ColumnFilter[];
@@ -31,26 +48,49 @@ interface DataLoadOptions {
     sorting: SortingState;
 }
 
+export interface TableButton {
+    label: string;
+    icon?: JSX.Element;
+    onClick?: () => void;
+    color: ColorType;
+    disabled?: boolean;
+    isLoading?: boolean;
+}
+
 interface ReactTableProps<T> {
+    buttons?: TableButton[];
     columns: ColumnDef<T>[];
     defaultColumnFilters?: Record<string, string[]>;
-    defaultSort?: ColumnSort;
+    defaultSort?: SortDescriptor;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataLoadFn: (options: DataLoadOptions | unknown) => any;
     dataLoadArg?: unknown;
     dataProperty?: string;
+    disableSelection?: boolean;
     onRowClick?: (row: Row<T>) => void;
     onRowSelectionChange?: (rows: Row<T>[]) => void;
     remote?: boolean;
 }
 
+const TableWrapper = forwardRef(
+    ({ children }: PropsWithChildren, ref: ForwardedRef<HTMLTableElement>) => {
+        return (
+            <div className='h-full overflow-y-auto'>
+                <table ref={ref}>{children}</table>
+            </div>
+        );
+    }
+);
+
 function ReactTable<T>({
+    buttons = [],
     columns,
     dataLoadFn,
     dataLoadArg = null,
     dataProperty = 'data',
     defaultColumnFilters = {},
     defaultSort,
+    disableSelection = false,
     onRowClick,
     onRowSelectionChange,
     remote = false
@@ -61,7 +101,7 @@ function ReactTable<T>({
         pageIndex: 0,
         pageSize: 10
     });
-    const [sorting, setSorting] = useState<SortingState>(defaultSort ? [defaultSort] : []);
+    const [sorting, setSorting] = useState<SortDescriptor>(defaultSort);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const pagination = useMemo(
         () => ({
@@ -70,13 +110,17 @@ function ReactTable<T>({
         }),
         [pageIndex, pageSize]
     );
-    const [rowSelection, setRowSelection] = useState({});
+    const [rowSelection, setRowSelection] = useState<Selection>(new Set([]));
+    const [autoRowSelection, setAutoRowSelection] = useState({});
+    const [autoSorting, setAutoSorting] = useState({});
 
     const fetchDataOptions = {
         columnFilters,
         pageIndex,
         pageSize,
-        sorting
+        sorting: sorting
+            ? [{ id: sorting.column.toString(), desc: sorting.direction === 'descending' }]
+            : []
     };
 
     const {
@@ -98,15 +142,18 @@ function ReactTable<T>({
             manualPagination: true,
             manualSorting: true,
             onPaginationChange: setPagination,
-            onSortingChange: setSorting,
             onColumnFiltersChange: setColumnFilters,
-            onRowSelectionChange: setRowSelection,
             pageCount: Math.ceil(response?.totalCount / pageSize) ?? -1,
             state: {
-                sorting,
+                sorting: sorting
+                    ? [{ id: sorting.column.toString(), desc: sorting.direction === 'descending' }]
+                    : [],
                 pagination: pagination,
                 columnFilters: columnFilters,
-                rowSelection
+                rowSelection: [...rowSelection].reduce((keys: RowSelectionState, v) => {
+                    keys[v] = true;
+                    return keys;
+                }, {})
             }
         };
     } else {
@@ -117,16 +164,45 @@ function ReactTable<T>({
             getFilteredRowModel: getFilteredRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
             getSortedRowModel: getSortedRowModel(),
-            onRowSelectionChange: setRowSelection,
-            onSortingChange: setSorting,
+            onSortingChange: setAutoSorting,
             state: {
-                rowSelection,
-                sorting
+                rowSelection: [...rowSelection].reduce((keys: RowSelectionState, v) => {
+                    keys[v] = true;
+                    return keys;
+                }, {}),
+                sorting: autoSorting
             }
         };
     }
 
     const table = useReactTable(tableOptions);
+
+    const topContent = (
+        <div className='flex justify-between'>
+            <div className='flex'>
+                {buttons.map((b) => (
+                    <Button
+                        className='mr-2'
+                        key={b.label}
+                        color={b.color}
+                        endContent={b.icon}
+                        onClick={b.onClick}
+                        isDisabled={b.disabled}
+                        isLoading={b.isLoading}
+                    >
+                        {b.label}
+                    </Button>
+                ))}
+            </div>
+            {refetch && (
+                <FaIconButton
+                    color='default'
+                    icon={faRefresh}
+                    onClick={() => refetch()}
+                ></FaIconButton>
+            )}
+        </div>
+    );
 
     useEffect(() => {
         for (const [columnId, filter] of Object.entries(defaultColumnFilters)) {
@@ -135,7 +211,7 @@ function ReactTable<T>({
     }, [defaultColumnFilters, table]);
 
     useEffect(() => {
-        if (Object.values(rowSelection).length > 0) {
+        if (rowSelection === 'all' || rowSelection.size > 0) {
             onRowSelectionChange && onRowSelectionChange(table.getSelectedRowModel().flatRows);
         } else {
             onRowSelectionChange && onRowSelectionChange([]);
@@ -148,86 +224,113 @@ function ReactTable<T>({
     } else if (isError) {
         return <Alert variant='danger'>{t('An error occurred loading data.')}</Alert>;
     } else if (response[dataProperty] && response[dataProperty].length === 0) {
-        return <Alert variant='info'>{t('No data.')}</Alert>;
+        return <Alert variant={AlertType.Info}>{t('No data.')}</Alert>;
     }
 
     const currPage = table.getState().pagination.pageIndex + 1;
     const pageCount = table.getPageCount();
     const totalCount = remote ? response?.totalCount : response[dataProperty]?.length || 0;
 
+    const tableFooter = (
+        <div className='mt-3 flex justify-between'>
+            <div className='flex justify-center'>
+                <Select
+                    className='mr-2 w-20'
+                    labelPlacement='outside'
+                    onChange={(e) => {
+                        table.setPageSize(parseInt(e.target.value));
+                    }}
+                    disallowEmptySelection
+                    selectedKeys={new Set([table.getState().pagination.pageSize.toString()])}
+                >
+                    {[10, 25, 50].map((pageSize) => (
+                        <SelectItem key={pageSize.toString()} value={pageSize}>
+                            {t(pageSize.toString())}
+                        </SelectItem>
+                    ))}
+                </Select>
+                <TablePagination
+                    currentPage={table.getState().pagination.pageIndex + 1}
+                    pageCount={table.getPageCount()}
+                    setCurrentPage={(page) => table.setPageIndex(page - 1)}
+                />
+            </div>
+            <div className='flex items-center'>
+                <span className='mr-1'>
+                    <Trans>
+                        Page {{ currPage }} of {{ pageCount }} (
+                        {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            { totalCount } as any
+                        }{' '}
+                        items)
+                    </Trans>
+                </span>
+            </div>
+        </div>
+    );
+
     return (
         <>
-            <div className='d-flex justify-content-between mb-3' onClick={() => refetch()}>
-                <div></div>
-                <div>
-                    <FaIconButton variant='light' icon={faRefresh}></FaIconButton>
-                </div>
-            </div>
-            <div className='table-scroll'>
-                <Table striped variant='dark' bordered hover>
-                    <thead>
-                        <TableHeader headerGroups={table.getHeaderGroups()} />
-                    </thead>
-                    <tbody>
-                        {table.getRowModel().rows.map((row) => (
-                            <tr
-                                key={row.id}
-                                onClick={() => {
-                                    onRowClick && onRowClick(row);
-                                }}
+            <Table
+                isStriped
+                isHeaderSticky
+                showSelectionCheckboxes
+                selectionMode={disableSelection ? 'none' : 'multiple'}
+                selectedKeys={rowSelection}
+                onSelectionChange={setRowSelection}
+                sortDescriptor={sorting}
+                onSortChange={setSorting}
+                topContent={topContent}
+                bottomContent={tableFooter}
+                removeWrapper
+                classNames={{ base: 'h-full' }}
+                as={TableWrapper}
+            >
+                <TableHeader>
+                    {table.getHeaderGroups()[0].headers.map((header) =>
+                        header.isPlaceholder ? null : (
+                            <TableColumn
+                                key={header.id}
+                                width={header.column.columnDef.meta?.colWidth}
+                                allowsSorting={header.column.columnDef.enableSorting !== false}
                             >
-                                {row.getVisibleCells().map((cell) => (
-                                    <td
-                                        key={cell.id}
-                                        className={`col-${
-                                            cell.column.columnDef.meta?.colWidth || '1'
-                                        }`}
-                                    >
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                {header.column.columnDef.meta?.groupingFilter && (
+                                    <>
+                                        <Popover placement='right'>
+                                            <PopoverTrigger>
+                                                <FontAwesomeIcon icon={faFilter} />
+                                            </PopoverTrigger>
+                                            <PopoverContent>
+                                                {header.column.columnDef.meta?.groupingFilter(
+                                                    header.getContext().table
+                                                )}
+                                            </PopoverContent>
+                                        </Popover>
+                                    </>
+                                )}
+                            </TableColumn>
+                        )
+                    )}
+                </TableHeader>
+                <TableBody
+                    isLoading={isLoading}
+                    loadingContent={<LoadingSpinner text='Loading data, please wait...' />}
+                >
+                    {table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id} onClick={() => onRowClick && onRowClick(row)}>
+                            {row.getVisibleCells().map((cell) => (
+                                <TableCell key={cell.id}>
+                                    <div>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </div>
-            <div className='mt-3 d-flex justify-content-between'>
-                <div>
-                    {[10, 25, 50].map((pageSize) => (
-                        <Button
-                            className='me-1'
-                            variant={
-                                pageSize === table.getState().pagination.pageSize
-                                    ? 'primary'
-                                    : 'dark'
-                            }
-                            key={pageSize}
-                            onClick={() => table.setPageSize(pageSize)}
-                        >
-                            {pageSize}
-                        </Button>
+                                    </div>
+                                </TableCell>
+                            ))}
+                        </TableRow>
                     ))}
-                </div>
-                <div className='d-flex align-items-center'>
-                    <span className='me-1'>
-                        <Trans>
-                            Page {{ currPage }} of {{ pageCount }} (
-                            {
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                { totalCount } as any
-                            }{' '}
-                            items)
-                        </Trans>
-                    </span>
-                    <TablePagination
-                        currentPage={table.getState().pagination.pageIndex + 1}
-                        pageCount={table.getPageCount()}
-                        disablePrevious={!table.getCanPreviousPage()}
-                        disableNext={!table.getCanNextPage()}
-                        setCurrentPage={(page) => table.setPageIndex(page - 1)}
-                    />
-                </div>
-            </div>
+                </TableBody>
+            </Table>
         </>
     );
 }

@@ -1,7 +1,7 @@
+import { useState } from 'react';
 import { ColumnFilter } from '@tanstack/react-table';
-import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
 import LoadingSpinner from '../LoadingSpinner';
+import { Button, Checkbox } from '@nextui-org/react';
 
 interface TableGroupFilterProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,20 +35,17 @@ const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilt
         content = data.map((option: string) => {
             return (
                 <div key={option}>
-                    <Form.Check>
-                        <Form.Check.Label className='w-100'>
-                            {option}
-                            <Form.Check.Input
-                                checked={filters[option]}
-                                onChange={(event) => {
-                                    setFilters((prevState) => ({
-                                        ...prevState,
-                                        [option]: event.target.checked
-                                    }));
-                                }}
-                            />
-                        </Form.Check.Label>
-                    </Form.Check>
+                    <Checkbox
+                        isSelected={filters[option]}
+                        onValueChange={(value) => {
+                            setFilters((prevState) => ({
+                                ...prevState,
+                                [option]: value
+                            }));
+                        }}
+                    >
+                        {option}
+                    </Checkbox>
                 </div>
             );
         });
@@ -58,7 +55,7 @@ const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilt
         <>
             {content}
             <Button
-                variant='primary'
+                color='primary'
                 onClick={() => {
                     const filterResult = [];
 
@@ -74,7 +71,7 @@ const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilt
             >
                 Ok
             </Button>
-            <Button className='ms-2' variant='light' onClick={() => document.body.click()}>
+            <Button className='ms-2' color='default' onClick={() => document.body.click()}>
                 Cancel
             </Button>
         </>

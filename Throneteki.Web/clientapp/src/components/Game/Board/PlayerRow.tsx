@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Droppable from './Droppable';
 import SquishableCardPanel from './SquishableCardPanel';
@@ -63,8 +62,13 @@ const PlayerRow = ({
     );
 
     return isMe ? (
-        <div className='d-flex pt-1'>
-            <Droppable onDragDrop={onDragDrop} source={CardLocation.Hand} manualMode={manualMode}>
+        <div className='flex pt-1'>
+            <Droppable
+                className='flex flex-1 flex-col items-center justify-between'
+                onDragDrop={onDragDrop}
+                source={CardLocation.Hand}
+                manualMode={manualMode}
+            >
                 {handToRender}
             </Droppable>
             <Droppable

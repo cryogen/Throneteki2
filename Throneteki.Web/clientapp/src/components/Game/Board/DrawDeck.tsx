@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import CardPileLink from './CardPileLink';
 import Droppable from './Droppable';
@@ -14,6 +13,7 @@ import {
 interface DrawDeckProps {
     cardCount: number;
     cards: GameCard[];
+    className?: string;
     isMe: boolean;
     manualMode: boolean;
     numDeckCards: number;
@@ -35,6 +35,7 @@ const DrawDeck = (props: DrawDeckProps) => {
     const { t } = useTranslation();
     const {
         cards,
+        className = null,
         isMe,
         manualMode,
         onDragDrop,
@@ -79,7 +80,12 @@ const DrawDeck = (props: DrawDeckProps) => {
     );
 
     return isMe ? (
-        <Droppable onDragDrop={onDragDrop} source={CardLocation.Draw} manualMode={manualMode}>
+        <Droppable
+            className={className}
+            onDragDrop={onDragDrop}
+            source={CardLocation.Draw}
+            manualMode={manualMode}
+        >
             {drawDeck}
         </Droppable>
     ) : (

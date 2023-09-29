@@ -1,8 +1,7 @@
-import React from 'react';
 import { KeywordSettings, PromptedActionWindows, TimerSettings } from '../../../types/game';
-import { Col, Form, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import Panel from '../../Site/Panel';
+import Panel from '../../site/Panel';
+import { Switch } from '@nextui-org/react';
 
 interface GameConfigurationProps {
     actionWindows: PromptedActionWindows;
@@ -45,9 +44,8 @@ const GameConfiguration = ({
 
     const windowsToRender = windows.map((window) => {
         return (
-            <Col key={window.name} md={4}>
-                <Form.Check
-                    type='switch'
+            <div key={window.name} md={4}>
+                <Switch
                     onChange={(event) =>
                         onActionWindowToggle &&
                         onActionWindowToggle(window.name, event.target.checked)
@@ -56,21 +54,20 @@ const GameConfiguration = ({
                     label={t(window.label)}
                     checked={actionWindows[window.name]}
                 />
-            </Col>
+            </div>
         );
     });
 
     return (
         <div>
-            <Form>
+            <form>
                 <Panel title={t('Action window defaults')}>
-                    <Row>{windowsToRender}</Row>
+                    <div>{windowsToRender}</div>
                 </Panel>
                 <Panel title={t('Timed interrupt window')} className='mt-3'>
-                    <Row>
-                        <Col md={6}>
-                            <Form.Check
-                                type='switch'
+                    <div>
+                        <div>
+                            <Switch
                                 onChange={(event) =>
                                     onTimerSettingToggle &&
                                     onTimerSettingToggle('events', event.target.checked)
@@ -79,10 +76,9 @@ const GameConfiguration = ({
                                 label={t('Show timer for events')}
                                 checked={timerSettings.events}
                             />
-                        </Col>
-                        <Col md={6}>
-                            <Form.Check
-                                type='switch'
+                        </div>
+                        <div>
+                            <Switch
                                 onChange={(event) =>
                                     onTimerSettingToggle &&
                                     onTimerSettingToggle('abilities', event.target.checked)
@@ -91,14 +87,13 @@ const GameConfiguration = ({
                                 label={t('Show timer for card abilities')}
                                 checked={timerSettings.abilities}
                             />
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
                 </Panel>
                 <Panel title={t('Other Settings')} className='mt-3'>
-                    <Row>
-                        <Col md={4}>
-                            <Form.Check
-                                type='switch'
+                    <div>
+                        <div>
+                            <Switch
                                 onChange={(event) =>
                                     onKeywordSettingToggle &&
                                     onKeywordSettingToggle('chooseOrder', event.target.checked)
@@ -107,10 +102,9 @@ const GameConfiguration = ({
                                 label={t('Choose order of keywords')}
                                 checked={keywordSettings.chooseOrder}
                             />
-                        </Col>
-                        <Col md={4}>
-                            <Form.Check
-                                type='switch'
+                        </div>
+                        <div>
+                            <Switch
                                 onChange={(event) =>
                                     onKeywordSettingToggle &&
                                     onKeywordSettingToggle('chooseCards', event.target.checked)
@@ -119,9 +113,9 @@ const GameConfiguration = ({
                                 label={t('Make keywords optional')}
                                 checked={keywordSettings.chooseCards}
                             />
-                        </Col>
-                        <Col md={4}>
-                            <Form.Check
+                        </div>
+                        <div>
+                            <Switch
                                 type='switch'
                                 onChange={(event) =>
                                     onPromptDupesToggle && onPromptDupesToggle(event.target.checked)
@@ -130,10 +124,10 @@ const GameConfiguration = ({
                                 label={t('Prompt before using dupes to save')}
                                 checked={promptDupes}
                             />
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
                 </Panel>
-            </Form>
+            </form>
         </div>
     );
 };

@@ -1,4 +1,3 @@
-import React from 'react';
 import { DeckValidationStatus } from '../../types/lobby';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -21,9 +20,9 @@ const DeckStatusSummary = ({ status }: DeckStatusSummaryProps) => {
         { title: 'Only released cards', value: noUnreleasedCards }
     ];
     return (
-        <ul className='deck-status-summary'>
+        <ul>
             {items.map((item, index) => (
-                <li className={item.value ? 'valid' : 'invalid'} key={index}>
+                <li className={item.value ? 'text-success' : 'text-danger'} key={index}>
                     <FontAwesomeIcon icon={item.value ? faCheck : faXmark} />
                     {` ${item.title}`}
                 </li>

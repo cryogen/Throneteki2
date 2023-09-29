@@ -2,7 +2,7 @@ import { User } from 'oidc-client-ts';
 
 export const getUser = () => {
     const oidcStorage = localStorage.getItem(
-        `oidc.user:${process.env.REACT_APP_AUTH_URL}:${process.env.REACT_APP_CLIENT_ID}`
+        `oidc.user:${import.meta.env.VITE_AUTH_URL}:${import.meta.env.VITE_CLIENT_ID}`
     );
     if (!oidcStorage) {
         return null;

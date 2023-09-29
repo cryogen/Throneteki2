@@ -1,8 +1,6 @@
-import React from 'react';
-import { Col, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
 import CardSizeOption from './CardSizeOption';
 
 export interface SettingsCardSizeOption {
@@ -20,8 +18,8 @@ const SettingsCardSize = ({ cardSizes, selectedCardSize, onCardSizeSelected }: C
 
     return (
         <Panel title={t('Card Image Size')}>
-            <Row>
-                <Col xs='12'>
+            <div>
+                <div className='flex items-end'>
                     {cardSizes.map((cardSize) => (
                         <CardSizeOption
                             key={cardSize.name}
@@ -31,8 +29,8 @@ const SettingsCardSize = ({ cardSizes, selectedCardSize, onCardSizeSelected }: C
                             selected={selectedCardSize === cardSize.name}
                         />
                     ))}
-                </Col>
-            </Row>
+                </div>
+            </div>
         </Panel>
     );
 };

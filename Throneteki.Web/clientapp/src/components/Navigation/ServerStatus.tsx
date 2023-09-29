@@ -1,9 +1,6 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faTimesCircle, faBan } from '@fortawesome/free-solid-svg-icons';
-
-import './ServerStatus.scss';
 
 interface ServerStatusProps {
     connected: boolean;
@@ -23,7 +20,7 @@ const ServerStatus = ({ connecting, connected, responseTime, serverType }: Serve
 
     const toolTip = `${serverType} is ${connectionStatus}`;
 
-    const pingLevel = `text-${
+    const pingLevel = `text-medium text-${
         connected
             ? responseTime
                 ? (responseTime < 150 && 'success') || (responseTime < 300 && 'warning') || 'danger'
@@ -38,7 +35,7 @@ const ServerStatus = ({ connecting, connected, responseTime, serverType }: Serve
     }`;
 
     return (
-        <div className='navbar-item'>
+        <div className='navbar-item font-[PoppinsMedium] text-large'>
             <span className={pingLevel}>
                 {pingText2} <FontAwesomeIcon icon={connectionIcon} title={t(toolTip)} />
             </span>

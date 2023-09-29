@@ -1,10 +1,7 @@
-import React from 'react';
-import classNames from 'classnames';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-
 import { DeckValidationStatus } from '../../types/lobby';
-import { deckStatusLabel } from '../../helpers/DeckHelper';
 import DeckStatusSummary from './DeckStatusSummary';
+import { Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react';
+import DeckStatusLabel from './DeckStatusLabel';
 
 interface DeckStatusProps {
     className?: string;
@@ -12,36 +9,26 @@ interface DeckStatusProps {
 }
 
 const DeckStatus = ({ className = undefined, status }: DeckStatusProps) => {
-    const restrictionsFollowed = status.faqJoustRules && status.noUnreleasedCards;
-    const spanClass = classNames('deck-status', className, {
-        invalid: !status.basicRules || !status.noBannedCards,
-        'casual-play': status.basicRules && status.noBannedCards && !restrictionsFollowed,
-        valid: status.basicRules && status.noBannedCards && restrictionsFollowed
-    });
-
-    const popover = (
-        <Popover id='status-popover'>
-            <Popover.Body className='bg-dark'>
+    return (
+        <Popover placement='right' className={className}>
+            <PopoverTrigger>
+                <div>
+                    <DeckStatusLabel status={status} />
+                </div>
+            </PopoverTrigger>
+            <PopoverContent className='bg-background'>
                 <div>
                     <DeckStatusSummary status={status} />
                     {status.errors && status.errors.length !== 0 && (
-                        <ul className='deck-status-errors'>
+                        <ul className='mt-4 border-t pt-4'>
                             {status.errors.map((error, index) => (
                                 <li key={index}>{error}</li>
                             ))}
                         </ul>
                     )}
                 </div>
-            </Popover.Body>
+            </PopoverContent>
         </Popover>
-    );
-
-    return (
-        <span className={spanClass}>
-            <OverlayTrigger trigger={['hover', 'focus']} overlay={popover} placement='right'>
-                <span>{deckStatusLabel(status)}</span>
-            </OverlayTrigger>
-        </span>
     );
 };
 

@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
-import { Alert, Button, Col, Row } from 'react-bootstrap';
+import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useGetCardsQuery } from '../../redux/api/apiSlice';
 import { Card } from '../../types/data';
-import CardImage from '../Images/CardImage';
+import CardImage from '../images/CardImage';
 import LoadingSpinner from '../LoadingSpinner';
+import Alert from '../site/Alert';
+import { Button } from '@nextui-org/react';
 
 interface AgendaSelectProps {
     onBackClick: () => void;
@@ -58,20 +59,16 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
     return (
         <>
             <div className='mb-2'>
-                <Button variant='light' className='me-2' onClick={() => onBackClick()}>
+                <Button color='default' className='mr-2' onClick={() => onBackClick()}>
                     <Trans>Back</Trans>
                 </Button>
-                <Button variant='primary' onClick={() => onNextClick(selectedAgendas)}>
+                <Button color='primary' onClick={() => onNextClick(selectedAgendas)}>
                     <Trans>Next</Trans>
                 </Button>
             </div>
-            <Row>
+            <div className='grid h-[75vh] grid-cols-8 overflow-y-auto '>
                 {agendas.map((agenda) => (
-                    <Col
-                        sm='2'
-                        key={agenda.code}
-                        className='mt-2 mb-2 d-flex justify-content-center'
-                    >
+                    <div key={agenda.code} className='m-4 flex content-center'>
                         <div
                             role={canSelectAgenda(agenda.code) ? 'button' : undefined}
                             onClick={() => {
@@ -99,9 +96,9 @@ const AgendaSelect = ({ onBackClick, onNextClick }: AgendaSelectProps) => {
                                 {agenda.label}
                             </div>
                         </div>
-                    </Col>
+                    </div>
                 ))}
-            </Row>
+            </div>
         </>
     );
 };

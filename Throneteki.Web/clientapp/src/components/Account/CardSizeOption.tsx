@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 import IdentityDefault from '../../assets/img/cardback.png';
 
@@ -17,7 +16,7 @@ function CardSizeOption({ name, label, selected, onSelect }: CardSizeOptionProps
     };
 
     return (
-        <div key={name} className='card-settings' onClick={handleClick}>
+        <div key={name} className='ml-1 mr-1 inline-block' onClick={handleClick}>
             <div className={classNames('game-card', 'vertical', name, { selected: selected })}>
                 <img className={classNames('game-card', 'vertical', name)} src={IdentityDefault} />
             </div>

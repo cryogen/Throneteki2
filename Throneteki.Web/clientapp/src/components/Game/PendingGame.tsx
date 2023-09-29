@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+// import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useAuth } from 'react-oidc-context';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
 import GameTypeInfo from './GameTypeInfo';
 import PendingGamePlayers from './PendingGamePlayers';
 import { LobbyGamePlayer } from '../../types/lobby';
@@ -16,6 +15,8 @@ import { Deck } from '../../types/decks';
 
 import ChargeMp3 from '../../assets/sound/charge.mp3';
 import ChargeOgg from '../../assets/sound/charge.ogg';
+import { Button, Input, Link, Snippet } from '@nextui-org/react';
+import Alert, { AlertType } from '../site/Alert';
 
 function showNotification(notification: NotificationOptions) {
     try {
@@ -24,7 +25,9 @@ function showNotification(notification: NotificationOptions) {
 
             setTimeout(() => windowNotification.close(), 5000);
         }
-    } catch (err) {}
+    } catch (err) {
+        /* empty */
+    }
 }
 
 const PendingGame = () => {
@@ -176,11 +179,11 @@ const PendingGame = () => {
                 <source src={ChargeOgg} type='audio/ogg' />
             </audio>
             <Panel title={currentGame.name}>
-                <div className='d-flex justify-content-between'>
+                <div className='flex content-between'>
                     <div>
                         <Button
                             className='me-2'
-                            variant='success'
+                            color='success'
                             disabled={!canStartGame()}
                             onClick={() => {
                                 setWaiting(true);
@@ -190,7 +193,7 @@ const PendingGame = () => {
                             <Trans>Start</Trans>
                         </Button>
                         <Button
-                            variant='primary'
+                            color='primary'
                             onClick={() => {
                                 dispatch(lobbyActions.leaveGame());
                             }}
@@ -198,27 +201,37 @@ const PendingGame = () => {
                             <Trans>Leave</Trans>
                         </Button>
                     </div>
-                    <div>
-                        <CopyToClipboard
-                            text={`${window.location.protocol}//${window.location.host}/play?gameId=${currentGame.id}`}
-                        >
-                            <Button variant='primary'>
-                                <Trans>Copy Game Link</Trans>
-                            </Button>
-                        </CopyToClipboard>
-                    </div>
+                    <Snippet
+                        className='ml-2'
+                        classNames={{ base: 'py-1' }}
+                        codeString={`${window.location.protocol}//${window.location.host}/play?gameId=${currentGame.id}`}
+                        hideSymbol
+                    >
+                        <Link href={`/play?gameId=${currentGame.id}`} isExternal>
+                            <Trans>Game Link</Trans>
+                        </Link>
+                    </Snippet>
                 </div>
                 <div className='mt-3'>
                     <GameTypeInfo gameType={currentGame.gameType} />
                 </div>
-                <div className='game-status'>{getGameStatus()}</div>
+                <div className='mt-4'>
+                    {gameError ? (
+                        <Alert variant={AlertType.Danger}>{getGameStatus()}</Alert>
+                    ) : (
+                        getGameStatus()
+                    )}
+                </div>
             </Panel>
-            <PendingGamePlayers
-                currentGame={currentGame}
-                user={user}
-                onSelectDeck={() => setShowModal(true)}
-            />
+            <div className='mt-2'>
+                <PendingGamePlayers
+                    currentGame={currentGame}
+                    user={user}
+                    onSelectDeck={() => setShowModal(true)}
+                />
+            </div>
             <Panel
+                className='mt-2'
                 title={t('Spectators({{users}})', {
                     users: currentGame.spectators.length
                 })}
@@ -227,7 +240,7 @@ const PendingGame = () => {
                     return <div key={spectator.name}>{spectator.name}</div>;
                 })}
             </Panel>
-            <Panel title={t('Chat')}>
+            <Panel className='mt-2' title={t('Chat')}>
                 <div
                     className='message-list'
                     ref={messageRef}
@@ -249,22 +262,20 @@ const PendingGame = () => {
                 >
                     {/* <Messages messages={currentGame.messages} /> */}
                 </div>
-                <Form>
-                    <Form.Group>
-                        <Form.Control
-                            type='text'
-                            placeholder={t('Enter a message...')}
-                            value={message}
-                            onKeyPress={(event) => {
-                                if (event.key === 'Enter') {
-                                    sendMessage();
-                                    event.preventDefault();
-                                }
-                            }}
-                            onChange={(event) => setMessage(event.target.value)}
-                        ></Form.Control>
-                    </Form.Group>
-                </Form>
+                <form>
+                    <Input
+                        type='text'
+                        placeholder={t('Enter a message...')}
+                        value={message}
+                        onKeyPress={(event) => {
+                            if (event.key === 'Enter') {
+                                sendMessage();
+                                event.preventDefault();
+                            }
+                        }}
+                        onChange={(event) => setMessage(event.target.value)}
+                    ></Input>
+                </form>
             </Panel>
             {showModal && (
                 <SelectDeckModal

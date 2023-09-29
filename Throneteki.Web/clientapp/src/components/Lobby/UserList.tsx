@@ -1,8 +1,6 @@
-import * as React from 'react';
 import { Trans } from 'react-i18next';
 import { UserSummary } from '../../types/lobby';
-
-import Avatar from '../Site/Avatar';
+import { Avatar } from '@nextui-org/react';
 
 interface UserListProps {
     users: UserSummary[];
@@ -19,15 +17,15 @@ const UserList = ({ users }: UserListProps) => {
 
     const userList = users.map((user) => {
         return (
-            <div className='user-row' key={user.username}>
-                <Avatar avatar={user.avatar} />
-                <span>{user.username}</span>
+            <div className='font-normal text-left flex items-center' key={user.username}>
+                <Avatar src={user.avatar} />
+                <span className='ml-2'>{user.username}</span>
             </div>
         );
     });
 
     return (
-        <div className='userlist'>
+        <div className='font-bold pb-5 pt-2 text-center'>
             <Trans>Online Users</Trans>
             {userList}
         </div>

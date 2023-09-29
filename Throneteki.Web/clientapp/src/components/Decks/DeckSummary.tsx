@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
 import { useGetCardsQuery } from '../../redux/api/apiSlice';
 import { Card } from '../../types/data';
 import { Deck, DeckCard, SaveDeckCard } from '../../types/decks';
-import CardImage from '../Images/CardImage';
+import CardImage from '../images/CardImage';
 
 interface DeckSummaryProps {
     deck: Deck;
@@ -41,8 +40,8 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
     let currentContainer: JSX.Element[] = splitCards[0];
     for (const [type, cards] of Object.entries(groupedCards)) {
         currentContainer.push(
-            <div className='mt-2 mb-2' key={type}>
-                <span className={`me-1 icon icon-${type}`}></span>
+            <div className='mb-2 mt-2' key={type}>
+                <span className={`icon me-1 icon-${type}`}></span>
                 <strong>
                     {type[0].toUpperCase() + type.slice(1)} ({cards.length})
                 </strong>
@@ -67,7 +66,7 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
                     >
                         {deckCard.count}x{' '}
                         <span
-                            className={`me-1 icon icon-${type} text-${deckCard.card.faction.code}`}
+                            className={`icon me-1 icon-${type} text-${deckCard.card.faction.code}`}
                         ></span>
                         {deckCard.card.label}
                     </div>
@@ -75,28 +74,28 @@ const DeckSummary = ({ deck }: DeckSummaryProps) => {
             );
             cardIndex++;
 
-            if (cardIndex > 36) {
+            if (cardIndex > 30) {
                 currentContainer = splitCards[2];
-            } else if (cardIndex > 17) {
+            } else if (cardIndex > 15) {
                 currentContainer = splitCards[1];
             }
         }
     }
 
     return (
-        <Row className='mt-3'>
+        <div className='mt-3 grid grid-cols-3 gap-4'>
             {zoomCard && (
                 <div
-                    className='decklist-card-zoom'
+                    className='decklist-card-zoom fixed left-0 top-0 z-50'
                     style={{ left: mousePos.x + 5 + 'px', top: mousePos.y + 'px' }}
                 >
                     <CardImage imageUrl={`/img/cards/${zoomCard}.png`} size='lg' />
                 </div>
             )}
-            <Col sm={4}>{splitCards[0]}</Col>
-            <Col sm={4}>{splitCards[1]}</Col>
-            <Col sm={4}>{splitCards[2]}</Col>
-        </Row>
+            <div>{splitCards[0]}</div>
+            <div>{splitCards[1]}</div>
+            <div>{splitCards[2]}</div>
+        </div>
     );
 };
 

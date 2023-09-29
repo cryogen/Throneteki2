@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 
 import { GameType } from '../../types/enums';
@@ -31,7 +30,6 @@ const GameTypeGroup = ({ currentGame, filter, gameType, games, isAdmin }: GameTy
 
     const canJoin = (game: LobbyGame) => {
         if (!user || currentGame || game.started || game.full) {
-            console.info(!user, currentGame, game.started, game.full);
             return false;
         }
 

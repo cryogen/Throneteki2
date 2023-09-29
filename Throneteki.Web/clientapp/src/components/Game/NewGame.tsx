@@ -1,18 +1,18 @@
-import React from 'react';
 import { Formik } from 'formik';
-import { Form, Col, Row, Button, Alert } from 'react-bootstrap';
 import { useTranslation, Trans } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
+import { Button, Input, Select, SelectItem } from '@nextui-org/react';
 import * as yup from 'yup';
 
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { GameType } from '../../types/enums';
-import Panel from '../Site/Panel';
+import Panel from '../site/Panel';
 import GameOptions from './GameOptions';
 import GameTypes from './GameTypes';
 import { lobbyActions } from '../../redux/slices/lobbySlice';
 import { useGetRestrictedListQuery } from '../../redux/api/apiSlice';
 import { RestrictedList } from '../../types/decks';
+import Alert, { AlertType } from '../site/Alert';
 
 const GameNameMaxLength = 64;
 
@@ -125,7 +125,7 @@ const NewGame = ({
                 initialValues={initialValues}
             >
                 {(formProps) => (
-                    <Form
+                    <form
                         onSubmit={(event) => {
                             event.preventDefault();
 
@@ -133,7 +133,7 @@ const NewGame = ({
                         }}
                     >
                         {quickJoin && (
-                            <Alert variant='info'>
+                            <Alert variant={AlertType.Info}>
                                 <Trans>
                                     Select the type of game you&apos;d like to play and either
                                     you&apos;ll join the next one available, or one will be created
@@ -145,44 +145,38 @@ const NewGame = ({
                             <>
                                 {
                                     /*!tournament &&*/ <>
-                                        <Row className='mb-2'>
-                                            <Form.Group
-                                                as={Col}
-                                                lg='8'
-                                                controlId='formGridGameName'
-                                            >
-                                                <div className='d-flex justify-content-between'>
-                                                    <Form.Label>{t('Name')}</Form.Label>
-                                                    <Form.Label>
+                                        <div className='mb-2 w-1/2'>
+                                            <Input
+                                                label={t('Name')}
+                                                endContent={
+                                                    <span>
                                                         {GameNameMaxLength -
                                                             formProps.values.name.length}
-                                                    </Form.Label>
-                                                </div>
-                                                <Form.Control
-                                                    type='text'
-                                                    placeholder={t('Game Name')}
-                                                    maxLength={GameNameMaxLength}
-                                                    {...formProps.getFieldProps('name')}
-                                                />
-                                                <Form.Control.Feedback type='invalid'>
-                                                    {formProps.errors.name}
-                                                </Form.Control.Feedback>
-                                            </Form.Group>
-                                        </Row>
-                                        <Row className='mb-2'>
-                                            <Form.Group as={Col} lg='8'>
-                                                <Form.Label>{t('Mode')}</Form.Label>
-                                                <Form.Select
-                                                    {...formProps.getFieldProps('restrictedListId')}
-                                                >
-                                                    {restrictedLists?.map((rl: RestrictedList) => (
-                                                        <option key={rl.name} value={rl.id}>
-                                                            {rl.name}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Row>
+                                                    </span>
+                                                }
+                                                // <Form.Label>
+                                                //     {GameNameMaxLength -
+                                                //         formProps.values.name.length}
+                                                // </Form.Label>
+                                                type='text'
+                                                placeholder={t('Game Name')}
+                                                maxLength={GameNameMaxLength}
+                                                {...formProps.getFieldProps('name')}
+                                                errorMessage={formProps.errors.name}
+                                            />
+                                        </div>
+                                        <div className='mb-2 w-1/2'>
+                                            <Select
+                                                label={t('Mode')}
+                                                {...formProps.getFieldProps('restrictedListId')}
+                                            >
+                                                {restrictedLists?.map((rl: RestrictedList) => (
+                                                    <SelectItem key={rl.name} value={rl.id}>
+                                                        {rl.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        </div>
                                     </>
                                 }
                                 <GameOptions formProps={formProps} />
@@ -190,30 +184,28 @@ const NewGame = ({
                         )}
                         {/*!tournament &&  */ <GameTypes formProps={formProps} />}
                         {!quickJoin && (
-                            <Row className='mt-2'>
-                                <Form.Group as={Col} sm={8}>
-                                    <Form.Label>{t('Password')}</Form.Label>
-                                    <Form.Control
-                                        type='password'
-                                        placeholder={t('Enter a password')}
-                                        {...formProps.getFieldProps('password')}
-                                    />
-                                </Form.Group>
-                            </Row>
+                            <div className='mt-4 w-1/2'>
+                                <Input
+                                    label={t('Password')}
+                                    type='password'
+                                    placeholder={t('Enter a password')}
+                                    {...formProps.getFieldProps('password')}
+                                />
+                            </div>
                         )}
-                        <div className='newgame-buttons mt-3'>
-                            <Button variant='success' type='submit'>
+                        <div className='mt-4'>
+                            <Button color='success' type='submit'>
                                 <Trans>Start</Trans>
                             </Button>
                             <Button
-                                variant='primary'
+                                color='primary'
                                 onClick={() => onClosed && onClosed()}
                                 className='ms-1'
                             >
                                 <Trans>Cancel</Trans>
                             </Button>
                         </div>
-                    </Form>
+                    </form>
                 )}
             </Formik>
         </Panel>

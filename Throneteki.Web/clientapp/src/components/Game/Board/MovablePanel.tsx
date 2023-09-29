@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
+import { MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { XYCoord, useDrag } from 'react-dnd';
@@ -138,15 +138,15 @@ const MovablePanel = ({ children, name, onCloseClick, side, title, size }: Movab
 
     const content = (
         <div ref={popupRef}>
-            <div className={`panel panel-primary ${size}`} style={position}>
+            <div className={`panel border-primary bg-black opacity-70 ${size}`} style={position}>
                 <div
                     ref={drag}
-                    className='panel-heading'
+                    className='rounded-t-sm` flex justify-end border-b-1 border-foreground border-transparent bg-primary px-3 py-4 text-center font-bold text-white opacity-100'
                     onClick={(event) => event.stopPropagation()}
                 >
-                    <span className='text-center'>{title}</span>
-                    <span className='float-end'>
-                        <a className='close-button' onClick={onCloseClick}>
+                    <span className='flex-1 text-center'>{title}</span>
+                    <span className=''>
+                        <a onClick={onCloseClick}>
                             <FontAwesomeIcon icon={faTimes} />
                         </a>
                     </span>

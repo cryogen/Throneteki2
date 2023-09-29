@@ -1,9 +1,7 @@
-import React from 'react';
-import { Row, Col } from 'react-bootstrap';
 import { Trans } from 'react-i18next';
 
 import { Constants } from '../../constants';
-import FactionImage from '../Images/FactionImage';
+import FactionImage from '../images/FactionImage';
 import { Faction } from '../../types/data';
 
 interface FactionSelectProps {
@@ -15,25 +13,25 @@ const FactionSelect = ({ onSelect }: FactionSelectProps) => {
 
     return (
         <>
-            <Row>
-                <Col sm={12} className='text-center mb-3'>
+            <div>
+                <div className='w-full text-center mb-3'>
                     <h4>
                         <Trans>To start, select a faction</Trans>
                     </h4>
-                </Col>
-            </Row>
-            <Row>
+                </div>
+            </div>
+            <div className='grid grid-cols-4'>
                 {factions.map((faction) => (
-                    <Col sm='3' key={faction} className='mt-2 mb-2 d-flex justify-content-center'>
+                    <div key={faction} className='mt-2 mb-2 flex content-center'>
                         <div
                             role='button'
                             onClick={() => onSelect({ code: faction, name: faction })}
                         >
                             <FactionImage size='lg' faction={faction} />
                         </div>
-                    </Col>
+                    </div>
                 ))}
-            </Row>
+            </div>
         </>
     );
 };

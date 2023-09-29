@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import classNames from 'classnames';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,10 +11,13 @@ interface SidebarProps {
 const SideBar = ({ children }: SidebarProps) => {
     const [expanded, setExpanded] = useState(false);
 
-    const sidebarClass = classNames('d-none d-md-block sidebar', {
-        expanded: expanded,
-        collapsed: !expanded
-    });
+    const sidebarClass = classNames(
+        'hidden md:block absolute left-0 bottom-0 top-0 z-50 bg-content1 bg-opacity-70',
+        {
+            'w-48': expanded,
+            'w-12': !expanded
+        }
+    );
 
     const burgerClass = classNames('btn-icon', {
         'float-end': expanded
@@ -24,6 +27,7 @@ const SideBar = ({ children }: SidebarProps) => {
 
     return (
         <div className={sidebarClass}>
+            <div className='bg-content1'></div>
             <a href='#' className={burgerClass} onClick={() => setExpanded(!expanded)}>
                 <FontAwesomeIcon icon={icon} />
             </a>

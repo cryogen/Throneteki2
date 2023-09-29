@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import ZoomCardImage from './ZoomCardImage';
 import CardPilePopup from './CardPilePopup';
@@ -9,6 +9,8 @@ import {
     PopupMenuItem
 } from '../../../types/game';
 import { BoardSide, CardLocation, CardOrientation, CardSize } from '../../../types/enums';
+
+import './CardPileLink.scss';
 
 interface CardPileLinkProps {
     cards: GameCard[];
@@ -77,7 +79,7 @@ const CardPileLink = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cards, manualPopup]);
 
-    const classNameStr = classNames('card-pile-link', className, {
+    const classNameStr = classNames('contents p-0 relative my-0 mx-1', className, {
         horizontal: orientation === CardOrientation.Horizontal,
         vertical: orientation === CardOrientation.Vertical
     });
@@ -106,7 +108,7 @@ const CardPileLink = ({
         >
             {card && (
                 <div
-                    className='icon'
+                    className='h-4 w-6'
                     onMouseOver={() =>
                         onMouseOver({
                             image: <ZoomCardImage imageUrl={`/img/cards/${card.code}.png`} />,

@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 import Droppable from './Droppable';
 import Card from './Card';
@@ -109,14 +108,15 @@ const PlayerBoard = ({
 
     const rows = getCardRows();
 
-    const className = classNames('player-board', {
-        'our-side': rowDirection === 'default',
-        player: isMe
+    const className = classNames('p-2 flex-grow-2 flex flex-col content-between', {
+        'mt-[30px] z-8 border-b-none': rowDirection === 'default',
+        'flex-grow-3': isMe
     });
 
     return (
         <div className={className}>
             <Droppable
+                className='flex flex-1 flex-col content-between'
                 onDragDrop={onDragDrop}
                 source={CardLocation.PlayArea}
                 manualMode={manualMode}

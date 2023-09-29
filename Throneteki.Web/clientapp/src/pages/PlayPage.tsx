@@ -1,7 +1,6 @@
-import React from 'react';
-import GameLobby from '../components/Game/GameLobby';
+import GameLobby from '../components/game/GameLobby';
 import { useAppSelector } from '../redux/hooks';
-import GameBoard from '../components/Game/Board/GameBoard';
+import GameBoard from '../components/game/board/GameBoard';
 
 const PlayPage = () => {
     const { currentGame: activeGame } = useAppSelector((state) => state.gameNode);

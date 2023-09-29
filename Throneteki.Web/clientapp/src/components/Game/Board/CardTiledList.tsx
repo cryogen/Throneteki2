@@ -1,5 +1,3 @@
-import React from 'react';
-
 import Card from './Card';
 import { CardMouseOverEventArgs, GameCard } from '../../../types/game';
 import { CardLocation, CardOrientation, CardSize } from '../../../types/enums';
@@ -46,7 +44,7 @@ function CardTiledList(props: CardTiledListProps) {
     return (
         <div className='card-list'>
             {title && <div className='card-list-title'>{title}</div>}
-            <div className='card-list-cards'>{cardList}</div>
+            <div className='flex flex-wrap items-center justify-start'>{cardList}</div>
         </div>
     );
 }

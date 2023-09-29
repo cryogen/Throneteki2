@@ -1,8 +1,8 @@
-import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Form } from 'react-bootstrap';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Messages from './Messages';
 import { CardMouseOverEventArgs, ChatMessage, GameCard } from '../../../types/game';
+import { Input } from '@nextui-org/react';
 
 interface GameChatProps {
     messages: ChatMessage[];
@@ -65,9 +65,9 @@ const GameChat = ({
     };
 
     return (
-        <div className='chat h-100 d-flex flex-column flex-grow-1 flex-shrink-1'>
+        <div className='chat flex h-full flex-shrink flex-grow flex-col'>
             <div
-                className='messages panel'
+                className='m-0 flex h-full flex-1 overflow-auto bg-black text-sm opacity-80'
                 ref={(m) => (messagePanel.current = m)}
                 onScroll={onScroll}
             >
@@ -77,8 +77,8 @@ const GameChat = ({
                     onCardMouseOut={onCardMouseOut}
                 />
             </div>
-            <Form className='chat-form'>
-                <Form.Control
+            <form className='chat-form'>
+                <Input
                     className='form-control'
                     placeholder={t(placeholder)}
                     onKeyDown={onKeyDown}
@@ -93,7 +93,7 @@ const GameChat = ({
                     value={message}
                     disabled={muted}
                 />
-            </Form>
+            </form>
         </div>
     );
 };

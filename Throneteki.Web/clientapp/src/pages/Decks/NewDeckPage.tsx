@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { Col } from 'react-bootstrap';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import AgendaSelect from '../../components/Decks/AgendaSelect';
-import FactionSelect from '../../components/Decks/FactionSelect';
-import Panel from '../../components/Site/Panel';
-import DeckEditor from '../../components/Decks/DeckEditor';
+import AgendaSelect from '../../components/decks/AgendaSelect';
+import FactionSelect from '../../components/decks/FactionSelect';
+import Panel from '../../components/site/Panel';
+import DeckEditor from '../../components/decks/DeckEditor';
 import { Card, Faction } from '../../types/data';
 
 const NewDeckPage = () => {
@@ -13,7 +12,7 @@ const NewDeckPage = () => {
     const [selectedAgendas, setAgendas] = useState<Card[] | undefined>();
 
     return (
-        <Col sm={{ span: 12 }}>
+        <div>
             <Panel title={t('New Deck')}>
                 {selectedFaction ? (
                     <div>
@@ -40,7 +39,7 @@ const NewDeckPage = () => {
                     <FactionSelect onSelect={(faction) => setFaction(faction)} />
                 )}
             </Panel>
-        </Col>
+        </div>
     );
 };
 

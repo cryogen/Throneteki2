@@ -1,0 +1,159 @@
+.card-image {
+    &.small {
+        &.vertical {
+            height: var(--throneteki-card-sm-height);
+            width: var(--throneteki-card-sm-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-sm-width);
+            width: var(--throneteki-card-sm-height);
+        }
+    }
+
+    &.large {
+        &.vertical {
+            height: var(--throneteki-card-lg-height);
+            width: var(--throneteki-card-lg-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-lg-width);
+            width: var(--throneteki-card-lg-height);
+        }
+    }
+
+    &.x-large {
+        &.vertical {
+            height: var(--throneteki-card-xl-height);
+            width: var(--throneteki-card-xl-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-xl-width);
+            width: var(--throneteki-card-xl-height);
+        }
+    }
+
+    &.vertical {
+        height: var(--throneteki-card-height);
+        width: var(--throneteki-card-width);
+    }
+
+    &.horizontal {
+        height: var(--throneteki-card-width);
+        width: var(--throneteki-card-height);
+    }
+
+    &.kneeled {
+        left: 11px;
+        top: -14px;
+        transform: rotate(90deg);
+    }
+}
+
+.game-card {
+    /* 
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+ */
+
+    &.small {
+        &.vertical {
+            height: var(--throneteki-card-sm-height);
+            width: var(--throneteki-card-sm-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-sm-width);
+            width: var(--throneteki-card-sm-height);
+        }
+    }
+
+    &.large {
+        &.vertical {
+            height: var(--throneteki-card-lg-height);
+            width: var(--throneteki-card-lg-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-lg-width);
+            width: var(--throneteki-card-lg-height);
+        }
+    }
+
+    &.x-large {
+        &.vertical {
+            height: var(--throneteki-card-xl-height);
+            width: var(--throneteki-card-xl-width);
+        }
+
+        &.horizontal {
+            height: var(--throneteki-card-xl-width);
+            width: var(--throneteki-card-xl-height);
+        }
+    }
+
+    &.vertical {
+        height: var(--throneteki-card-height);
+        width: var(--throneteki-card-width);
+    }
+
+    &.horizontal {
+        height: var(--throneteki-card-width);
+        width: var(--throneteki-card-height);
+    }
+
+    /* &.selectable {
+        box-shadow: 0 0 10px 1px fade-out(lighten($primary, 60%), 0.1);
+
+        &.controlled {
+            box-shadow: $controlledBox, 0 0 10px 1px fade-out(lighten($primary, 60%), 0.1);
+        }
+    } */
+
+    &.unselectable {
+        filter: grayscale(100%) brightness(60%);
+    }
+
+    &.can-play {
+        animation: glowing 2000ms infinite;
+        /* 
+        &.controlled {
+            box-shadow: $controlledBox, 0 0 10px 1px fadeout(lighten($primary, 60%), 10%);
+        } */
+    }
+
+    &.in-danger {
+        box-shadow: 0 0 1px 2px red;
+    }
+
+    &.saved {
+        box-shadow: 0 0 1px 2px green;
+    }
+
+    &.selected {
+        /* box-shadow: 0 0 1px 4px $secondary; */
+
+        /* &.controlled {
+            box-shadow: $controlledBox, 0 0 1px 4px $secondary;
+        } */
+    }
+
+    /* &.new {
+        box-shadow: 0 0 1px 2px $info;
+    }
+
+    &.controlled {
+        box-shadow: $controlledBox;
+    } */
+}
+
+.squishable-card-panel.squish .card-wrapper {
+    position: absolute;
+}
+
+.card-list {
+    .card-wrapper {
+        margin: 0 5px 5px 0;
+    }
+}

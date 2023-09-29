@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import classNames from 'classnames';
 import { useDrag } from 'react-dnd';
 import { useTranslation } from 'react-i18next';
@@ -8,10 +8,12 @@ import ZoomCardImage from './ZoomCardImage';
 import { ItemTypes } from '../../../constants';
 import SquishableCardPanel from './SquishableCardPanel';
 import { CardLocation, CardOrientation, CardSize } from '../../../types/enums';
+import { CardMenuItem, CardMouseOverEventArgs, GameCard } from '../../../types/game';
 
 import CardBack from '../../../assets/img/cardback.png';
 import CardBackShadow from '../../../assets/img/cardback_shadow.png';
-import { CardMenuItem, CardMouseOverEventArgs, GameCard } from '../../../types/game';
+
+import './Card.css';
 
 interface CardProps {
     canDrag: boolean;
@@ -75,6 +77,7 @@ const Card = ({
     };
 
     const onCardClicked = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, card: GameCard) => {
+        console.info('sdfasd');
         event.preventDefault();
         event.stopPropagation();
         if (isAllowedMenuSource() && card.menu && card.menu.length !== 0) {
@@ -233,7 +236,7 @@ const Card = ({
         const statusClass = getStatusClass();
 
         const cardClass = classNames(
-            'game-card',
+            'game-card left-0 top-0 overflow-hidden z-40',
             `card-type-${card.type}`,
             className,
             sizeClass,
@@ -253,18 +256,22 @@ const Card = ({
                 controlled: card.controlled
             }
         );
-        const imageClass = classNames('card-image', sizeClass, {
-            horizontal: card.type === 'plot',
-            vertical: card.type !== 'plot',
-            kneeled:
-                card.type !== 'plot' &&
-                (orientation === CardOrientation.Kneeled ||
-                    card.kneeled ||
-                    orientation === CardOrientation.Horizontal)
-        });
+        const imageClass = classNames(
+            'card-image absolute left-0 top-0 pointer-events-none',
+            sizeClass,
+            {
+                horizontal: card.type === 'plot',
+                vertical: card.type !== 'plot',
+                kneeled:
+                    card.type !== 'plot' &&
+                    (orientation === CardOrientation.Kneeled ||
+                        card.kneeled ||
+                        orientation === CardOrientation.Horizontal)
+            }
+        );
         const image = <img className={imageClass} src={imageUrl()} />;
         return (
-            <div className='card-frame' ref={drag}>
+            <div className='relative' ref={drag}>
                 {getDragFrame(image)}
                 {getCardOrdering()}
                 <div
@@ -286,7 +293,7 @@ const Card = ({
                     onClick={(event) => onCardClicked(event, card)}
                 >
                     <div>
-                        <span className='card-name'>{getCardName(card)}</span>
+                        <span className='text-small leading-3'>{getCardName(card)}</span>
                         {image}
                     </div>
                 </div>
@@ -325,7 +332,10 @@ const Card = ({
     }
     if (wrapped) {
         return (
-            <div className='card-wrapper' style={style}>
+            <div
+                className='card-wrapper relative m-0 inline-block select-none align-middle'
+                style={style}
+            >
                 {getCard()}
                 {getAttachments()}
                 {renderUnderneathCards()}

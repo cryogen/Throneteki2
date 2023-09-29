@@ -1,7 +1,5 @@
-import React from 'react';
-import Panel from '../../Site/Panel';
+import Panel from '../../site/Panel';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'react-bootstrap';
 import {
     CardMouseOverEventArgs,
     GameCard,
@@ -12,6 +10,7 @@ import {
 import { Card } from '../../../types/data';
 import { GamePhase } from '../../../types/enums';
 import ZoomCardImage from './ZoomCardImage';
+import { Button } from '@nextui-org/react';
 
 interface ActivePlayerPromptProps {
     buttons: PromptButton[];
@@ -113,9 +112,9 @@ const ActivePlayerPrompt = ({
 
             const option = (
                 <Button
-                    variant='primary'
+                    color='primary'
                     key={button.command + buttonIndex.toString()}
-                    className='btn btn-default prompt-button btn-stretch'
+                    className='btn btn-default prompt-button btn-stretch mb-1 w-full'
                     title={originalButtonText}
                     onClick={() =>
                         onButtonClick(button.command, button.arg, button.method, button.promptId)
@@ -158,7 +157,7 @@ const ActivePlayerPrompt = ({
         const promptTitleText = getSafePromptText(promptTitle);
 
         promptTitleToRender = (
-            <div className='menu-pane-source'>
+            <div className='menu-pane-source -ml-5 -mr-5 -mt-5 border-b-1.5 border-t-1.5 border-default bg-primary text-center'>
                 {localizedText(controlSource, promptTitleText, null)}
             </div>
         );
@@ -180,11 +179,11 @@ const ActivePlayerPrompt = ({
     }
 
     return (
-        <Panel title={t(phase + ' phase')} titleClass='phase-indicator'>
+        <Panel title={t(phase + ' phase')} titleClass='uppercase' fullHeight={false}>
             {/*timer*/}
             {promptTitleToRender}
-            <div className='menu-pane'>
-                <h4>{promptTexts}</h4>
+            <div className='mt-2 text-center'>
+                <h4 className='mb-1'>{promptTexts}</h4>
                 {/*getControls()*/}
                 {getButtons()}
             </div>

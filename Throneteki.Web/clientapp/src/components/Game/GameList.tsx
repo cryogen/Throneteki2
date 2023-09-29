@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
-import { Alert, Col } from 'react-bootstrap';
+import { useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { GameType } from '../../types/enums';
 import { Filter, LobbyGame } from '../../types/lobby';
 import { ThronetekiUser } from '../../types/user';
-import { Permission } from '../Navigation/menus';
+import { Permission } from '../navigation/menus';
 import GameTypeGroup from './GameTypeGroup';
+import Alert, { AlertType } from '../site/Alert';
 
 interface GameListProps {
     currentGame?: LobbyGame;
@@ -59,7 +59,7 @@ const GameList = ({ currentGame, games, gameFilter }: GameListProps) => {
 
     if (gameList.length === 0) {
         content = (
-            <Alert variant='info'>
+            <Alert variant={AlertType.Info}>
                 <Trans>There are no games matching the filters you have selected.</Trans>
             </Alert>
         );
@@ -67,7 +67,7 @@ const GameList = ({ currentGame, games, gameFilter }: GameListProps) => {
         content = gameList;
     }
 
-    return <Col>{content}</Col>;
+    return <div>{content}</div>;
 };
 
 export default GameList;
