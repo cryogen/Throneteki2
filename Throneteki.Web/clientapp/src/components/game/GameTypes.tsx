@@ -1,4 +1,4 @@
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { GameType } from '../../types/enums';
 import GameTypeInfo from './GameTypeInfo';
 import { Radio, RadioGroup } from '@nextui-org/react';

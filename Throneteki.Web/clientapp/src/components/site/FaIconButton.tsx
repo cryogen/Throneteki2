@@ -1,14 +1,19 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Trans } from 'react-i18next';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonProps } from '@nextui-org/react';
+import { Button } from '@nextui-org/react';
 
-interface FaIconButtonProps extends ButtonProps {
+interface FaIconButtonProps<T> {
+    as?: T;
     text?: string;
     icon: IconDefinition;
 }
 
-const FaIconButton = ({ text, icon, ...rest }: FaIconButtonProps) => {
+function FaIconButton<T extends React.ElementType = 'button'>({
+    text,
+    icon,
+    ...rest
+}: FaIconButtonProps<T> & Omit<React.ComponentPropsWithoutRef<T>, keyof FaIconButtonProps<T>>) {
     return (
         <Button {...rest} endContent={<FontAwesomeIcon icon={icon} />}>
             {text && (
@@ -18,6 +23,6 @@ const FaIconButton = ({ text, icon, ...rest }: FaIconButtonProps) => {
             )}
         </Button>
     );
-};
+}
 
 export default FaIconButton;

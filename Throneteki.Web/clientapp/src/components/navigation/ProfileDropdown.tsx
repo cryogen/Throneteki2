@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react';
 import { Link } from 'react-router-dom';
@@ -32,8 +31,8 @@ const ProfileDropdown = ({ user, menu }: ProfileMenuProps) => {
             </DropdownTrigger>
             <DropdownMenu variant='flat' className='font-[PoppinsMedium] text-emphasis'>
                 {menu.map((mi) => (
-                    <DropdownItem key={mi.title} as={Link} to={mi.path}>
-                        {t(mi.title)}
+                    <DropdownItem key={mi.title}>
+                        <Link to={mi.path}>{t(mi.title)}</Link>
                     </DropdownItem>
                 ))}
             </DropdownMenu>

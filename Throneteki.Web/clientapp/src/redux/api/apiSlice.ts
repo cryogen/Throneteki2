@@ -97,7 +97,7 @@ export const apiSlice = createApi({
                     params: { restrictedList: options.restrictedList }
                 };
             },
-            providesTags: (result, error, arg) => [{ type: TagTypes.Deck, id: arg }]
+            providesTags: (_result, _error, arg) => [{ type: TagTypes.Deck, id: arg }]
         }),
         getDecks: builder.query({
             query: (loadOptions) => {

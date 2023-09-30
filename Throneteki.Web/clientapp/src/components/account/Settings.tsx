@@ -11,8 +11,6 @@ import BlankBg from '../../assets/img/bgs/blank.png';
 import Background1 from '../../assets/img/bgs/background.png';
 import Background2 from '../../assets/img/bgs/background2.png';
 import { ApiError, useSaveUserMutation } from '../../redux/api/apiSlice';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { ThronetekiUser } from '../../types/user';
 import Alert, { AlertType } from '../site/Alert';
 import { Button } from '@nextui-org/react';

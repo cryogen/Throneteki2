@@ -22,6 +22,7 @@ import FaIconButton from '../../components/site/FaIconButton';
 import { toastr } from 'react-redux-toastr';
 import { Constants } from '../../constants';
 import { Select, SelectItem } from '@nextui-org/react';
+import Alert from '../../components/site/Alert';
 
 const DeckPage = () => {
     const { t } = useTranslation();
@@ -237,9 +238,7 @@ const DeckPage = () => {
                             <dt className='font-bold'>
                                 <Trans>Wins</Trans>
                             </dt>
-                            <dd sm={6} className='mb-0' as='dd'>
-                                {deck.wins}
-                            </dd>
+                            <dd className='mb-0'>{deck.wins}</dd>
                         </dl>
                         <dl className='mb-0 mt-1 grid grid-cols-2'>
                             <dt className='font-bold'>

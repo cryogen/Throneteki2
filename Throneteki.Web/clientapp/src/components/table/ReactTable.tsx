@@ -13,7 +13,8 @@ import {
     getSortedRowModel,
     TableOptions,
     ColumnFilter,
-    RowSelectionState
+    RowSelectionState,
+    ColumnSort
 } from '@tanstack/react-table';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -37,7 +38,7 @@ import {
     TableHeader,
     TableRow
 } from '@nextui-org/react';
-import Alert from '../site/Alert';
+import Alert, { AlertType } from '../site/Alert';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColorType } from '../../types/ui';
 
@@ -111,8 +112,7 @@ function ReactTable<T>({
         [pageIndex, pageSize]
     );
     const [rowSelection, setRowSelection] = useState<Selection>(new Set([]));
-    const [autoRowSelection, setAutoRowSelection] = useState({});
-    const [autoSorting, setAutoSorting] = useState({});
+    const [autoSorting, setAutoSorting] = useState<ColumnSort[]>([]);
 
     const fetchDataOptions = {
         columnFilters,

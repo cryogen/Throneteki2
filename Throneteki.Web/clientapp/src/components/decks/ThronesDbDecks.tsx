@@ -18,18 +18,18 @@ import {
 } from '../../redux/api/apiSlice';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { ThronesDbDeck } from '../../types/decks';
-import { ColumnDef, Row, RowData } from '@tanstack/react-table';
+import { ColumnDef, Row } from '@tanstack/react-table';
 import moment from 'moment';
-import Alert from '../site/Alert';
+import Alert, { AlertType } from '../site/Alert';
 import { Button } from '@nextui-org/react';
 import ReactTable, { TableButton } from '../table/ReactTable';
 
-declare module '@tanstack/table-core' {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    interface ColumnMeta<TData extends RowData, TValue> {
-        colWidth: number;
-    }
-}
+// declare module '@tanstack/table-core' {
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     interface ColumnMeta<TData extends RowData, TValue> {
+//         colWidth: number;
+//     }
+// }
 
 const ThronesDbDecks = () => {
     const { t } = useTranslation();
@@ -155,7 +155,7 @@ const ThronesDbDecks = () => {
                     {t('An error occured loading ThronesDB decks. Please try again later.')}
                 </Alert>
                 <Button
-                    variant='primary'
+                    color='primary'
                     onClick={async () => {
                         try {
                             const response = await linkAccount({}).unwrap();

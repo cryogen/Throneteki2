@@ -194,7 +194,7 @@ const ImportDeckPage = () => {
                     processDeck();
                 }}
             >
-                <div className='mb-3' controlId='deckText'>
+                <div className='mb-3'>
                     <label>
                         <Trans>
                             Export your deck as plain text from{' '}

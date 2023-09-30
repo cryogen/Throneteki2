@@ -1,13 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { Alert, Button, Col, Form, Row, Table } from 'react-bootstrap';
 import { useAuth } from 'react-oidc-context';
 import * as yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Formik } from 'formik';
 
-import Panel from '../../components/Site/Panel';
+import Panel from '../../components/site/Panel';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import {
     useAddBlockListEntryMutation,
@@ -15,6 +14,8 @@ import {
     ApiError
 } from '../../redux/api/apiSlice';
 import { BlockListEntry } from '../../types/user';
+import Alert from '../../components/site/Alert';
+import { Button, Input, Table } from '@nextui-org/react';
 
 interface AddBlockListEntry {
     blockee: string;
@@ -104,7 +105,7 @@ const BlockListPage = () => {
                     <Trans>No users currently blocked</Trans>
                 </div>
             ) : (
-                <Table striped className='blocklist'>
+                <Table isStriped className='blocklist'>
                     <thead>
                         <tr>
                             <th>
@@ -127,7 +128,7 @@ const BlockListPage = () => {
                     initialValues={initialValues}
                 >
                     {(formProps) => (
-                        <Form
+                        <form
                             onSubmit={(event) => {
                                 event.preventDefault();
                                 formProps.handleSubmit(event);
@@ -141,28 +142,23 @@ const BlockListPage = () => {
                                     see their chat messages or their games.
                                 </Trans>
                             </p>
-                            <Row>
-                                <Form.Group as={Col} xs='9' controlId='formGridblockee'>
-                                    <Form.Label>{t('Username')}</Form.Label>
-                                    <Form.Control
-                                        type='text'
-                                        placeholder={t('Enter username to block')}
-                                        isInvalid={
-                                            formProps.touched.blockee && !!formProps.errors.blockee
-                                        }
-                                        {...formProps.getFieldProps('blockee')}
-                                        name='blockee'
-                                    />
-                                    <Form.Control.Feedback type='invalid'>
-                                        {formProps.errors.blockee}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-                            </Row>
+                            <div>
+                                <Input
+                                    label={t('Username')}
+                                    placeholder={t('Enter username to block')}
+                                    errorMessage={formProps.errors.blockee}
+                                    name='blockee'
+                                    {...formProps.getFieldProps('blockee')}
+                                />
+                            </div>
 
-                            <Button variant='primary' type='submit' disabled={isAddLoading}>
+                            <Button
+                                color='primary'
+                                type='submit'
+                                disabled={isAddLoading}
+                                isLoading={isAddLoading}
+                            >
                                 <Trans>Add</Trans>
-                                &nbsp;
-                                {isAddLoading && <FontAwesomeIcon icon={faCircleNotch} spin />}
                             </Button>
 
                             <div className='mt-3'>
@@ -171,7 +167,7 @@ const BlockListPage = () => {
                                 </h3>
                                 {table}
                             </div>
-                        </Form>
+                        </form>
                     )}
                 </Formik>
             </div>
@@ -179,12 +175,12 @@ const BlockListPage = () => {
     }
 
     return (
-        <Col lg={{ span: 8, offset: 2 }}>
+        <div>
             <Panel title={t('BlockList')}>
                 {error && <Alert variant='danger'>{error}</Alert>}
                 {content}
             </Panel>
-        </Col>
+        </div>
     );
 };
 

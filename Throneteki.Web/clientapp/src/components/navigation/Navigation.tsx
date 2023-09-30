@@ -82,7 +82,7 @@ const Navigation = () => {
 
     const renderMenuItems = (menuItems: MenuItem[]) => {
         return filterMenuItems(menuItems, user).map((menuItem, index) => {
-            const children = menuItem.childItems && filterMenuItems(menuItem.childItems, user);
+            //            const children = menuItem.childItems && filterMenuItems(menuItem.childItems, user);
 
             // if (children && children.length > 0) {
             //     return (

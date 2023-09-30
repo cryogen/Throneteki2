@@ -10,19 +10,19 @@ import {
 } from '../../redux/api/apiSlice';
 import { Card, Faction } from '../../types/data';
 import { BannersForFaction, Constants } from '../../constants';
-import { ColumnDef, RowData } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { Deck, SaveDeck, SaveDeckCard } from '../../types/decks';
 import ReactTable from '../table/ReactTable';
 import DeckSummary from './DeckSummary';
 import Alert from '../site/Alert';
 import { Button, ButtonGroup, Input, extendVariants } from '@nextui-org/react';
 
-declare module '@tanstack/table-core' {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    interface ColumnMeta<TData extends RowData, TValue> {
-        colWidth: number;
-    }
-}
+// declare module '@tanstack/table-core' {
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     interface ColumnMeta<TData extends RowData, TValue> {
+//         colWidth: number;
+//     }
+// }
 
 interface DeckEditorProps {
     deck: Deck;

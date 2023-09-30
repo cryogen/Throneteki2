@@ -45,7 +45,7 @@ const ActivePlayerPrompt = ({
     const { i18n, t } = useTranslation();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const localizedText = (source: Card | null, text: string | null, values?: any): string => {
+    const localizedText = (source: Card | null, text: string | null, values?: any) => {
         if (!isNaN(Number(text))) {
             // text is just a plain number, avoid translation
             return text || '';
@@ -104,7 +104,7 @@ const ActivePlayerPrompt = ({
 
         for (const button of buttons) {
             const originalButtonText = localizedText(button.card, button.text, button.values);
-            let buttonText = originalButtonText;
+            let buttonText = originalButtonText as string;
 
             if (buttonText.length > MaxButtonTextLength) {
                 buttonText = buttonText.slice(0, MaxButtonTextLength - 3).trim() + '...';
@@ -115,7 +115,7 @@ const ActivePlayerPrompt = ({
                     color='primary'
                     key={button.command + buttonIndex.toString()}
                     className='btn btn-default prompt-button btn-stretch mb-1 w-full'
-                    title={originalButtonText}
+                    //  title={originalButtonText}
                     onClick={() =>
                         onButtonClick(button.command, button.arg, button.method, button.promptId)
                     }
@@ -158,7 +158,7 @@ const ActivePlayerPrompt = ({
 
         promptTitleToRender = (
             <div className='menu-pane-source -ml-5 -mr-5 -mt-5 border-b-1.5 border-t-1.5 border-default bg-primary text-center'>
-                {localizedText(controlSource, promptTitleText, null)}
+                {localizedText(controlSource, promptTitleText, null) as string}
             </div>
         );
     }
@@ -170,11 +170,11 @@ const ActivePlayerPrompt = ({
         if (safePromptText.includes('\n')) {
             const split = safePromptText.split('\n');
             for (const token of split) {
-                promptTexts.push(localizedText(controlSource, token, null));
+                promptTexts.push(localizedText(controlSource, token, null) as string);
                 promptTexts.push(<br />);
             }
         } else {
-            promptTexts.push(localizedText(controlSource, safePromptText, null));
+            promptTexts.push(localizedText(controlSource, safePromptText, null) as string);
         }
     }
 

@@ -44,16 +44,16 @@ const GameConfiguration = ({
 
     const windowsToRender = windows.map((window) => {
         return (
-            <div key={window.name} md={4}>
+            <div key={window.name}>
                 <Switch
-                    onChange={(event) =>
-                        onActionWindowToggle &&
-                        onActionWindowToggle(window.name, event.target.checked)
+                    onValueChange={(checked) =>
+                        onActionWindowToggle && onActionWindowToggle(window.name, checked)
                     }
                     name={'promptedActionWindows.' + window.name}
-                    label={t(window.label)}
-                    checked={actionWindows[window.name]}
-                />
+                    isSelected={actionWindows[window.name]}
+                >
+                    {t(window.label)}
+                </Switch>
             </div>
         );
     });
@@ -68,25 +68,25 @@ const GameConfiguration = ({
                     <div>
                         <div>
                             <Switch
-                                onChange={(event) =>
-                                    onTimerSettingToggle &&
-                                    onTimerSettingToggle('events', event.target.checked)
+                                onValueChange={(value) =>
+                                    onTimerSettingToggle && onTimerSettingToggle('events', value)
                                 }
                                 name='timerSettings.events'
-                                label={t('Show timer for events')}
-                                checked={timerSettings.events}
-                            />
+                                isSelected={timerSettings.events}
+                            >
+                                {t('Show timer for events')}
+                            </Switch>
                         </div>
                         <div>
                             <Switch
-                                onChange={(event) =>
-                                    onTimerSettingToggle &&
-                                    onTimerSettingToggle('abilities', event.target.checked)
+                                onValueChange={(value) =>
+                                    onTimerSettingToggle && onTimerSettingToggle('abilities', value)
                                 }
                                 name='timerSettings.abilities'
-                                label={t('Show timer for card abilities')}
-                                checked={timerSettings.abilities}
-                            />
+                                isSelected={timerSettings.abilities}
+                            >
+                                {t('Show timer for card abilities')}
+                            </Switch>
                         </div>
                     </div>
                 </Panel>
@@ -94,36 +94,38 @@ const GameConfiguration = ({
                     <div>
                         <div>
                             <Switch
-                                onChange={(event) =>
+                                onValueChange={(value) =>
                                     onKeywordSettingToggle &&
-                                    onKeywordSettingToggle('chooseOrder', event.target.checked)
+                                    onKeywordSettingToggle('chooseOrder', value)
                                 }
                                 name='keywordSettings.chooseOrder'
-                                label={t('Choose order of keywords')}
-                                checked={keywordSettings.chooseOrder}
-                            />
+                                isSelected={keywordSettings.chooseOrder}
+                            >
+                                {t('Choose order of keywords')}
+                            </Switch>
                         </div>
                         <div>
                             <Switch
-                                onChange={(event) =>
+                                onValueChange={(value) =>
                                     onKeywordSettingToggle &&
-                                    onKeywordSettingToggle('chooseCards', event.target.checked)
+                                    onKeywordSettingToggle('chooseCards', value)
                                 }
                                 name='keywordSettings.chooseCards'
-                                label={t('Make keywords optional')}
-                                checked={keywordSettings.chooseCards}
-                            />
+                                isSelected={keywordSettings.chooseCards}
+                            >
+                                {t('Make keywords optional')}
+                            </Switch>
                         </div>
                         <div>
                             <Switch
-                                type='switch'
-                                onChange={(event) =>
-                                    onPromptDupesToggle && onPromptDupesToggle(event.target.checked)
+                                onValueChange={(value) =>
+                                    onPromptDupesToggle && onPromptDupesToggle(value)
                                 }
                                 name='promptDupes'
-                                label={t('Prompt before using dupes to save')}
-                                checked={promptDupes}
-                            />
+                                isSelected={promptDupes}
+                            >
+                                {t('Prompt before using dupes to save')}
+                            </Switch>
                         </div>
                     </div>
                 </Panel>

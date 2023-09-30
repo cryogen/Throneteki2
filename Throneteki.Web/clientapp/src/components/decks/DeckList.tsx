@@ -55,7 +55,7 @@ const DeckList = ({ onDeckSelected, readOnly = false, restrictedList }: DeckList
     const navigate = useNavigate();
     const [selectedIds, setSelectedIds] = useState([]);
 
-    let columns = useMemo<ColumnDef<Deck>[]>(
+    const columns = useMemo<ColumnDef<Deck>[]>(
         () => [
             {
                 accessorKey: 'name',
