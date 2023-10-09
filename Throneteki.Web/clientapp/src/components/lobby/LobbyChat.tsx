@@ -2,15 +2,23 @@ import { useRef, useEffect, useState } from 'react';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Avatar } from '@nextui-org/react';
 
 import { LobbyMessage } from '../../types/lobby';
-import { Avatar } from '@nextui-org/react';
 
 interface LobbyChatProps {
     messages: LobbyMessage[];
     isModerator: boolean;
     onRemoveMessageClick: (id: number) => void;
 }
+
+const colourClassByRole: { [key: string]: string } = {
+    admin: 'text-red-500',
+    contributor: 'text-blue-400',
+    supporter: 'text-green-500',
+    winner: 'text-yellow-200',
+    previouswinner: 'text-pink-500'
+};
 
 const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatProps) => {
     const messageRef = useRef<HTMLDivElement | null>(null);
@@ -96,10 +104,8 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                     if (isModerator) {
                         messageText = (
                             <>
-                                <span className='message-deleted message-moderated'>
-                                    {message.message}
-                                </span>
-                                <span className='message-deleted'>
+                                <span className='italic line-through'>{message.message}</span>
+                                <span className='italic'>
                                     {' '}
                                     - (Message removed by {message.deletedBy})
                                 </span>
@@ -107,7 +113,7 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                         );
                     } else {
                         messageText = (
-                            <span className='message-deleted'>Message deleted by a moderator</span>
+                            <span className='italic'>Message deleted by a moderator</span>
                         );
                     }
                 } else {
@@ -115,12 +121,12 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                 }
 
                 return (
-                    <div key={message.user.username + i++} className='text-white-50 break-words'>
+                    <div key={message.user.username + i++} className='break-words'>
                         {messageText}
                         {isModerator && (
                             <a
                                 href='#'
-                                className='btn-icon icon-remove'
+                                className='ml-2 text-danger'
                                 onClick={() => onRemoveMessageClick(message.id)}
                             >
                                 <FontAwesomeIcon icon={faTimes} />
@@ -132,7 +138,9 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
 
             const userClass =
                 'username' +
-                (firstMessage.user.role ? ` ${firstMessage.user.role.toLowerCase()}-role` : '');
+                (firstMessage.user.role
+                    ? ` ${colourClassByRole[firstMessage.user.role.toLowerCase()]}`
+                    : '');
 
             return (
                 <div
@@ -142,12 +150,12 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
                     <div className='mr-2'>
                         <Avatar src={firstMessage.user.avatar} />
                     </div>
-                    <div>
+                    <div className='overflow-x-hidden'>
                         <div className='flex'>
                             <span className={userClass}>{firstMessage.user.username}</span>
                             <span className='ml-2 text-white'>{timestamp}</span>
                         </div>
-                        <div>{renderedMessages}</div>
+                        {renderedMessages}
                     </div>
                 </div>
             );

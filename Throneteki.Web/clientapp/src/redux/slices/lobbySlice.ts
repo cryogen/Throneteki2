@@ -11,6 +11,7 @@ export interface LobbyState {
     isEstablishingConnection: boolean;
     isMessagePending: boolean;
     lobbyMessages: LobbyMessage[];
+    noChat: boolean;
     responseTime: number;
     users: UserSummary[];
 }
@@ -21,6 +22,7 @@ const initialState: LobbyState = {
     isMessagePending: false,
     games: [],
     lobbyMessages: [],
+    noChat: false,
     responseTime: -1,
     users: []
 };
@@ -29,6 +31,9 @@ const lobbySlice = createSlice({
     name: 'lobby',
     initialState,
     reducers: {
+        clearNoChatStatus: (state) => {
+            state.noChat = false;
+        },
         startConnecting: (state) => {
             state.isEstablishingConnection = true;
         },
@@ -66,6 +71,9 @@ const lobbySlice = createSlice({
         receiveNewGame(state, action: PayloadAction<LobbyGame>) {
             state.games.push(action.payload);
         },
+        receiveNoChat(state, _action: PayloadAction) {
+            state.noChat = true;
+        },
         // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
         receiveUpdateGame(_state, _action: PayloadAction<LobbyGame>) {},
         receiveRemoveGame(state, action: PayloadAction<LobbyGame>) {
@@ -78,10 +86,18 @@ const lobbySlice = createSlice({
         receiveRemoveGames(state, action: PayloadAction<LobbyGame[]>) {
             state.games = state.games.filter((g) => action.payload.some((rg) => rg.id !== g.id));
 
-            console.info(state.games);
-
             if (!state.games.find((g) => g.id === state.currentGame?.id)) {
                 state.currentGame = null;
+            }
+        },
+        receiveRemoveMessage(
+            state,
+            action: PayloadAction<{ messageId: number; removedBy?: string }>
+        ) {
+            const message = state.lobbyMessages.find((m) => m.id === action.payload.messageId);
+            if (message) {
+                message.deleted = true;
+                message.deletedBy = action.payload.removedBy;
             }
         },
         receivePing: (
@@ -128,6 +144,9 @@ const lobbySlice = createSlice({
             state.isMessagePending = true;
         },
         sendNewGame: (state, _) => {
+            state.isMessagePending = true;
+        },
+        sendRemoveLobbyMessage: (state, _) => {
             state.isMessagePending = true;
         },
         sendSelectDeck: (state, _) => {

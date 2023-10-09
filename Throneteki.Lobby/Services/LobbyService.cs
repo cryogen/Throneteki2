@@ -1,9 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.SignalR;
+using Throneteki.Data.Models;
 using Throneteki.Lobby.Models;
 using Throneteki.WebService;
 using LobbyMessage = Throneteki.Lobby.Models.LobbyMessage;
+using ThronetekiUser = Throneteki.WebService.ThronetekiUser;
 
 namespace Throneteki.Lobby.Services;
 
@@ -72,7 +74,9 @@ public class LobbyService
                     Role = message.User.Role,
                     Username = message.User.Username,
                     Avatar = message.User.Avatar
-                }
+                },
+                Deleted = message.Deleted,
+                DeletedBy = message.Deletedby
             }), context.ConnectionAborted);
 
         var gamesToSend = GamesById.Values.Where(g => user == null || g.IsVisibleFor(user))
@@ -342,6 +346,15 @@ public class LobbyService
         }
 
         await BroadcastGameList();
+    }
+
+    public async Task BroadcastMessageRemoval(int messageId, string removedBy)
+    {
+        var moderators = UsersByName.Values.Where(u => u.Permissions.Contains(Roles.ChatManager)).Select(u => ConnectionsByUsername[u.Username]);
+        var everyoneElse = UsersByName.Values.Where(u => !u.Permissions.Contains(Roles.ChatManager)).Select(u => ConnectionsByUsername[u.Username]); ;
+
+        await _hubContext.Clients.Clients(moderators).SendAsync(LobbyMethods.RemoveMessage, messageId, removedBy);
+        await _hubContext.Clients.Clients(everyoneElse).SendAsync(LobbyMethods.RemoveMessage, messageId);
     }
 
     private async Task BroadcastGameList()

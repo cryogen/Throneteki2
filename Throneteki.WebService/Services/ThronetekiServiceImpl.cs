@@ -113,14 +113,24 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             .Include(m => m.Poster)
             .ThenInclude(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
+            .Include(m => m.DeletedBy)
             .OrderByDescending(m => m.PostedDateTime)
             .Take(50)
             .Select(message => MapMessage(message)).ToListAsync();
+
+        var roles = new List<string>();
 
         if (user != null)
         {
             messages = messages.Where(m => !user.BlockListEntries.Any(bl => bl.BlockedUserId == m.User.Id) &&
                                            !m.User.BlockList.Any(bl => bl.UserId == user.Id)).ToList();
+
+            roles.AddRange(user.UserRoles.Select(ur => ur.Role.Name));
+        }
+
+        if (user == null || !roles.Contains(Roles.ChatManager))
+        {
+            messages = messages.Where(m => !m.Deleted).ToList();
         }
 
         return new GetLobbyMessagesForUserResponse { Messages = { messages } };
@@ -151,6 +161,8 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             Registered = Timestamp.FromDateTime(user.RegisteredDateTime),
             Role = GetRoleForUser(user)
         };
+
+        ret.User.Permissions.AddRange(user.UserRoles.Select(ur => ur.Role.Name));
 
         ret.User.BlockList.AddRange(user.BlockListEntries.Select(bl => new BlockListEntry
         {
@@ -245,6 +257,23 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
         return new UpdateGameResponse();
     }
 
+    public override async Task<RemoveLobbyMessageResponse> RemoveLobbyMessage(RemoveLobbyMessageRequest request, ServerCallContext context)
+    {
+        var lobbyMessage = await _dbContext.LobbyMessages.FirstOrDefaultAsync(lm => lm.Id == request.MessageId);
+
+        if (lobbyMessage == null)
+        {
+            return new RemoveLobbyMessageResponse();
+        }
+
+        lobbyMessage.Deleted = true;
+        lobbyMessage.DeletedById = request.DeletedByUserId;
+
+        await _dbContext.SaveChangesAsync();
+
+        return new RemoveLobbyMessageResponse();
+    }
+
     private static LobbyMessage MapMessage(DbLobbyMessage message)
     {
         return new LobbyMessage
@@ -259,7 +288,9 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
                 Username = message.Poster.UserName,
                 Registered = Timestamp.FromDateTime(message.Poster.RegisteredDateTime),
                 Role = GetRoleForUser(message.Poster)
-            }
+            },
+            Deleted = message.Deleted,
+            Deletedby = message.DeletedBy?.UserName ?? string.Empty
         };
     }
 

@@ -1,39 +1,25 @@
 import React, { useState } from 'react';
-// import { toastr } from 'react-redux-toastr';
+import { toastr } from 'react-redux-toastr';
 import { useTranslation } from 'react-i18next';
 // import { Carousel } from 'react-responsive-carousel';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
 // import NewsComponent from '../Components/News/News';
-// import AlertPanel from '../Components/Site/AlertPanel';
 import Panel from '../components/site/Panel';
-// import Typeahead from '../Components/Form/Typeahead';
-import SideBar from '../components/lobby/SideBar';
-import UserList from '../components/lobby/UserList';
 import { lobbyActions } from '../redux/slices/lobbySlice';
 import { useAuth } from 'react-oidc-context';
 import LobbyChat from '../components/lobby/LobbyChat';
 import { Permission } from '../components/navigation/menus';
 import { ThronetekiUser } from '../types/user';
 import { Input } from '@nextui-org/react';
-// import UserList from '../Components/Lobby/UserList';
-// import LobbyChat from '../Components/Lobby/LobbyChat';
-// import { clearChatStatus, loadNews, removeLobbyMessage, sendSocketMessage } from '../redux/actions';
 // import { News } from '../redux/types';
 
 // import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 const Lobby = () => {
     const dispatch = useAppDispatch();
-    const { users, lobbyMessages } = useAppSelector((state) => state.lobby);
+    const { users, lobbyMessages, noChat } = useAppSelector((state) => state.lobby);
 
-    // const { bannerNotice, lobbyError, messages, motd, users } = useSelector((state) => ({
-    //     bannerNotice: state.lobby.bannerNotice,
-    //     lobbyError: state.lobby.lobbyError,
-    //     messages: state.lobby.messages,
-    //     motd: state.lobby.motd,
-    //     users: state.lobby.users
-    // }));
     // const user = useSelector((state) => state.account.user);
     // const news = useSelector((state) => state.news.news);
     // const apiState = useSelector((state) => {
@@ -41,25 +27,25 @@ const Lobby = () => {
 
     //     return retState;
     // });
-    // const [popupError, setPopupError] = useState(false);
+    const [popupError, setPopupError] = useState(false);
     const [message, setMessage] = useState<string>('');
     const { t } = useTranslation();
     const auth = useAuth();
 
-    //     // useEffect(() => {
-    //     //     dispatch(loadNews({ limit: 3 }));
-    //     // }, [dispatch]);
+    // useEffect(() => {
+    //     dispatch(loadNews({ limit: 3 }));
+    // }, [dispatch]);
 
-    //     // if (!popupError && lobbyError) {
-    //     //     setPopupError(true);
+    if (!popupError && noChat) {
+        setPopupError(true);
 
-    //     //     toastr.error('Error', 'New users are limited from chatting in the lobby, try again later');
+        toastr.error('Error', 'New users are limited from chatting in the lobby, try again later');
 
-    //     //     setTimeout(() => {
-    //     //         dispatch(clearChatStatus());
-    //     //         setPopupError(false);
-    //     //     }, 5000);
-    //     // }
+        setTimeout(() => {
+            dispatch(lobbyActions.clearNoChatStatus());
+            setPopupError(false);
+        }, 5000);
+    }
 
     const sendMessage = () => {
         if (message === '') {
@@ -92,12 +78,8 @@ const Lobby = () => {
     //     //         link: 'https://forms.gle/SQSbcxEDATbYkSU8A'
     //     //     }
     //     // ];
-
     return (
         <div className='mx-auto flex h-[91vh] w-2/3 flex-col'>
-            <SideBar>
-                <UserList users={users} />
-            </SideBar>
             <div>
                 {/* <Carousel
                             autoPlay={true}
@@ -158,8 +140,8 @@ const Lobby = () => {
                 <LobbyChat
                     messages={lobbyMessages}
                     isModerator={user?.role?.includes(Permission.CanModerateChat)}
-                    onRemoveMessageClick={() => {
-                        //   dispatch(removeLobbyMessage(messageId))
+                    onRemoveMessageClick={(messageId) => {
+                        dispatch(lobbyActions.sendRemoveLobbyMessage(messageId));
                     }}
                 />
             </Panel>

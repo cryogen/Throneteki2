@@ -7,6 +7,10 @@ import { useTheme } from 'next-themes';
 import { useAppSelector } from '../../redux/hooks';
 import { RightMenu, LeftMenu, MenuItem, ProfileMenu } from './menus';
 import {
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
     Image,
     Link,
     Navbar,
@@ -16,18 +20,16 @@ import {
     NavbarMenuItem,
     NavbarMenuToggle
 } from '@nextui-org/react';
+import ProfileDropdown from './ProfileDropdown';
+import GameContextMenu from './GameContextMenu';
+import ServerStatus from './ServerStatus';
+
 // import LanguageSelector from './LanguageSelector';
-// import ProfileDropdown from './ProfileMenu';
-// import ServerStatus from './ServerStatus';
 import { ThronetekiUser } from '../../types/user';
-// import GameContextMenu from './GameContextMenu';
 
 import SmallHeaderIcon from '../../assets/img/header_icon_light.png';
 import SmallHeaderIconDark from '../../assets/img/header_icon.png';
 import HeaderIcon from '../../assets/img/main_header_logo.png';
-import ProfileDropdown from './ProfileDropdown';
-import GameContextMenu from './GameContextMenu';
-import ServerStatus from './ServerStatus';
 
 export interface UserSettings {
     customBackground: string | undefined;
@@ -82,29 +84,39 @@ const Navigation = () => {
 
     const renderMenuItems = (menuItems: MenuItem[]) => {
         return filterMenuItems(menuItems, user).map((menuItem, index) => {
-            //            const children = menuItem.childItems && filterMenuItems(menuItem.childItems, user);
+            const children = menuItem.childItems && filterMenuItems(menuItem.childItems, user);
 
-            // if (children && children.length > 0) {
-            //     return (
-            //         <NavDropdown
-            //             key={menuItem.title}
-            //             id={`nav-${menuItem.title}`}
-            //             title={t(menuItem.title)}
-            //         >
-            //             {children.map((childItem) =>
-            //                 childItem.path ? (
-            //                     <NavDropdown.Item
-            //                         as={Link}
-            //                         to={childItem.path}
-            //                         className='navbar-item interactable dropdown-child'
-            //                     >
-            //                         {t(childItem.title)}
-            //                     </NavDropdown.Item>
-            //                 ) : null
-            //             )}
-            //         </NavDropdown>
-            //     );
-            // }
+            if (children && children.length > 0) {
+                return (
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Link
+                                className='cursor-pointer font-[PoppinsMedium] text-emphasis transition-colors duration-500 ease-in-out hover:text-white'
+                                size='lg'
+                            >
+                                {t(menuItem.title)}
+                            </Link>
+                        </DropdownTrigger>
+                        <DropdownMenu
+                            key={menuItem.title}
+                            id={`nav-${menuItem.title}`}
+                            variant='flat'
+                            className='font-[PoppinsMedium] text-emphasis'
+                            title={t(menuItem.title)}
+                        >
+                            {children.map((childItem) =>
+                                childItem.path ? (
+                                    <DropdownItem>
+                                        <RouterLink to={childItem.path}>
+                                            {t(childItem.title)}
+                                        </RouterLink>
+                                    </DropdownItem>
+                                ) : null
+                            )}
+                        </DropdownMenu>
+                    </Dropdown>
+                );
+            }
 
             if (!menuItem.path) {
                 return <React.Fragment key={index}></React.Fragment>;

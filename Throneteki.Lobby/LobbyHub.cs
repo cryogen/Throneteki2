@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Throneteki.Data.Models;
 using Throneteki.Lobby.Commands;
 using Throneteki.Lobby.Commands.Handlers;
 using Throneteki.Lobby.Models;
@@ -101,6 +102,18 @@ public class LobbyHub : Hub
         var command = BuildCommand<LeaveGameCommand>();
 
         var handler = _commandHandlerFactory.GetCommandHandler<LeaveGameCommand>();
+
+        return handler.HandleAsync(command);
+    }
+
+    [Authorize(Roles = Roles.ChatManager)]
+    public Task RemoveLobbyMessage(int messageId)
+    {
+        var command = BuildCommand<RemoveLobbyMessageCommand>();
+
+        var handler = _commandHandlerFactory.GetCommandHandler<RemoveLobbyMessageCommand>();
+
+        command.MessageId = messageId;
 
         return handler.HandleAsync(command);
     }

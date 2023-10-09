@@ -80,7 +80,7 @@ message LobbyMessage {
 	ThronetekiUser User = 3;
 	google.protobuf.Timestamp Time = 4;
     bool Deleted = 5;
-	ThronetekiUser Deletedby = 6;
+	string Deletedby = 6;
 }
 
 message Pack {
@@ -117,6 +117,7 @@ message ThronetekiUser {
 	google.protobuf.Timestamp Registered = 5;
 	string Role = 6;
 	ThronetekiUserSettings Settings = 7;
+    repeated string Permissions = 8;
 }
 
 message ThronetekiGamePlayer {

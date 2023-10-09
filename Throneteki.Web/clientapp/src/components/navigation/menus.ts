@@ -4,7 +4,7 @@ export enum Permission {
     CanManagePermissions = 'PermissionsManager',
     CanManageGames = 'GameManager',
     CanManageNodes = 'NodeManager',
-    CanModerateChat = 'canModerateChat',
+    CanModerateChat = 'ChatManager',
     CanVerifyDecks = 'canVerifyDecks',
     CanManageBanlist = 'canManageBanlist',
     CanManageMotd = 'canManageMotd',

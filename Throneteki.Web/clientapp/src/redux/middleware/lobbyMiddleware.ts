@@ -15,10 +15,13 @@ enum LobbyEvent {
     LobbyMessages = 'lobbymessages',
     NewGame = 'newgame',
     NewUserMessage = 'newuser',
+    NoChat = 'nochat',
     PongMessage = 'pong',
     UpdateGame = 'updategame',
     UserLeftMessage = 'userleft',
     UsersMessage = 'users',
+    RemoveLobbyMessage = 'removelobbymessage',
+    RemoveMessage = 'removemessage',
     RemoveGame = 'removegame',
     RemoveGames = 'removegames',
     SelectDeck = 'selectdeck',
@@ -116,6 +119,15 @@ const lobbyMiddleware: Middleware = (store) => {
                 store.dispatch(lobbyActions.receiveGames(games));
             });
 
+            connection.on(LobbyEvent.RemoveMessage, (messageId, removedBy) => {
+                store.dispatch(
+                    lobbyActions.receiveRemoveMessage({
+                        messageId: messageId,
+                        removedBy: removedBy
+                    })
+                );
+            });
+
             connection.on(LobbyEvent.PongMessage, () => {
                 store.dispatch(
                     lobbyActions.receivePing({
@@ -130,6 +142,10 @@ const lobbyMiddleware: Middleware = (store) => {
                     },
                     2 * 1000 * 60
                 );
+            });
+
+            connection.on(LobbyEvent.NoChat, () => {
+                store.dispatch(lobbyActions.receiveNoChat);
             });
         }
 
@@ -160,6 +176,8 @@ const lobbyMiddleware: Middleware = (store) => {
             connection.send(LobbyEvent.StartGame, '');
         } else if (lobbyActions.sendJoinGame.match(action)) {
             connection.send(LobbyEvent.JoinGame, action.payload);
+        } else if (lobbyActions.sendRemoveLobbyMessage.match(action)) {
+            connection.send(LobbyEvent.RemoveLobbyMessage, action.payload);
         }
 
         next(action);

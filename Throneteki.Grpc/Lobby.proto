@@ -11,6 +11,7 @@ service ThronetekiService {
 	rpc GetDeckById(GetDeckByIdRequest) returns (GetDeckByIdResponse);
 	rpc GetLobbyMessagesForUser(GetLobbyMessagesForUserRequest) returns (GetLobbyMessagesForUserResponse);
 	rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse);
+	rpc RemoveLobbyMessage(RemoveLobbyMessageRequest) returns (RemoveLobbyMessageResponse);
 	rpc UpdateGame(UpdateGameRequest) returns (UpdateGameResponse);
 }
 
@@ -66,4 +67,12 @@ message UpdateGameRequest {
 }
 
 message UpdateGameResponse {
+}
+
+message RemoveLobbyMessageRequest {
+	int32 MessageId = 1;
+	string DeletedByUserId = 2;
+}
+
+message RemoveLobbyMessageResponse {
 }

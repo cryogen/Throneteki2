@@ -35,6 +35,7 @@ public class LobbyChatCommandHandler : ILobbyCommandHandler<LobbyChatCommand>
         if ((DateTime.UtcNow - user.Registered.ToDateTime()).TotalSeconds < _lobbyOptions.MinLobbyChatTime)
         {
             await _hubContext.Clients.Client(command.ConnectionId).SendAsync(LobbyMethods.NoChat);
+            return;
         }
 
         var response = await _thronetekiService.AddLobbyMessageAsync(new AddLobbyMessageRequest
