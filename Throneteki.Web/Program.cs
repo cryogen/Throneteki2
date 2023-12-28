@@ -49,7 +49,14 @@ if (!string.IsNullOrEmpty(thronesDbOptions.ClientId))
             var dbContext = ctx.HttpContext.RequestServices.GetRequiredService<ThronetekiDbContext>();
             var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<ThronetekiUser>>();
 
-            var user = await userManager.FindByNameAsync(ctx.Properties.Items["UserId"]);
+            var user = await userManager.FindByNameAsync(ctx.Properties.Items["UserId"] ?? string.Empty);
+            if (user == null)
+            {
+                ctx.Fail("No user logged in");
+
+                return;
+            }
+
             user = await userManager.Users.Include(u => u.ExternalTokens).SingleOrDefaultAsync(u => u.Id == user.Id);
             if (user == null)
             {
@@ -83,7 +90,7 @@ builder.Services.AddIdentity<ThronetekiUser, ThronetekiRole>()
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
-        options.SetIssuer(authServerUrl);
+        options.SetIssuer(authServerUrl ?? string.Empty);
         options.AddAudiences("throneteki");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
@@ -105,6 +112,7 @@ builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly, typeof(Lobby
 
 builder.Services.AddTransient<CardService>();
 builder.Services.AddTransient<DeckService>();
+builder.Services.AddTransient<NewsService>();
 
 var app = builder.Build();
 
@@ -121,11 +129,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapDefaultControllerRoute();
-});
+app.MapControllers();
+app.MapDefaultControllerRoute();
 
 app.MapFallbackToFile("index.html");
 

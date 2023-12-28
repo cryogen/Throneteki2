@@ -83,7 +83,7 @@ public class ThronetekiServiceFactory
             ClientId = "throneteki-webservices"
         });
 
-        if (tokenResponse.IsError)
+        if (tokenResponse.IsError || string.IsNullOrEmpty(tokenResponse.AccessToken))
         {
             throw new ApplicationException($"Status code: {tokenResponse.IsError}, Error: {tokenResponse.Error}");
         }

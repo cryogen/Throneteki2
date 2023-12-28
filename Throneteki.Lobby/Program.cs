@@ -74,8 +74,6 @@ builder.Services.AddTransient<CardService>();
 
 builder.Services.AddQuartz(q =>
 {
-    q.UseMicrosoftDependencyInjectionJobFactory();
-
     q.ScheduleJob<GameCleanupJob>(cfg =>
     {
         cfg.WithIdentity(nameof(GameCleanupJob))

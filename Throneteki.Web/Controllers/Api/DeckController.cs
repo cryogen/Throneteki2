@@ -8,7 +8,6 @@ using OpenIddict.Validation.AspNetCore;
 using System.Linq.Dynamic.Core;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading;
 using Throneteki.Data;
 using Throneteki.Data.Models;
 using Throneteki.Web.Models;
@@ -44,7 +43,7 @@ public class DeckController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddDeck(AddDeckRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -70,7 +69,7 @@ public class DeckController : ControllerBase
     [HttpPut("{deckId}")]
     public async Task<IActionResult> EditDeck(EditDeckRequest request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -107,7 +106,7 @@ public class DeckController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetDecks([FromQuery] string? restrictedList, [FromQuery] DataLoadOptions options)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -119,7 +118,7 @@ public class DeckController : ControllerBase
     [HttpGet("{deckId}")]
     public async Task<IActionResult> GetDeck(int deckId, [FromQuery] string? restrictedList)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -147,7 +146,7 @@ public class DeckController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteDecks(DeleteDecksRequest request)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -164,7 +163,7 @@ public class DeckController : ControllerBase
     [HttpDelete("{deckId}")]
     public async Task<IActionResult> DeleteDeck(int deckId)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -192,7 +191,7 @@ public class DeckController : ControllerBase
     [HttpGet("groupFilter")]
     public async Task<IActionResult> GetGroupFilterForDecks(string column, [FromQuery] DataLoadOptions options)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -214,7 +213,7 @@ public class DeckController : ControllerBase
     [HttpGet("thronesdb/status")]
     public async Task<IActionResult> GetThronesDbLinkStatus()
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -263,7 +262,7 @@ public class DeckController : ControllerBase
     [HttpPost("thronesdb/sync")]
     public async Task<IActionResult> SyncThronesDbDecks(CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -335,7 +334,7 @@ public class DeckController : ControllerBase
     [HttpGet("thronesdb")]
     public async Task<IActionResult> GetThronesDbDecks(CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -412,7 +411,7 @@ public class DeckController : ControllerBase
     [HttpPost("thronesdb")]
     public async Task<IActionResult> ImportThronesDbDecks([FromBody] IEnumerable<int> deckIds, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();
@@ -536,7 +535,7 @@ public class DeckController : ControllerBase
     [HttpPost("{deckId}/toggleFavourite")]
     public async Task<IActionResult> ToggleFavouriteDeck(int deckId)
     {
-        var user = await _userManager.FindByNameAsync(User.Identity!.Name);
+        var user = await _userManager.FindByNameAsync(User.Identity?.Name ?? throw new InvalidOperationException("User name null"));
         if (user == null)
         {
             return Unauthorized();

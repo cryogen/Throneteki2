@@ -50,13 +50,13 @@ public class UserinfoController : Controller
 
         if (User.HasScope(OpenIddictConstants.Scopes.Email))
         {
-            claims[OpenIddictConstants.Claims.Email] = await _userManager.GetEmailAsync(user);
+            claims[OpenIddictConstants.Claims.Email] = await _userManager.GetEmailAsync(user) ?? string.Empty;
             claims[OpenIddictConstants.Claims.EmailVerified] = await _userManager.IsEmailConfirmedAsync(user);
         }
 
         if (User.HasScope(OpenIddictConstants.Scopes.Phone))
         {
-            claims[OpenIddictConstants.Claims.PhoneNumber] = await _userManager.GetPhoneNumberAsync(user);
+            claims[OpenIddictConstants.Claims.PhoneNumber] = await _userManager.GetPhoneNumberAsync(user) ?? string.Empty;
             claims[OpenIddictConstants.Claims.PhoneNumberVerified] = await _userManager.IsPhoneNumberConfirmedAsync(user);
         }
 

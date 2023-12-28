@@ -125,7 +125,7 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             messages = messages.Where(m => !user.BlockListEntries.Any(bl => bl.BlockedUserId == m.User.Id) &&
                                            !m.User.BlockList.Any(bl => bl.UserId == user.Id)).ToList();
 
-            roles.AddRange(user.UserRoles.Select(ur => ur.Role.Name));
+            roles.AddRange(user.UserRoles.Select(ur => ur.Role.Name ?? $"Role: {ur.Role.Id}"));
         }
 
         if (user == null || !roles.Contains(Roles.ChatManager))
@@ -205,7 +205,7 @@ public class ThronetekiServiceImpl : ThronetekiService.ThronetekiServiceBase
             var dbPlayer = new GamePlayer
             {
                 DeckId = player.DeckId,
-                Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player)
+                Player = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserName == player.Player) ?? throw new InvalidOperationException()
             };
 
             dbGame.Players.Add(dbPlayer);

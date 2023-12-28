@@ -144,7 +144,7 @@ public class UserController : ControllerBase
             return NotFound();
         }
 
-        var blockedUser = await _userManager.FindByNameAsync(request.UserName);
+        var blockedUser = await _userManager.FindByNameAsync(request.UserName ?? string.Empty);
         if (blockedUser == null)
         {
             return BadRequest(new
@@ -203,7 +203,7 @@ public class UserController : ControllerBase
         {
             Data = new ThronesDbLinkResponse
             {
-                Location = HttpContext.Response.Headers["location"].First()
+                Location = HttpContext.Response.Headers.Location.First() ?? throw new InvalidOperationException("No location header")
             },
             Success = true
         });

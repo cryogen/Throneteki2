@@ -19,9 +19,14 @@ var settingsSection = builder.Configuration.GetSection("Settings");
 
 builder.Services.AddCors(options =>
 {
+    if (string.IsNullOrEmpty(settingsSection["CorsOrigins"]))
+    {
+        return;
+    }
+
     options.AddPolicy(corsPolicy,
         policyBuilder =>
-            policyBuilder.WithOrigins(settingsSection["CorsOrigins"].Split(',', StringSplitOptions.RemoveEmptyEntries))
+            policyBuilder.WithOrigins(settingsSection["CorsOrigins"]!.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 .SetIsOriginAllowedToAllowWildcardSubdomains()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
@@ -59,7 +64,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddQuartz(options =>
 {
-    options.UseMicrosoftDependencyInjectionJobFactory();
     options.UseSimpleTypeLoader();
     options.UseInMemoryStore();
 });
@@ -82,14 +86,12 @@ builder.Services.AddOpenIddict()
 
         if (builder.Environment.IsDevelopment())
         {
-            Console.WriteLine("dev");
-
             options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
         }
-        else
+        else if(!string.IsNullOrEmpty(settingsSection["EncryptionCertificatePath"]) && !string.IsNullOrEmpty(settingsSection["SigningCertificatePath"]))
         {
-            options.AddEncryptionCertificate(new X509Certificate2(settingsSection["EncryptionCertificatePath"]))
-                .AddSigningCertificate(new X509Certificate2(settingsSection["SigningCertificatePath"]));
+            options.AddEncryptionCertificate(new X509Certificate2(settingsSection["EncryptionCertificatePath"]!))
+                .AddSigningCertificate(new X509Certificate2(settingsSection["SigningCertificatePath"]!));
         }
 
         options.RegisterScopes(OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles, "api", "lobby");
@@ -126,11 +128,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapDefaultControllerRoute();
-});
-
+app.MapControllers();
+app.MapDefaultControllerRoute();
 
 app.Run();

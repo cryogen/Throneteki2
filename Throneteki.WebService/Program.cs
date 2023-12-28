@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ThronetekiDbContext>(options => { options.UseNpgsq
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
-        options.SetIssuer(authServerUrl);
+        options.SetIssuer(authServerUrl ?? string.Empty);
         options.AddAudiences("throneteki-webservices");
 
         options.AddEncryptionKey(new SymmetricSecurityKey(
@@ -48,6 +48,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints => { endpoints.MapGrpcService<ThronetekiServiceImpl>(); });
+app.MapGrpcService<ThronetekiDbContext>();
 
 app.Run();

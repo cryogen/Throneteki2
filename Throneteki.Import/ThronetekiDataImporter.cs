@@ -1,9 +1,5 @@
 ﻿using JorgeSerrano.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -33,7 +29,7 @@ public class ThronetekiDataImporter : IHostedService
         _mapper = mapper;
         _database = connectionMultiplexer.GetDatabase();
 
-        _imagePath = configuration.GetValue<string>("Settings:ImagePath");
+        _imagePath = configuration.GetValue<string>("Settings:ImagePath") ?? string.Empty;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

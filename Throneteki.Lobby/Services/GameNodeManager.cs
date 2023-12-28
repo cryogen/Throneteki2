@@ -29,12 +29,12 @@ public class GameNodeManager
         _publisher = connectionMultiplexer.GetSubscriber();
         var subscriber = connectionMultiplexer.GetSubscriber();
 
-        subscriber.SubscribeAsync(LobbyCommands.Hello, HandleMessage<RedisIncomingMessage<HelloMessage>, HelloMessage>);
-        subscriber.SubscribeAsync(LobbyCommands.GameWin,
+        subscriber.SubscribeAsync(RedisChannel.Literal(LobbyCommands.Hello), HandleMessage<RedisIncomingMessage<HelloMessage>, HelloMessage>);
+        subscriber.SubscribeAsync(RedisChannel.Literal(LobbyCommands.GameWin),
             HandleMessage<RedisIncomingMessage<GameWonMessage>, GameWonMessage>);
-        subscriber.SubscribeAsync(LobbyCommands.GameClosed,
+        subscriber.SubscribeAsync(RedisChannel.Literal(LobbyCommands.GameClosed),
             HandleMessage<RedisIncomingMessage<GameClosedMessage>, GameClosedMessage>);
-        subscriber.SubscribeAsync(LobbyCommands.Pong, HandleMessage<RedisIncomingMessage<PongMessage>, PongMessage>);
+        subscriber.SubscribeAsync(RedisChannel.Literal(LobbyCommands.Pong), HandleMessage<RedisIncomingMessage<PongMessage>, PongMessage>);
     }
 
     public Dictionary<string, LobbyNode> GameNodes { get; } = new();
@@ -85,7 +85,7 @@ public class GameNodeManager
 
         var messageString = JsonSerializer.Serialize(outgoingMessage, _jsonOptions);
 
-        await _publisher.PublishAsync(command, messageString);
+        await _publisher.PublishAsync(RedisChannel.Literal(command), messageString);
     }
 
     private void HandleMessage<TOuter, TInner>(RedisChannel channel, RedisValue message)
