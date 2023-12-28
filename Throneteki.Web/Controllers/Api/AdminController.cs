@@ -107,7 +107,7 @@ public class AdminController : ControllerBase
         return Ok(new ApiResponse { Success = true });
     }
 
-    [HttpDelete]
+    [HttpDelete("news")]
     [Authorize(Roles = Roles.NewsManager)]
     public async Task<IActionResult> DeleteNews(DeleteNewsRequest request)
     {
