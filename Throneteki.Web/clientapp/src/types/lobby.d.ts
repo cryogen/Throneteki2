@@ -68,3 +68,10 @@ export interface HandOff {
 }
 
 export type Filter = Record<string, boolean>;
+
+export interface News {
+    id: number;
+    text: string;
+    publishedAt: Date;
+    publisher: string;
+}

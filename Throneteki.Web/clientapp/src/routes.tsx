@@ -13,19 +13,10 @@ import ProfilePage from './pages/account/ProfilePage';
 import UserAdminPage from './pages/admin/UserAdminPage';
 import PlayPage from './pages/PlayPage';
 import EditDeckPage from './pages/decks/EditDeckPage';
+import NewsAdminPage from './pages/admin/NewsAdminPage';
 
 const Routes = () => {
-    // const location = useLocation();
     const auth = useAuth();
-
-    // const path = location.pathname;
-
-    // const link = document.createElement('a');
-    // link.href = path;
-    // const returnUrl = `${link.protocol}//${link.host}${link.pathname}${link.search}${link.hash}`;
-    // const redirectUrl = `${ApplicationPaths.Login}?${
-    //     QueryParameterNames.ReturnUrl
-    // }=${encodeURIComponent(returnUrl)}`;
 
     return [
         { path: '/', element: <Lobby />, breadcrumb: 'Home' },
@@ -37,6 +28,8 @@ const Routes = () => {
         { path: '/account/profile', element: auth.user && <ProfilePage /> },
         { path: '/account/settings', element: auth.user && <SettingsPage /> },
         { path: '/admin/users', element: auth.user && <UserAdminPage /> },
+        { path: '/admin/news', element: auth.user && <NewsAdminPage /> },
+
         { path: '/decks', element: auth.user && <DecksPage /> },
         { path: '/decks/new', element: auth.user && <NewDeckPage /> },
         { path: '/decks/:deckId', element: auth.user && <DeckPage /> },

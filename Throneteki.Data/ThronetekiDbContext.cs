@@ -13,6 +13,7 @@ public class ThronetekiDbContext : IdentityDbContext<ThronetekiUser, ThronetekiR
     public DbSet<Deck> Decks => Set<Deck>();
     public DbSet<Faction> Factions => Set<Faction>();
     public DbSet<LobbyMessage> LobbyMessages => Set<LobbyMessage>();
+    public DbSet<NewsEntry> News => Set<NewsEntry>();
     public DbSet<Pack> Packs => Set<Pack>();
     public DbSet<Game> Games => Set<Game>();
     public DbSet<GamePlayer> GamePlayers => Set<GamePlayer>();

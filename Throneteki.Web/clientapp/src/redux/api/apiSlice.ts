@@ -14,7 +14,7 @@ export interface ApiError {
 export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: '/api',
-        prepareHeaders: (headers, {}) => {
+        prepareHeaders: (headers, _) => {
             const user = getUser();
             const token = user?.access_token;
             if (token) {
@@ -52,6 +52,15 @@ export const apiSlice = createApi({
     }) as BaseQueryFn<string | FetchArgs, unknown, ApiError, unknown>,
     tagTypes: Object.values(TagTypes),
     endpoints: (builder) => ({
+        addAdminNewsItem: builder.mutation({
+            query: (text) => ({
+                url: '/admin/news',
+                method: 'POST',
+                body: {
+                    text: text
+                }
+            })
+        }),
         addBlockListEntry: builder.mutation({
             query: (entry) => ({
                 url: `/user/${entry.userId}/blocklist`,
@@ -80,6 +89,16 @@ export const apiSlice = createApi({
                 method: 'DELETE',
                 body: {
                     deckIds: deckIds
+                }
+            }),
+            invalidatesTags: [TagTypes.Deck]
+        }),
+        deleteNewsAdmin: builder.mutation({
+            query: (newsIds) => ({
+                url: '/admin/news',
+                method: 'DELETE',
+                body: {
+                    newsIds: newsIds
                 }
             }),
             invalidatesTags: [TagTypes.Deck]
@@ -129,6 +148,12 @@ export const apiSlice = createApi({
                 }
             })
         }),
+        getNews: builder.query({
+            query: () => '/news'
+        }),
+        getNewsAdmin: builder.query({
+            query: () => '/admin/news'
+        }),
         getPacks: builder.query({
             query: () => '/data/packs'
         }),
@@ -168,6 +193,13 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: (result, error, arg) => [{ type: TagTypes.Deck, id: arg.id }]
         }),
+        saveNewsAdmin: builder.mutation({
+            query: ({ newsId, text }) => ({
+                url: `/admin/news/${newsId}`,
+                method: 'PATCH',
+                body: { text: text }
+            })
+        }),
         saveUser: builder.mutation({
             query: ({ userId, userDetails }) => ({
                 url: `/user/${userId}`,
@@ -192,16 +224,20 @@ export const apiSlice = createApi({
 });
 
 export const {
+    useAddAdminNewsItemMutation,
     useAddBlockListEntryMutation,
     useAddDeckMutation,
     useDeleteDeckMutation,
     useDeleteDecksMutation,
+    useDeleteNewsAdminMutation,
     useGetBlockListQuery,
     useGetCardsQuery,
     useGetDeckQuery,
     useGetDecksQuery,
     useGetFactionsQuery,
     useGetFilterOptionsForDecksQuery,
+    useGetNewsQuery,
+    useGetNewsAdminQuery,
     useGetPacksQuery,
     useGetRestrictedListQuery,
     useGetThronesDbDecksQuery,
@@ -212,6 +248,7 @@ export const {
     useLinkThronesDbAccountMutation,
     useToggleDeckFavouriteMutation,
     useSaveDeckMutation,
+    useSaveNewsAdminMutation,
     useSaveUserAdminMutation,
     useSaveUserMutation,
     useSyncThronesDbDecksMutation

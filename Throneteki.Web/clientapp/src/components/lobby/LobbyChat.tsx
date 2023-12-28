@@ -164,7 +164,7 @@ const LobbyChat = ({ messages, isModerator, onRemoveMessageClick }: LobbyChatPro
 
     return (
         <div
-            className='absolute bottom-[50px] left-2 right-0 top-3 overflow-y-auto'
+            className='absolute bottom-10 left-2 right-0 top-0 overflow-y-auto'
             ref={messageRef}
             onScroll={onScroll}
         >

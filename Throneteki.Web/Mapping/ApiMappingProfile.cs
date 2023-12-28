@@ -2,6 +2,7 @@
 using Throneteki.Data.Models;
 using Throneteki.Models.Models;
 using Throneteki.Web.Models.Decks;
+using Throneteki.Web.Models.News;
 
 namespace Throneteki.Web.Mapping;
 
@@ -34,5 +35,9 @@ public class ApiMappingProfile : Profile
 
         CreateMap<DeckWithStats, ApiDeck>()
             .ConstructUsing((deckWithStats, context) => context.Mapper.Map<ApiDeck>(deckWithStats.Deck));
+
+        CreateMap<NewsEntry, ApiNewsEntry>()
+            .ForMember(d => d.Publisher, cfg => cfg.MapFrom(s => s.PostedBy.UserName))
+            .ForMember(d => d.PublishedAt, cfg => cfg.MapFrom(s => s.PostedAt));
     }
 }

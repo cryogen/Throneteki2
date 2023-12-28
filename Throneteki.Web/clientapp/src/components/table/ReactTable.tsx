@@ -224,7 +224,7 @@ function ReactTable<T>({
     } else if (isError) {
         return <Alert variant='danger'>{t('An error occurred loading data.')}</Alert>;
     } else if (response[dataProperty] && response[dataProperty].length === 0) {
-        return <Alert variant={AlertType.Info}>{t('No data.')}</Alert>;
+        return <Alert variant={AlertType.Info}>{t('There is no data to display.')}</Alert>;
     }
 
     const currPage = table.getState().pagination.pageIndex + 1;

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { toastr } from 'react-redux-toastr';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { Input } from '@nextui-org/react';
 // import { Carousel } from 'react-responsive-carousel';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
-// import NewsComponent from '../Components/News/News';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import News from '../components/news/News';
 import Panel from '../components/site/Panel';
 import { lobbyActions } from '../redux/slices/lobbySlice';
 import { useAuth } from 'react-oidc-context';
 import LobbyChat from '../components/lobby/LobbyChat';
 import { Permission } from '../components/navigation/menus';
 import { ThronetekiUser } from '../types/user';
-import { Input } from '@nextui-org/react';
+import { useGetNewsQuery } from '../redux/api/apiSlice';
 // import { News } from '../redux/types';
 
 // import 'react-responsive-carousel/lib/styles/carousel.min.css';
@@ -27,6 +28,7 @@ const Lobby = () => {
 
     //     return retState;
     // });
+    const { data: news, isLoading: isNewsLoading } = useGetNewsQuery({});
     const [popupError, setPopupError] = useState(false);
     const [message, setMessage] = useState<string>('');
     const { t } = useTranslation();
@@ -123,12 +125,12 @@ const Lobby = () => {
                 )} */}
             <div>
                 <Panel title={t('Latest site news')}>
-                    {/* {apiState?.loading ? (
-                                <div>
-                                    <Trans>News loading, please wait...</Trans>
-                                </div>
-                            ) : null}
-                            <NewsComponent news={news} /> */}
+                    {isNewsLoading ? (
+                        <div>
+                            <Trans>News loading, please wait...</Trans>
+                        </div>
+                    ) : null}
+                    <News news={news || []} />
                 </Panel>
             </div>
             <Panel
