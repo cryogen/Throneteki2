@@ -107,7 +107,7 @@ public class DataInitialisationWorker : IHostedService
                 ClientId = "throneteki",
                 ConsentType = OpenIddictConstants.ConsentTypes.Implicit,
                 DisplayName = "Throneteki Frontend",
-                RedirectUris = { new Uri("https://localhost:44460/authentication/login-callback") },
+                RedirectUris = { new Uri("http://localhost:5173/authentication/login-callback") },
                 Permissions =
                 {
                     OpenIddictConstants.Permissions.Endpoints.Authorization,

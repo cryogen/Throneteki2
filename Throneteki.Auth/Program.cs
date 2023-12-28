@@ -74,11 +74,11 @@ builder.Services.AddOpenIddict()
     .AddCore(options => { options.UseEntityFrameworkCore().UseDbContext<ThronetekiDbContext>(); })
     .AddServer(options =>
     {
-        options.SetTokenEndpointUris("/connect/token");
-        options.SetAuthorizationEndpointUris("/connect/authorize");
-        options.SetLogoutEndpointUris("/connect/logout");
-        options.SetUserinfoEndpointUris("/connect/userinfo");
-        options.SetIntrospectionEndpointUris("/introspect");
+        options.SetTokenEndpointUris("connect/token");
+        options.SetAuthorizationEndpointUris("connect/authorize");
+        options.SetLogoutEndpointUris("connect/logout");
+        options.SetUserinfoEndpointUris("connect/userinfo");
+        options.SetIntrospectionEndpointUris("introspect");
 
         options.AllowClientCredentialsFlow().AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange().AllowRefreshTokenFlow();
 
