@@ -33,7 +33,6 @@ builder.Services.AddGrpc();
 
 builder.Services.AddAutoMapper(typeof(GrpcMappingProfile).Assembly, typeof(LobbyMappingProfile).Assembly);
 
-
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 var app = builder.Build();
@@ -48,6 +47,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGrpcService<ThronetekiDbContext>();
+app.MapGrpcService<ThronetekiServiceImpl>();
 
 app.Run();
