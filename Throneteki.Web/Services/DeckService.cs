@@ -105,11 +105,11 @@ public class DeckService
                 {
                     var filterList = filter.Value
                         .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
-                    baseQuery = baseQuery.Where("(@0).Contains(faction.name)", filterList);
+                    baseQuery = baseQuery.Where($"(@0).Contains(deck.{filter.Id})", filterList);
                 }
                 else
                 {
-                    baseQuery = baseQuery.Where($"{filter.Id}.Contains(@0)", filter.Value);
+                    baseQuery = baseQuery.Where($"deck.{filter.Id} == @0", filter.Value);
                 }
             }
         }

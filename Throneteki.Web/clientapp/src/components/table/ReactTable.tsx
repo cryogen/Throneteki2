@@ -113,6 +113,7 @@ function ReactTable<T>({
     );
     const [rowSelection, setRowSelection] = useState<Selection>(new Set([]));
     const [autoSorting, setAutoSorting] = useState<ColumnSort[]>([]);
+    const [isFilterPopOverOpen, setFilterPopOverOpen] = useState<{ [key: string]: boolean }>({});
 
     const fetchDataOptions = {
         columnFilters,
@@ -298,13 +299,37 @@ function ReactTable<T>({
                                 {flexRender(header.column.columnDef.header, header.getContext())}
                                 {header.column.columnDef.meta?.groupingFilter && (
                                     <>
-                                        <Popover placement='right'>
+                                        <Popover
+                                            placement='right'
+                                            isOpen={isFilterPopOverOpen[header.id]}
+                                            onOpenChange={(open) => {
+                                                isFilterPopOverOpen[header.id] = open;
+
+                                                const newState = Object.assign(
+                                                    {},
+                                                    isFilterPopOverOpen
+                                                );
+
+                                                setFilterPopOverOpen(newState);
+                                            }}
+                                        >
                                             <PopoverTrigger>
-                                                <FontAwesomeIcon icon={faFilter} />
+                                                <FontAwesomeIcon className='ml-1' icon={faFilter} />
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 {header.column.columnDef.meta?.groupingFilter(
-                                                    header.getContext().table
+                                                    header.getContext().table,
+                                                    () => {
+                                                        isFilterPopOverOpen[header.id] =
+                                                            !isFilterPopOverOpen[header.id];
+
+                                                        const newState = Object.assign(
+                                                            {},
+                                                            isFilterPopOverOpen
+                                                        );
+
+                                                        setFilterPopOverOpen(newState);
+                                                    }
                                                 )}
                                             </PopoverContent>
                                         </Popover>

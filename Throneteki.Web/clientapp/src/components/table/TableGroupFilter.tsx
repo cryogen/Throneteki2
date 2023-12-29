@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ColumnFilter } from '@tanstack/react-table';
 import LoadingSpinner from '../LoadingSpinner';
 import { Button, Checkbox } from '@nextui-org/react';
 
@@ -8,17 +7,26 @@ interface TableGroupFilterProps {
     args?: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fetchData: any;
-    filter: ColumnFilter;
+    filter: string[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onOkClick: (filter: any) => void;
+    onCancelClick: () => void;
 }
 
-const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilterProps) => {
+const TableGroupFilter = ({
+    args,
+    fetchData,
+    onOkClick,
+    filter,
+    onCancelClick
+}: TableGroupFilterProps) => {
     const { data, isLoading, isError } = fetchData(args);
     const initialFilterState: Record<string, boolean> = {};
 
-    if (filter?.value) {
-        for (const value of filter.value as string[]) {
+    console.info(filter);
+
+    if (filter) {
+        for (const value of filter) {
             initialFilterState[value] = true;
         }
     }
@@ -32,48 +40,52 @@ const TableGroupFilter = ({ args, fetchData, onOkClick, filter }: TableGroupFilt
     } else if (isError) {
         content = <div>Failed to load options</div>;
     } else {
-        content = data.map((option: string) => {
-            return (
-                <div key={option}>
-                    <Checkbox
-                        isSelected={filters[option]}
-                        onValueChange={(value) => {
-                            setFilters((prevState) => ({
-                                ...prevState,
-                                [option]: value
-                            }));
-                        }}
-                    >
-                        {option}
-                    </Checkbox>
-                </div>
-            );
-        });
+        content = (
+            <div>
+                {data.map((option: string) => {
+                    return (
+                        <div key={option}>
+                            <Checkbox
+                                isSelected={filters[option]}
+                                onValueChange={(value) => {
+                                    setFilters((prevState) => ({
+                                        ...prevState,
+                                        [option]: value
+                                    }));
+                                }}
+                            >
+                                {option}
+                            </Checkbox>
+                        </div>
+                    );
+                })}
+            </div>
+        );
     }
 
     return (
         <>
             {content}
-            <Button
-                color='primary'
-                onClick={() => {
-                    const filterResult = [];
+            <div className='mb-2 mt-2'>
+                <Button
+                    color='primary'
+                    onClick={() => {
+                        const filterResult = [];
 
-                    for (const [key, value] of Object.entries(filters)) {
-                        if (value) {
-                            filterResult.push(key);
+                        for (const [key, value] of Object.entries(filters)) {
+                            if (value) {
+                                filterResult.push(key);
+                            }
                         }
-                    }
-                    onOkClick(filterResult);
-
-                    document.body.click();
-                }}
-            >
-                Ok
-            </Button>
-            <Button className='ms-2' color='default' onClick={() => document.body.click()}>
-                Cancel
-            </Button>
+                        onOkClick(filterResult);
+                    }}
+                >
+                    Ok
+                </Button>
+                <Button className='ml-2' color='default' onClick={onCancelClick}>
+                    Cancel
+                </Button>
+            </div>
         </>
     );
 };

@@ -36,7 +36,7 @@ declare module '@tanstack/table-core' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface ColumnMeta<TData extends RowData, TValue> {
         colWidth: number | `${number}` | `${number}%`;
-        groupingFilter?: (table: Table<TData>) => JSX.Element;
+        groupingFilter?: (table: Table<TData>, onToggle: () => void) => JSX.Element;
     }
 }
 
@@ -96,17 +96,20 @@ const DeckList = ({ onDeckSelected, readOnly = false, restrictedList }: DeckList
                 },
                 meta: {
                     colWidth: '10%',
-                    groupingFilter: (table: Table<Deck>) => {
+                    groupingFilter: (table: Table<Deck>, onToggle: () => void) => {
                         return (
                             <TableGroupFilter
                                 onOkClick={(filter) => {
                                     if (filter.length > 0) {
                                         table.getColumn('faction.name').setFilterValue(filter);
                                     }
+
+                                    onToggle();
                                 }}
+                                onCancelClick={() => onToggle()}
                                 fetchData={useGetFilterOptionsForDecksQuery}
                                 filter={
-                                    table.getColumn('faction.name').getFilterValue() as ColumnFilter
+                                    table.getColumn('faction.name').getFilterValue() as string[]
                                 }
                                 args={{
                                     column: 'faction.name',
