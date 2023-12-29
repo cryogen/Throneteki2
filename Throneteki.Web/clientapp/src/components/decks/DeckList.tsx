@@ -8,7 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ColumnDef, ColumnFilter, RowData, Table } from '@tanstack/react-table';
+import { ColumnDef, RowData, Table } from '@tanstack/react-table';
 import moment from 'moment';
 import { useTranslation, Trans } from 'react-i18next';
 
