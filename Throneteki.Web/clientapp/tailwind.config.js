@@ -20,7 +20,10 @@ export default {
                 thenightswatch: '#7a7a7a',
                 tyrell: '#509f16',
                 emphasis: '#dc4787',
-                info: '#cff4fc'
+                info: '#cff4fc',
+                military: '#c72229',
+                intrigue: '#05552f',
+                power: '#2a2e5e'
             },
             flexGrow: {
                 2: '2',

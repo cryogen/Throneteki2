@@ -2,13 +2,14 @@ import { Trans } from 'react-i18next';
 
 import { News } from '../../types/lobby';
 import Alert from '../site/Alert';
+import NewsItem from './NewsItem';
 
 interface NewsProps {
     news: News[];
 }
 
 const News = ({ news }: NewsProps) => {
-    const icons = ['unforged-red', 'unforged-blue', 'unforged-yellow'];
+    const icons = ['military', 'intrigue', 'power'];
 
     let iconIndex = 0;
     let newsIndex = 0;
